@@ -8,11 +8,12 @@ env = os.environ.get("WEB_ENV", "development")
 print "Environment: %s" % env
 
 logging.basicConfig(filename='logs/%s.log' % env, level=logging.DEBUG)
-logger = logging.getLogger('webpy-skeleton')
+logger = logging.getLogger('webpy-blog')
 
-from playhouse.postgres_ext import PostgresqlExtDatabase
+#from playhouse.postgres_ext import PostgresqlExtDatabase
+#db = PostgresqlExtDatabase('webpy_skeleton', user='jzellman')
 
-db = PostgresqlExtDatabase('webpy_skeleton', user='jzellman')
+db_name = 'peewee.db'
 
 # Default settings. Override below
 web.config.debug = True
@@ -29,7 +30,7 @@ if env == 'production':
     cache = True
     email_errors.to_address = 'fixme@example.com'
 elif env == 'staging':
-    dac_host = '192.168.1.1:8000'
+    dac_host = 'localhost:8000'
     web.config.debug = True
     cache = False
     email_errors.to_address = 'fixme@example.com'

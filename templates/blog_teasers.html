@@ -1,0 +1,16 @@
+$def with(blog_posts)
+$for post in blog_posts:
+	$if loop.index % 2 == 1:
+		<div class="row">
+	$:render('singleteaser',post)
+	$if loop.index % 2 == 0:
+		</div>
+
+
+
+<div class="paging">
+    <a href="#" class="newer"><i class="icon-long-arrow-left"></i> Newer</a>
+    	<span>&bull;</span>
+    <a href="#" class="older">Older <i class="icon-long-arrow-right"></i></a>
+</div>
+                

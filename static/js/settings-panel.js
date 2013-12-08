@@ -1,0 +1,1 @@
+../../../private-resources/tales2/js/settings-panel.js

@@ -1,4 +1,4 @@
-$def with(title)
+$def with(blogpost,comments_html)
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -6,7 +6,7 @@ $def with(title)
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
 <head>
     <meta charset="utf-8">
-    <title>$title - Blog</title>
+    <title>$:(blogpost.title) - Blog</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 
@@ -83,6 +83,10 @@ $def with(title)
             <div class="container">
                 <div class="tales-breadcrumb">
                     <a href="#">Blog</a>
+                    <span class="separator">&#x2F;</span>
+                    <a href="#">Security</a>
+                    <span class="separator">&#x2F;</span>
+                    <a href="#">My Insightful Article</a>
                 </div>
 
                 <div class="tales-searchbox">
@@ -101,11 +105,52 @@ $def with(title)
         <div class="container">
             <div class="row">
                 <div class="col-md-8 blog-main">
-           		<!-- Start Render Blog Teasers -->
-                    $:render('blog_teasers',get_recent_posts(4))
-                <!-- End Render Blog Teasers -->
+                    <article class="blog-post">
+                        <header>
+                            <h1>$:(blogpost.title)</h1>
+                            <div class="lead-image">
+                                $:(blogpost.big_img)
+                                <div class="meta clearfix">
+                      
+                                    <div class="author">
+                                        <i class="icon-user"></i>
+                                        <span class="data">$:(blogpost.author)</span>
+                                    </div>
+                                    <div class="date">
+                                        <i class="icon-calendar"></i>
+                                        <span class="data">$:(blogpost.created_at)</span>
+                                    </div>
+                                    <div class="comments">
+                                        <i class="icon-comments"></i>
+                                        <span class="data"><a href="#comments">26 Comments</a></span>
+                                    </div>                                
+                                </div>
+                            </div>
+                        </header>
+                        <div class="body">
+                            $:(blogpost.html)
+                        </div>
+                    </article>
+
+                    <aside class="social-icons clearfix">
+                        <a href="#" class="social-icon color-one">
+                                <div class="inner-circle" ></div>
+                                <i class="icon-twitter"></i>
+                        </a>
+
+                        <a href="#" class="social-icon color-two">
+                                <div class="inner-circle" ></div>
+                                <i class="icon-google-plus"></i>
+                        </a>    
+
+                        <a href="#" class="social-icon color-three">
+                                <div class="inner-circle" ></div>
+                                <i class="icon-facebook"></i>
+                        </a>
+                    </aside>
+                    $:comments_html
                 </div>
-                <aside class="col-md-4 blog-aside">
+               <aside class="col-md-4 blog-aside">
                     
                     <div class="aside-widget">
            			<!-- Start Render read next -->
@@ -129,7 +174,7 @@ $def with(title)
         </div>
     </div>
 
-    <footer>
+       <footer>
         <div class="widewrapper footer">
             <div class="container">
                 <div class="row">
@@ -160,8 +205,8 @@ $def with(title)
         </div>
     </footer>
     
-    <script src="static/js/vendor/bootstrap/bootstrap.min.js"></script>
-    <script src="static/js/vendor/modernizr/modernizr.js"></script>
+    <script src="js/vendor/bootstrap/bootstrap.min.js"></script>
+    <script src="js/vendor/modernizr/modernizr.js"></script>
 
 </body>
 </html>

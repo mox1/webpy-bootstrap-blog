@@ -10,9 +10,10 @@ VERSION = "0.0.1"
 
 urls = (
     r'/', 'Index',
-    )
+    r'/post', 'BlogPost')
 
 app = web.application(urls, globals())
+
 
 # Allow session to be reloadable in development mode.
 if web.config.get('_session') is None:
@@ -38,22 +39,33 @@ def flash_messages(group=None):
         return web.ctx.flash
 
 render = web.template.render('templates/',
-                             base='base',
+                             #base='base',
                              cache=config.cache)
 t_globals = web.template.Template.globals
 t_globals['datestr'] = web.datestr
 t_globals['app_version'] = lambda: VERSION + ' - ' + config.env
 t_globals['flash_messages'] = flash_messages
 t_globals['render'] = lambda t, *args: render._template(t)(*args)
+t_globals['get_recent_posts'] = m.Post.get_recent
 
 
 class Index:
     def GET(self):
-        flash("success", """Welcome! Application code lives in app.py,
-        models in model.py, tests in test.py, and seed data in seed.py.""")
-        return render.index()
+        #flash("success", """Welcome! Application code lives in app.py,
+        #models in model.py, tests in test.py, and seed data in seed.py.""")
+        return render.index("Testing")
 
-
+class BlogPost:
+    def GET(self):
+        pid = -1
+        try:
+            pid = web.input().pid
+        except:
+            flash("failure", "Sorry, that post doesn't exist!")
+            return web.seeother("/")
+        post = m.Post.by_id(pid)
+        return render.blogdetail(post,render.comments())
+        
 # Set a custom internal error message
 def internalerror():
     msg = """
