@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 import web
-
+import datetime
 import config
 import model as m
 
@@ -10,7 +10,12 @@ VERSION = "0.0.1"
 
 urls = (
     r'/', 'Index',
-    r'/post', 'BlogPost')
+    r'/newest', 'IndexFull',
+    r'/post', 'BlogPost',
+    r'/about', 'About',
+    r'/credits','Credits',
+    r'/bycategory',"ByCategory",
+    r'/contactme', 'ContactMe')
 
 app = web.application(urls, globals())
 
@@ -47,13 +52,33 @@ t_globals['app_version'] = lambda: VERSION + ' - ' + config.env
 t_globals['flash_messages'] = flash_messages
 t_globals['render'] = lambda t, *args: render._template(t)(*args)
 t_globals['get_recent_posts'] = m.Post.get_recent
-
+t_globals['pretty_date'] = m.print_dates
+t_globals['fav_posts'] = m.Post.get_favs
+t_globals['next_posts'] = m.Post.get_next
+t_globals['recent_posts'] = m.Post.recent_posts
+t_globals['dt_now'] = datetime.datetime.now
 
 class Index:
     def GET(self):
-        #flash("success", """Welcome! Application code lives in app.py,
-        #models in model.py, tests in test.py, and seed data in seed.py.""")
-        return render.index("Testing")
+        flash("success", """Welcome! Application code lives in app.py,
+        models in model.py, tests in test.py, and seed data in seed.py.""")
+        return render.index("Home",m.Post.get_recent(4),None,None)
+
+class ByCategory:
+    def GET(self):
+        data = web.input()
+        cat= data.get("cat",None)
+        subcat = data.get("subcat",None)
+        print "By Category // %s // %s //" % (cat,subcat)
+        posts = m.Post.by_category(cat,subcat)
+        return render.index("%s / %s" % (cat,subcat),posts,cat,subcat)
+        
+        
+class IndexFull:
+    def GET(self):
+        #return the newest post
+        post = m.Post.nth_most_recent(1)
+        return render.blogdetail(post,render.comments())
 
 class BlogPost:
     def GET(self):
@@ -61,11 +86,32 @@ class BlogPost:
         try:
             pid = web.input().pid
         except:
-            flash("failure", "Sorry, that post doesn't exist!")
+            flash("error", "Sorry, that post doesn't exist!")
             return web.seeother("/")
         post = m.Post.by_id(pid)
         return render.blogdetail(post,render.comments())
         
+class About:
+    def GET(self):
+        return render.about(m.User.by_id(1))
+    
+class ContactMe:
+    def POST(self):
+        data = web.input()
+        print data
+        try:
+            web.sendmail(data.email, m.User.by_id(1).email, "Blog About Page Contact from: %s" % data.name, data.message)
+            flash("error","Thanks for Contacting me!")
+        except Exception,e:
+            flash("error","Sorry, there was a problem, message not sent")
+
+        return web.seeother("/")
+    
+class Credits:
+    def GET(self):
+        return render.credits(render.makecredits(m.Credit.get_all()))    
+    
+
 # Set a custom internal error message
 def internalerror():
     msg = """
@@ -83,6 +129,8 @@ if config.email_errors.to_address:
     app.internalerror = web.emailerrors(config.email_errors.to_address,
                                         app.internalerror,
                                         config.email_errors.from_address)
+
+
 
 
 # Adds a wsgi callable for uwsgi

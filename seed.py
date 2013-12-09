@@ -25,7 +25,7 @@ Does your lorem ipsum text long for something a little meatier? Give our generat
 
 
 def init():
-    models = [m.User,m.Post]
+    models = [m.User,m.Post,m.Credit]
     for t in reversed(models):
         logger.debug("Dropping %s" % t)
         t.drop_table(True)
@@ -38,12 +38,49 @@ def init():
 
 def seed():
     init()
+    #add dummy user
     u = m.User.create_user(name='testuser',email='test@example.com',password='testy')
-    print u
-    m.Post.new_post(title="1st Post!",tags="blog,intro,example",author_id=u.id,html=html1,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">")
-    m.Post.new_post(title="What a wonderful Thing",tags="intro,wonder,cat",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">")
-    m.Post.new_post(title="Yet another Example Post",tags="example,post,dog",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">")
-    m.Post.new_post(title="Why thingX sucks",tags="thingX,rant",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">")
+    #add dummy credits
+    m.Credit.create(url="""<img src="static/img/cat.png" class="img-responsive" alt="Cat">""",
+                    alt='',
+                    title="Innocence",
+                    author="""<a href="http://500px.com/RKingston" target="_blank">Rochelle Kingston</a>""",
+                    link="""<a href="http://500px.com/photo/39364720" target="_blank">http://500px.com/photo/39364720</a>""",
+                    license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
+                    )
+    m.Credit.create(url="""<img src="static/img/hands.png" class="img-responsive" alt="Hands">""",
+                    alt='',
+                    title="The Dirt of Coal",
+                    author="""<a href="http://500px.com/NadavYacobi" target="_blank">Nadav Yacobi</a>""",
+                    link="""<a href="http://500px.com/photo/30720921" target="_blank">http://500px.com/photo/30720921</a>""",
+                    license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
+                    )
+    m.Credit.create(url="""<img src="static/img/bike.png" class="img-responsive" alt="Bike">""",
+                    alt='',
+                    title="Reserved",
+                    author="""<a href="http://500px.com/MartinHricko" target="_blank">Martin Hricko</a>""",
+                    link="""<a href="http://500px.com/photo/8849012" target="_blank">http://500px.com/photo/8849012</a>""",
+                    license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
+                    )
+    m.Credit.create(url="""<img src="static/img/violin.png" class="img-responsive" alt="Violin">""",
+                    alt='',
+                    title="Passion",
+                    author="""<a href="http://500px.com/MartinHricko"  target="_blank">Martin Hricko</a>""",
+                    link="""<a href="http://500px.com/photo/20808109" target="_blank">http://500px.com/photo/20808109</a>""",
+                    license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
+                    )
+    m.Credit.create(url="""<img src="static/img/smartguy.png" class="img-responsive" alt="SmartGuy">""",
+                    alt='',
+                    title="Stranger #7",
+                    author="""<a href="http://500px.com/enthuan" target="_blank">Antoine Robiez</a>""",
+                    link="""<a href="http://500px.com/photo/36102156" target="_blank">http://500px.com/photo/36102156</a>""",
+                    license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
+                    )
+    #add some dummy posts
+    m.Post.new_post(title="1st Post!",tags="blog,intro,example",author_id=u.id,html=html1,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Rants")
+    m.Post.new_post(title="What a wonderful Thing",tags="intro,wonder,cat",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Misc",fav=True)
+    m.Post.new_post(title="Yet another Example Post",tags="example,post,dog",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Python",subcat="Django")
+    m.Post.new_post(title="Why thingX sucks",tags="thingX,rant",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Robots")
 
 if __name__ == "__main__":
     seed()

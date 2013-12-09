@@ -1,4 +1,4 @@
-$def with(title)
+$def with(title,teasers,cat,subcat)
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -37,79 +37,22 @@ $def with(title)
     
 </head>
 <body>
-    <header>
-        <div class="widewrapper masthead">
-            <div class="container">
-                <a href="index.html" id="logo">
-                    <img src="static/img/tales-logo.png" alt="Tales Blog">
-                </a>
-
-                <div id="mobile-nav-toggle" class="pull-right">
-                    <a href="#" data-toggle="collapse" data-target=".tales-nav .navbar-collapse">
-                        <i class="icon-reorder"></i>
-                    </a>
-                </div>
-
-                <nav class="pull-right tales-nav">
-                    <div class="collapse navbar-collapse">
-                        <ul class="nav nav-pills navbar-nav">
-                          
-                            <li class="dropdown active">
-                                <a class="dropdown-toggle"
-                                   data-toggle="dropdown"
-                                   href="#">
-                                    Blog 
-                                    <b class="caret"></b>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="index.html">Blog</a></li>
-                                    <li><a href="blog-detail.html">Blog Detail</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="about.html">About</a>
-                            </li>
-                            <li>
-                                <a href="credits.html">Credits</a>
-                            </li>                        
-                        </ul>
-                    </div>
-                </nav>        
-
-            </div>
-        </div>
-
-        <div class="widewrapper subheader">
-            <div class="container">
-                <div class="tales-breadcrumb">
-                    <a href="#">Blog</a>
-                </div>
-
-                <div class="tales-searchbox">
-                    <form action="#" method="get" accept-charset="utf-8">
-                        <button class="searchbutton" type="submit">
-                            <i class="icon-search"></i>
-                        </button>
-                        <input class="searchfield" id="searchbox" type="text" placeholder="Search">
-                    </form>
-                </div>
-            </div>
-        </div>
-    </header>
+    $:render('header','Blog',cat,subcat)
 
     <div class="widewrapper main">
         <div class="container">
             <div class="row">
                 <div class="col-md-8 blog-main">
+                    $:render('flash_messages', 'success')
+       				$:render('flash_messages', 'error')
            		<!-- Start Render Blog Teasers -->
-                    $:render('blog_teasers',get_recent_posts(4))
+                    $:render('blog_teasers',teasers)
                 <!-- End Render Blog Teasers -->
                 </div>
                 <aside class="col-md-4 blog-aside">
-                    
                     <div class="aside-widget">
            			<!-- Start Render read next -->
-                    $:render('side-readnext')
+                    $:render('side-readnext',dt_now())
                 	<!-- End Render read next -->
                     </div>
                 

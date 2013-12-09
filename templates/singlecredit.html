@@ -1,0 +1,18 @@
+$def with(credit)
+<div class="col-md-2 col-sm-4 image">
+	$:(credit.url)
+</div>
+<div class="col-md-4 col-sm-8 details">
+    <h3>$:(credit.title)</h3>
+    <div class="author">
+        <span class="bold">Author:</span>
+        $:(credit.author)
+    </div>
+    <div class="link">
+    	$:(credit.link)
+    </div>
+    <div class="license">
+        <span class="bold">License:</span>
+        $:(credit.license)
+    </div>
+</div>

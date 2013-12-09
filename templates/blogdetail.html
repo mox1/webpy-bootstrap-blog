@@ -37,69 +37,7 @@ $def with(blogpost,comments_html)
     
 </head>
 <body>
-    <header>
-        <div class="widewrapper masthead">
-            <div class="container">
-                <a href="index.html" id="logo">
-                    <img src="static/img/tales-logo.png" alt="Tales Blog">
-                </a>
-
-                <div id="mobile-nav-toggle" class="pull-right">
-                    <a href="#" data-toggle="collapse" data-target=".tales-nav .navbar-collapse">
-                        <i class="icon-reorder"></i>
-                    </a>
-                </div>
-
-                <nav class="pull-right tales-nav">
-                    <div class="collapse navbar-collapse">
-                        <ul class="nav nav-pills navbar-nav">
-                          
-                            <li class="dropdown active">
-                                <a class="dropdown-toggle"
-                                   data-toggle="dropdown"
-                                   href="#">
-                                    Blog 
-                                    <b class="caret"></b>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="index.html">Blog</a></li>
-                                    <li><a href="blog-detail.html">Blog Detail</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="about.html">About</a>
-                            </li>
-                            <li>
-                                <a href="credits.html">Credits</a>
-                            </li>                        
-                        </ul>
-                    </div>
-                </nav>        
-
-            </div>
-        </div>
-
-        <div class="widewrapper subheader">
-            <div class="container">
-                <div class="tales-breadcrumb">
-                    <a href="#">Blog</a>
-                    <span class="separator">&#x2F;</span>
-                    <a href="#">Security</a>
-                    <span class="separator">&#x2F;</span>
-                    <a href="#">My Insightful Article</a>
-                </div>
-
-                <div class="tales-searchbox">
-                    <form action="#" method="get" accept-charset="utf-8">
-                        <button class="searchbutton" type="submit">
-                            <i class="icon-search"></i>
-                        </button>
-                        <input class="searchfield" id="searchbox" type="text" placeholder="Search">
-                    </form>
-                </div>
-            </div>
-        </div>
-    </header>
+    $:render('header','Blog',blogpost.category,blogpost.subcategory)
 
     <div class="widewrapper main">
         <div class="container">
@@ -118,7 +56,7 @@ $def with(blogpost,comments_html)
                                     </div>
                                     <div class="date">
                                         <i class="icon-calendar"></i>
-                                        <span class="data">$:(blogpost.created_at)</span>
+                                        <span class="data">$:pretty_date(blogpost.created_at)</span>
                                     </div>
                                     <div class="comments">
                                         <i class="icon-comments"></i>
@@ -154,7 +92,7 @@ $def with(blogpost,comments_html)
                     
                     <div class="aside-widget">
            			<!-- Start Render read next -->
-                    $:render('side-readnext')
+                    $:render('side-readnext',blogpost.created_at)
                 	<!-- End Render read next -->
                     </div>
                 
@@ -205,8 +143,7 @@ $def with(blogpost,comments_html)
         </div>
     </footer>
     
-    <script src="js/vendor/bootstrap/bootstrap.min.js"></script>
-    <script src="js/vendor/modernizr/modernizr.js"></script>
-
+    <script src="static/js/vendor/bootstrap/bootstrap.min.js"></script>
+    <script src="static/js/vendor/modernizr/modernizr.js"></script>
 </body>
 </html>

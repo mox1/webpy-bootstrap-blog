@@ -36,3 +36,4 @@ nosetests.xml
 
 sessions/
 logs/*.log
+peewee.db

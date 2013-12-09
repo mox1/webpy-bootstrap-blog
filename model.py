@@ -40,6 +40,28 @@ class BaseModel(Model):
             setattr(self, field, value)
         return self.save()
     
+class Credit(BaseModel):
+    url = pw.CharField(max_length=4096,null=False)
+    alt = pw.CharField(max_length=512,null=True)
+    title = pw.CharField(max_length=1024,null=True)
+    author = pw.CharField(max_length=1024,null=True)
+    link = pw.CharField(max_length=4096,null=False)
+    license = pw.CharField(max_length=1024,null=False)
+    
+    @staticmethod
+    def get_all():
+        return Credit.select()
+    
+    @staticmethod
+    def by_id(id):
+        u = None
+        try:
+            u=Credit.get(Credit.id == id)
+        except: 
+            return None
+        return u
+
+    
     
 class User(BaseModel):
     name = pw.CharField(max_length=200, null=False)
@@ -91,13 +113,53 @@ class Post(BaseModel):
     tags = pw.TextField(null=True) 
     author = pw.ForeignKeyField(User)
     updated = pw.DateTimeField(null=True)
+    category = pw.CharField(max_length=256,null=True)
+    subcategory = pw.CharField(max_length=256,null=True)
     html = pw.TextField(null=False)
+    favorite = pw.BooleanField(default=False)
+    public = pw.BooleanField(default=True)
+    
     
     @staticmethod
-    def new_post(title,tags,author_id,html,img,bimg):
+    def by_category(cat,subcat):
+        posts = None
+        if subcat == None:
+            posts = Post.select().where(Post.category == cat).order_by(Post.created_at.desc())
+        else:
+            posts = Post.select().where(Post.category == cat).where(Post.subcategory == subcat).order_by(Post.created_at.desc())
+            
+        return posts
+    
+    @staticmethod
+    #get the next amt posts afer date
+    def get_next(date,amt=5):
+        #get original post
+        #op = Post.get(id = id)
+        posts = Post.select().where(Post.created_at > date).order_by(Post.created_at.desc()).limit(amt)
+        
+        return posts
+    
+    @staticmethod
+    def get_favs(amt=5):
+        posts = Post.select().where(Post.favorite == True).order_by(Post.created_at.desc()).limit(amt)
+        #print "Favorite posts:" + posts
+        return posts
+    @staticmethod
+    def nth_most_recent(n):
+        posts = Post.select().order_by(Post.created_at.desc()).limit(n)
+        for item in posts:
+            pass
+        return item
+    @staticmethod
+    def recent_posts(n):
+        return Post.select().order_by(Post.created_at.desc()).limit(n)
+    
+    @staticmethod
+    def new_post(title,tags,author_id,html,img,bimg,cat=None,subcat=None,fav = False):
         #get user by id
         user = User.by_id(author_id)
-        p = Post.create(title=title,tags=tags,author=user,html=html,title_img=img,big_img=bimg,created_at=datetime.now())
+        p = Post.create(title=title,tags=tags,author=user,html=html,
+                        title_img=img,big_img=bimg,created_at=datetime.now(),favorite=fav,category=cat,subcategory=subcat)
 
     @staticmethod
     def by_id(id):
@@ -110,8 +172,12 @@ class Post(BaseModel):
     
     @staticmethod
     def get_recent(num):
-        return Post.select().order_by(Post.created_at.desc()).limit(num)
-        
+        return Post.select().order_by(Post.created_at.asc()).limit(num)
+
+
+
+def print_dates(d):
+    return d.strftime("%B %d %Y ")        
         
     
 def create_salt(email):
@@ -128,7 +194,6 @@ try:
     pre_save.disconnect(name='crypt_password_before_save')
 except:
     pass
-
 
 @pre_save(sender=User)
 def crypt_password_before_save(model_class, instance, created):

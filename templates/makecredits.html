@@ -1,0 +1,7 @@
+$def with(credits)
+$for credit in credits:
+	$if loop.index % 2 == 1:
+		<div class="row credits">
+	$:render('singlecredit',credit)
+	$if loop.index % 2 == 0:
+		</div>
