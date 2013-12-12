@@ -1,112 +1,50 @@
-$def with()
+$def with(count,comments)
 <aside class="comments" id="comments">
-                        <hr>
+	<hr>
+	<h2><i class="icon-comments"></i> $count Comments</h2>
+	$for comment in comments:
+    	$ indent = comment.indent
+		$ indent_txt = ""
+		$while indent != 0:
+			$ indent_txt += " reply"
+			$ indent = indent - 1
+		<article class="comment $:(indent_txt)">
+		<header class="clearfix">
+		<img src="static/img/avatar.png" alt="A Smart Guy" class="avatar">
+		<div class="meta">
+		<h3><a href="#">$:(comment.author)</a></h3>
+		<span class="date"> $:(comment.created_at)</span>
+		<span class="separator">-</span>
+		<a href="#create-comment" class="reply-link">Reply</a>                
+		</div>
+		</header>
+		<div class="body">
+		$:(comment.text)
+		</div>
+		</article>
 
-                        <h2><i class="icon-comments"></i> 24 Comments</h2>
+<aside class="create-comment" id="create-comment">
+    <hr>    
 
-                        <article class="comment">
-                            <header class="clearfix">
-                                <img src="static/img/avatar.png" alt="A Smart Guy" class="avatar">
-                                <div class="meta">
-                                    <h3><a href="#">Willie Wonka</a></h3>
-                                    <span class="date">
-                                        27 July 2013
-                                    </span>
-                                    <span class="separator">
-                                        -
-                                    </span>
-                                    
-                                    <a href="#create-comment" class="reply-link">Reply</a>                
-                                </div>
-                            </header>
-                             <div class="body">
-                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut  liquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-                            </div>
-                        </article>
+    <h2><i class="icon-heart"></i> Add Comment</h2>
 
-                        <article class="comment reply">
-                            <header class="clearfix">
-                                <img src="static/img/avatar.png" alt="A Smart Guy" class="avatar">
-                                <div class="meta">
-                                    <h3><a href="#">Willy Wonka</a></h3>
-                                    <span class="date">
-                                        27 July 2013
-                                    </span>
-                                    <span class="separator">
-                                        -
-                                    </span>
-                                    
-                                    <a href="#create-comment" class="reply-link">Reply</a>                
-                                </div>
-                            </header>
-                             <div class="body">
-                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut  liquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-                            </div>
-                        </article>
+    <form action="#" method="get" accept-charset="utf-8">
+        <div class="row">
+            <div class="col-md-6">
+                <input type="text" name="name" id="comment-name" placeholder="Name" class="form-control input-lg">    
+            </div>
+            <div class="col-md-6">
+                <input type="email" name="email" id="comment-email" placeholder="Email" class="form-control input-lg">    
+            </div>
+        </div>
 
-                        <article class="comment ">
-                            <header class="clearfix">
-                                <img src="img/avatar.png" alt="A Smart Guy" class="avatar">
-                                <div class="meta">
-                                    <h3><a href="#">Willy Wonka</a></h3>
-                                    <span class="date">
-                                        27 July 2013
-                                    </span>
-                                    <span class="separator">
-                                        -
-                                    </span>
-                                    
-                                    <a href="#create-comment" class="reply-link">Reply</a>                
-                                </div>
-                            </header>
-                             <div class="body">
-                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut  liquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-                            </div>
-                        </article>
+        <input type="url" name="name" id="comment-url" placeholder="Website" class="form-control input-lg">
 
-                        <article class="comment">
-                            <header class="clearfix">
-                                <img src="img/avatar.png" alt="A Smart Guy" class="avatar">
-                                <div class="meta">
-                                    <h3><a href="#">Willy Wonka</a></h3>
-                                    <span class="date">
-                                        27 July 2013
-                                    </span>
-                                    <span class="separator">
-                                        -
-                                    </span>
-                                    
-                                    <a href="#create-comment" class="reply-link">Reply</a>                
-                                </div>
-                            </header>
-                             <div class="body">
-                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut  liquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-                            </div>
-                        </article>        
-                    </aside>
+        <textarea rows="10" name="message" id="comment-body" placeholder="Your thoughts..." class="form-control input-lg"></textarea>
 
-                    <aside class="create-comment" id="create-comment">
-                        <hr>    
-
-                        <h2><i class="icon-heart"></i> Add Comment</h2>
-
-                        <form action="#" method="get" accept-charset="utf-8">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <input type="text" name="name" id="comment-name" placeholder="Name" class="form-control input-lg">    
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="email" name="email" id="comment-email" placeholder="Email" class="form-control input-lg">    
-                                </div>
-                            </div>
-
-                            <input type="url" name="name" id="comment-url" placeholder="Website" class="form-control input-lg">
-
-                            <textarea rows="10" name="message" id="comment-body" placeholder="Your thoughts..." class="form-control input-lg"></textarea>
-
-                            <div class="buttons clearfix">
-                                <button class="btn btn-xlarge btn-tales-two">Cancel</button>
-                                <button type="submit" class="btn btn-xlarge btn-tales-one">Submit</button>
-                            </div>
-                        </form>
-                    </aside>
+        <div class="buttons clearfix">
+            <button class="btn btn-xlarge btn-tales-two">Cancel</button>
+            <button type="submit" class="btn btn-xlarge btn-tales-one">Submit</button>
+        </div>
+    </form>
+</aside>

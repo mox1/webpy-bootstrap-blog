@@ -15,6 +15,7 @@ urls = (
     r'/about', 'About',
     r'/credits','Credits',
     r'/bycategory',"ByCategory",
+    r'/newcomment',"AddComment",
     r'/contactme', 'ContactMe')
 
 app = web.application(urls, globals())
@@ -89,7 +90,8 @@ class BlogPost:
             flash("error", "Sorry, that post doesn't exist!")
             return web.seeother("/")
         post = m.Post.by_id(pid)
-        return render.blogdetail(post,render.comments())
+        count,comments = m.Comment.get_comments(post.id)
+        return render.blogdetail(post,render.comments(count,comments))
         
 class About:
     def GET(self):
@@ -111,7 +113,10 @@ class Credits:
     def GET(self):
         return render.credits(render.makecredits(m.Credit.get_all()))    
     
-
+class AddComment:
+    def GET(self):
+        data = web.input()
+        
 # Set a custom internal error message
 def internalerror():
     msg = """

@@ -1,3 +1,16 @@
 body {
     padding-top: 0px; /* 50px to make the container go all the way to the bottom of the topbar */
 }
+
+
+
+/*allow comments to go 3 levels deep 
+  after 3, they just line up 
+ * */
+.comment.reply + .comment.reply {
+    margin-right: 200px;
+}
+
+.comment.reply + .comment.reply + .comment.reply {
+    margin-right: 300px;
+}

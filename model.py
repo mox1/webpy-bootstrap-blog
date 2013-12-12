@@ -155,7 +155,7 @@ class Post(BaseModel):
         return Post.select().order_by(Post.created_at.desc()).limit(n)
     
     @staticmethod
-    def new_post(title,tags,author_id,html,img,bimg,cat=None,subcat=None,fav = False):
+    def new(title,tags,author_id,html,img,bimg,cat=None,subcat=None,fav = False):
         #get user by id
         user = User.by_id(author_id)
         p = Post.create(title=title,tags=tags,author=user,html=html,
@@ -175,6 +175,49 @@ class Post(BaseModel):
         return Post.select().order_by(Post.created_at.asc()).limit(num)
 
 
+class Comment(BaseModel):
+    title = pw.CharField(max_length=512,default="Comment")
+    author = pw.CharField(max_length=512,null=False)
+    auth_url = pw.CharField(max_length=2048,null=True)
+    post = pw.ForeignKeyField(Post,null=False)
+    text = pw.TextField(max_length=16656,null=False)
+    #meta-data
+    parent = pw.ForeignKeyField('self',related_name='children',null=True)
+    rank = pw.IntegerField(null=False,default=0)
+    indent = pw.IntegerField(null=False,default=0)
+
+    @staticmethod
+    def get_comments(postid):
+        count = Comment.select().where(Comment.post == postid).order_by(Comment.rank.asc()).count()
+        return (count,Comment.select().where(Comment.post == postid).order_by(Comment.rank.asc()))
+
+    @staticmethod
+    def new(postid,parentid,title,author,text):
+        #1 get parent
+        rank = 0
+        indent = 0
+        lastcomment = None
+        if parentid == -1:
+            #just insert at the end, 
+            c = Comment.select().where(Comment.post == postid).order_by(Comment.rank.desc()).limit(1).execute()
+            for lastcomment in c:
+                pass
+            if lastcomment != None:
+                rank = lastcomment.rank+1
+            else:
+                #this must be the first record!?!?
+                print "Inserting first record!"
+            return Comment.create(title=title,author=author,post=postid,text=text,rank=rank,indent=indent,created_at=datetime.now())
+        else:
+            parent=Comment.get(Comment.id==parentid)
+            #prep for insertion 
+            #update all old posts whose rank are greater than parent
+            Comment.update(rank=Comment.rank + 1).where(Comment.rank > parent.rank).execute()
+            #insert at rank of parent + 1 aka where we just made room
+            new_comment = Comment.create(title=title,author=author,post=postid,text=text,rank=parent.rank+1,indent=parent.indent+1,created_at=datetime.now())
+
+            return new_comment
+    
 
 def print_dates(d):
     return d.strftime("%B %d %Y ")        
@@ -194,6 +237,18 @@ try:
     pre_save.disconnect(name='crypt_password_before_save')
 except:
     pass
+
+
+#update comment display order when posting
+#see :http://evolt.org/node/4047/
+#@pre_save(sender=Comment)
+#def update_ranks(model_class,instance,created):
+#    if not instance.rank:
+#        return
+#    if created == True:
+#        Comment.update(rank=Comment.rank + 1).where(Comment.rank > instance.rank)
+#    else:
+#        print "in update_rank, but created was false"
 
 @pre_save(sender=User)
 def crypt_password_before_save(model_class, instance, created):

@@ -25,7 +25,7 @@ Does your lorem ipsum text long for something a little meatier? Give our generat
 
 
 def init():
-    models = [m.User,m.Post,m.Credit]
+    models = [m.User,m.Post,m.Credit,m.Comment]
     for t in reversed(models):
         logger.debug("Dropping %s" % t)
         t.drop_table(True)
@@ -77,10 +77,20 @@ def seed():
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
     #add some dummy posts
-    m.Post.new_post(title="1st Post!",tags="blog,intro,example",author_id=u.id,html=html1,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Rants")
-    m.Post.new_post(title="What a wonderful Thing",tags="intro,wonder,cat",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Misc",fav=True)
-    m.Post.new_post(title="Yet another Example Post",tags="example,post,dog",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Python",subcat="Django")
-    m.Post.new_post(title="Why thingX sucks",tags="thingX,rant",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Robots")
+    m.Post.new(title="1st Post!",tags="blog,intro,example",author_id=u.id,html=html1,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Rants")
+    m.Post.new(title="What a wonderful Thing",tags="intro,wonder,cat",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Misc",fav=True)
+    m.Post.new(title="Yet another Example Post",tags="example,post,dog",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Python",subcat="Django")
+    m.Post.new(title="Why thingX sucks",tags="thingX,rant",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Robots")
+    
+    #new
+    c1 = m.Comment.new(1,-1,"First Post!","BillyBob","nt")
+    #reply
+    c2 = m.Comment.new(1,c1.id,"First Reply!","Jane","Bob, you suck!")
+    #new
+    c3 = m.Comment.new(1,-1,"Great Idea","SuperMan","I love it, oh my gosh it totally rocks")
+    #sub-reply
+    c4 = m.Comment.new(1,c2.id,"Sub Reply","IhateJane","Jane, your crazy!!! Bob rocks!!!!")
+    
 
 if __name__ == "__main__":
     seed()
