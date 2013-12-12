@@ -10,6 +10,9 @@ print "Environment: %s" % env
 logging.basicConfig(filename='logs/%s.log' % env, level=logging.DEBUG)
 logger = logging.getLogger('webpy-blog')
 
+
+#db wildcard selector (for sqlite / mysql /etc) % or *
+db_wildcard = "*"
 #from playhouse.postgres_ext import PostgresqlExtDatabase
 #db = PostgresqlExtDatabase('webpy_skeleton', user='jzellman')
 

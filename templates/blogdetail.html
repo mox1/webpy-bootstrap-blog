@@ -104,7 +104,7 @@ $def with(blogpost,comments_html)
 
                     <div class="aside-widget">
 					<!-- Start Render author favs -->
-                    $:render('side-tags')
+                    $:render('side-tags',blogpost.tags,1)
                 	<!-- End Render author favs -->
                     </div>
                 </aside>

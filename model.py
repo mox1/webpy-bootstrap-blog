@@ -5,6 +5,7 @@ import peewee as pw
 from playhouse.signals import Model, pre_save
 from peewee import SqliteDatabase
 import config
+import operator
 
 DoesNotExist = pw.DoesNotExist
 SelectQuery = pw.SelectQuery
@@ -125,9 +126,15 @@ class Post(BaseModel):
         posts = None
         if subcat == None:
             posts = Post.select().where(Post.category == cat).order_by(Post.created_at.desc())
-        else:
+        else:   
             posts = Post.select().where(Post.category == cat).where(Post.subcategory == subcat).order_by(Post.created_at.desc())
             
+        return posts
+    
+    @staticmethod
+    def by_tag(tag):
+        search_str = "%s%s%s" % (config.db_wildcard,tag,config.db_wildcard)
+        posts = Post.select().where(Post.tags % search_str).order_by(Post.created_at.desc())
         return posts
     
     @staticmethod
@@ -173,6 +180,20 @@ class Post(BaseModel):
     @staticmethod
     def get_recent(num):
         return Post.select().order_by(Post.created_at.asc()).limit(num)
+    
+    #while this is here ,now we need to move it out to some type of static
+    #place and simply update it every time there is a new post
+    @staticmethod
+    def all_tags():
+        tag_map = {}
+        tags = Post.select(Post.tags)
+        for taglist in tags:
+            for tag in taglist.tags.split(","):
+                cur = tag_map.get(tag,0)
+                tag_map[tag] = cur+1
+        sorted_x = sorted(tag_map.iteritems(), key=operator.itemgetter(1),reverse=True)
+        print sorted_x
+        return sorted_x
 
 
 class Comment(BaseModel):

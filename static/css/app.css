@@ -8,9 +8,9 @@ body {
   after 3, they just line up 
  * */
 .comment.reply + .comment.reply {
-    margin-right: 200px;
+    margin-left: 200px;
 }
 
 .comment.reply + .comment.reply + .comment.reply {
-    margin-right: 300px;
+    margin-left: 300px;
 }

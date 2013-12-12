@@ -1,16 +1,14 @@
-$def with()
+$def with(tags,type)
                         <header>
                             <h3>Tags</h3>
                         </header>
                         <div class="body clearfix">
                             <ul class="tags">
-                                <li><a href="#">OpenPGP</a></li>
-                                <li><a href="#">Django</a></li>
-                                <li><a href="#">Bitcoin</a></li>
-                                <li><a href="#">Security</a></li>
-                                <li><a href="#">GNU/Linux</a></li>
-                                <li><a href="#">Git</a></li>
-                                <li><a href="#">Homebrew</a></li>
-                                <li><a href="#">Debian</a></li>                            
+                            	$if type == 1:
+                            		$for tag in tags.split(",")
+                                        <li><a href="tags?tag=$tag">$tag</a></li>
+                                 $else:
+                                 	$for tag,cnt in tags:
+                                        <li><a href="tags?tag=$tag">$tag</a></li>
                             </ul>
                         </div>
