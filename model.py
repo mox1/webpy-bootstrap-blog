@@ -120,21 +120,27 @@ class Post(BaseModel):
     favorite = pw.BooleanField(default=False)
     public = pw.BooleanField(default=True)
     
+    @staticmethod
+    def search(query,page=1,max=10):
+        search_str = "%s%s%s" % (config.db_wildcard,query,config.db_wildcard)
+        posts = Post.select().where( (Post.html % search_str) | (Post.title % search_str) |\
+                                     (Post.category % search_str) | (Post.subcategory % search_str) ).order_by(Post.created_at.desc()).paginate(page,max)
+        return posts
     
     @staticmethod
-    def by_category(cat,subcat):
+    def by_category(cat,subcat,page=1,max=10):
         posts = None
-        if subcat == None:
-            posts = Post.select().where(Post.category == cat).order_by(Post.created_at.desc())
+        if subcat == "":
+            posts = Post.select().where(Post.category == cat).order_by(Post.created_at.desc()).paginate(page,max)
         else:   
-            posts = Post.select().where(Post.category == cat).where(Post.subcategory == subcat).order_by(Post.created_at.desc())
+            posts = Post.select().where(Post.category == cat).where(Post.subcategory == subcat).order_by(Post.created_at.desc()).paginate(page,max)
             
         return posts
     
     @staticmethod
-    def by_tag(tag):
+    def by_tag(tag,page=1,max=10):
         search_str = "%s%s%s" % (config.db_wildcard,tag,config.db_wildcard)
-        posts = Post.select().where(Post.tags % search_str).order_by(Post.created_at.desc())
+        posts = Post.select().where(Post.tags % search_str).order_by(Post.created_at.desc()).paginate(page,max)
         return posts
     
     @staticmethod
@@ -178,8 +184,8 @@ class Post(BaseModel):
         return p
     
     @staticmethod
-    def get_recent(num):
-        return Post.select().order_by(Post.created_at.asc()).limit(num)
+    def get_recent(page=1,max=10):
+        return Post.select().order_by(Post.created_at.desc()).paginate(page,max)
     
     #while this is here ,now we need to move it out to some type of static
     #place and simply update it every time there is a new post

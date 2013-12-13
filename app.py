@@ -18,7 +18,8 @@ urls = (
     r'/bycategory',"ByCategory",
     r'/newcomment',"AddComment",
     r'/contactme', 'ContactMe',
-    r'/tags', 'Tags')
+    r'/tags', 'Tags',
+    r'/search', 'Search')
 
 app = web.application(urls, globals())
 
@@ -72,31 +73,36 @@ t_globals['tags'] = all_tags[0:5]
 
 class Index:
     def GET(self):
-        flash("success", """Welcome! Application code lives in app.py,
-        models in model.py, tests in test.py, and seed data in seed.py.""")
-
-        return render.index("Home",m.Post.get_recent(4),None,None)
+        data = web.input()
+        #by default we show page 1
+        #pages less than 1 show page 1
+        #when we are one page 2, next = 3, prev = 1
+        prev,next = calcprevnext(data)
+        posts = m.Post.get_recent(page=next,max=10)
+        return render.index("mox1's Blog",posts,None,None,"?n=%s" % (prev-1),"?n=%s" % (next+1))
 
 class ByCategory:
     def GET(self):
         data = web.input()
-        cat= data.get("cat",None)
-        subcat = data.get("subcat",None)
+        cat= data.get("cat","")
+        subcat = data.get("subcat","")
         print "By Category // %s // %s //" % (cat,subcat)
         
+        prev,next = calcprevnext(data)
         #special selector for "By Tag" , which is a "custom" category
         #this is effectively a page refresh, but lets do it
         if (cat == "By Tag"):
             if (subcat == None):
-                #use clicked on the "By Tag" link, not the tag itself
+                #user clicked on the "By Tag" link, not the tag itself
                 #send them to the homepage
                 return web.seeother(urls[0])
-            posts = m.Post.by_tag(subcat)
-            return render.index("Posts for tag %s" % subcat, posts, "By Tag",subcat)
+            posts = m.Post.by_tag(subcat,page=next,max=10)
+            return render.index("Blog Posts for tag %s" % subcat, posts, "By Tag",subcat,"tags?tag=%s&n=%s" % (subcat,(prev-1)),"tags?tag=%s&n=%s" % (subcat,(next+1)))
         
         else:
-            posts = m.Post.by_category(cat,subcat)
-            return render.index("%s / %s" % (cat,subcat),posts,cat,subcat)
+            posts = m.Post.by_category(cat,subcat,page=next,max=10)
+            return render.index("%s / %s" % (cat,subcat),posts,cat,subcat,
+                                "bycategory?cat=%s&subcat=%s&n=%s" % (cat,subcat,(prev-1)),"bycategory?cat=%s&subcat=%s&n=%s" % (cat,subcat,(next+1)))
         
 class Tags:
     def GET(self):
@@ -104,10 +110,27 @@ class Tags:
         tag = data.get("tag",None)
         if tag == None:
             flash("error","Sorry, no blog posts for tag %s" % tag)
-            return web.seeother(urls[0]) 
-        #drop down, we have a good tag
-        posts = m.Post.by_tag(tag)
-        return render.index("Posts for tag %s" % tag, posts, "By Tag",tag)
+            return web.seeother(urls[0])
+        prev,next = calcprevnext(data) 
+        #if we drop down here, we have a good tag
+        posts = m.Post.by_tag(tag,page=next,max=10)
+        return render.index("Blog Posts for tag %s" % tag, posts, "By Tag",tag,"tags?tag=%s&n=%s" % (tag,(prev-1)),"tags?tag=%s&n=%s" % (tag,(next+1)))
+
+class Search:
+    def GET(self):
+        data = web.input()
+        if "q" not in data:
+            flash("error","Search Error, query empty...")
+            return web.seeother(urls[0])
+        query = data['q']
+        #short querys are a heachache, lets avoid them
+        if len(query) < 3:
+            flash("error","Search string \"%s\" is too short." % q)
+            return web.seeother(ursl[0])
+        #if we drop in here, qo query
+        posts = m.Post.search(query)
+        return render.index("Search results for %s" % query, posts, "Search Results",query)
+
 class IndexFull:
     def GET(self):
         #return the newest post
@@ -150,6 +173,18 @@ class AddComment:
     def GET(self):
         data = web.input()
         
+#we can use next as the input to DB pagination queries
+#so we cant decrement by 1 in this function
+def calcprevnext(data):
+        try:
+            next = int(data.get("n","1"))
+        except:
+            next = 1
+        if next == 1:
+            prev = 2
+        else: 
+            prev = next
+        return (prev,next)
 # Set a custom internal error message
 def internalerror():
     msg = """

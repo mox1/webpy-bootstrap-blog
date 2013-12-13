@@ -1,20 +1,23 @@
-$def with(blog_posts)
+$def with(blog_posts,prev_url,next_url)
 
 $ li = 1
 $for post in blog_posts:
-	$ li = loop.index
+	$ li = loop.index + 1
 	$if loop.index % 2 == 1:
 		<div class="row">
 	$:render('singleteaser',post)
 	$if loop.index % 2 == 0:
 		</div>
 
-$if li % 2 == 1:
+$# If this is true, no results
+$if li == 1:
+	<div class="row"><p>Nothing found!</p></div>
+$if li % 2 == 0:
 	</div>
 
 <div class="paging">
-    <a href="#" class="newer"><i class="icon-long-arrow-left"></i> Newer</a>
+    <a href="$:next_url" class="newer"><i class="icon-long-arrow-left"></i> Older</a>
     	<span>&bull;</span>
-    <a href="#" class="older">Older <i class="icon-long-arrow-right"></i></a>
+    <a href="$:prev_url" class="older">Newer <i class="icon-long-arrow-right"></i></a>
 </div>
                 
