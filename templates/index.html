@@ -64,7 +64,7 @@ $def with(title,teasers,cat,subcat,prev,next)
 
                     <div class="aside-widget">
 					<!-- Start Render author favs -->
-                    $:render('side-tags',tags,2)
+                    $:render('side-tags',blog_data.popular_tags,1)
                 	<!-- End Render author favs -->
                     </div>
                 </aside>
@@ -98,7 +98,7 @@ $def with(title,teasers,cat,subcat,prev,next)
         </div>
         <div class="widewrapper copyright">
             <div class="container">
-                Copyright 2013, Blog Owner
+                Powered by blogstrap.py - <a href="github.com">Fork me on GitHub</a> 
             </div>
         </div>
     </footer>

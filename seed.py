@@ -25,7 +25,7 @@ Does your lorem ipsum text long for something a little meatier? Give our generat
 
 
 def init():
-    models = [m.User,m.Post,m.Credit,m.Comment]
+    models = [m.User,m.Post,m.Credit,m.Comment,m.BlogData]
     for t in reversed(models):
         logger.debug("Dropping %s" % t)
         t.drop_table(True)
@@ -38,8 +38,13 @@ def init():
 
 def seed():
     init()
+        
     #add dummy user
     u = m.User.create_user(name='testuser',email='test@example.com',password='testy')
+    
+        #Initialize BlogData table, always has 1 row
+    m.BlogData.initialize(title="My Testing Blog",adminurl="/testadmin",owner=u.id)
+    
     #add dummy credits
     m.Credit.create(url="""<img src="static/img/cat.png" class="img-responsive" alt="Cat">""",
                     alt='',

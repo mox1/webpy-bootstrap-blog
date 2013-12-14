@@ -1,0 +1,28 @@
+$def with(cur_post)
+<aside class="create-comment" id="create-comment">
+    <hr>    
+
+    <h2><i class="icon-heart"></i> Add Comment</h2>
+
+    <form action="newcomment" method="post" accept-charset="utf-8">
+        <div class="row">
+            <div class="col-md-6">
+                <input type="text" name="name" id="comment-name" placeholder="Name" class="form-control input-lg">    
+            </div>
+            <div class="col-md-6">
+                <input type="email" name="e" id="comment-email" placeholder="Email" class="form-control input-lg">    
+            </div>
+        </div>
+
+        <input type="text" name="title" id="input-comment-title" placeholder="Title..." class="form-control input-lg">
+
+        <textarea rows="10" name="message" id="comment-body" placeholder="Your thoughts..." class="form-control input-lg"></textarea>
+        <input type="hidden" name="pid" id="input-pid" value="$(cur_post.id)">
+        <input type="hidden" name="replyto" id="input-replyto" value="-1">
+        <input type="hidden" name="email" id="input-email" value="">
+        <div class="buttons clearfix">
+            <button class="btn btn-xlarge btn-tales-two">Cancel</button>
+            <button type="submit" class="btn btn-xlarge btn-tales-one" id="sbmt-btn">Submit</button>
+        </div>
+    </form>
+</aside>

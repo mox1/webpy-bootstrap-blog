@@ -67,6 +67,7 @@ class Credit(BaseModel):
 class User(BaseModel):
     name = pw.CharField(max_length=200, null=False)
     email = pw.CharField(max_length=200, null=False)
+    contact_html = pw.TextField(null=False,default="<a href=\"mailto:changethis@localhost.local\">changethis@localhost.local</a>" )
     crypted_password = pw.CharField(max_length=40, null=False)
     salt = pw.CharField(max_length=40, null=False)
     remember_token = pw.CharField(max_length=64, null=True)
@@ -119,7 +120,15 @@ class Post(BaseModel):
     html = pw.TextField(null=False)
     favorite = pw.BooleanField(default=False)
     public = pw.BooleanField(default=True)
+    views = pw.IntegerField(null=False,default=0)
+
+    #return the n most popular post, pased on views
+    #TODO: Determine the performance of this query
+    @staticmethod
+    def most_popular(n):
+        return Post.select().order_by(Post.views.desc()).limit(n)
     
+    #TODO: optimize this in some way, kludgy and slow, but works
     @staticmethod
     def search(query,page=1,max=10):
         search_str = "%s%s%s" % (config.db_wildcard,query,config.db_wildcard)
@@ -146,10 +155,12 @@ class Post(BaseModel):
     @staticmethod
     #get the next amt posts afer date
     def get_next(date,amt=5):
-        #get original post
-        #op = Post.get(id = id)
         posts = Post.select().where(Post.created_at > date).order_by(Post.created_at.desc()).limit(amt)
-        
+        return posts
+    @staticmethod
+    #get the previous amt posta before date
+    def get_prev(date,amt=5):
+        posts = Post.select().where(Post.created_at < date).order_by(Post.created_at.desc()).limit(amt)
         return posts
     
     @staticmethod
@@ -174,6 +185,8 @@ class Post(BaseModel):
         p = Post.create(title=title,tags=tags,author=user,html=html,
                         title_img=img,big_img=bimg,created_at=datetime.now(),favorite=fav,category=cat,subcategory=subcat)
 
+    #every time this is called, a pageview count is updated"
+    #only call this when you actually render the post
     @staticmethod
     def by_id(id):
         p = None
@@ -181,14 +194,17 @@ class Post(BaseModel):
             p=Post.get(Post.id==id)
         except: 
             return None
+        #Naive hit count
+        p.views += 1
+        p.save()
         return p
     
     @staticmethod
     def get_recent(page=1,max=10):
         return Post.select().order_by(Post.created_at.desc()).paginate(page,max)
     
-    #while this is here ,now we need to move it out to some type of static
-    #place and simply update it every time there is a new post
+    #This should *NEVER* be called on each page hit, it is an expensive query/op
+    #cached inside BlogData below
     @staticmethod
     def all_tags():
         tag_map = {}
@@ -208,7 +224,7 @@ class Comment(BaseModel):
     auth_url = pw.CharField(max_length=2048,null=True)
     post = pw.ForeignKeyField(Post,null=False)
     text = pw.TextField(max_length=16656,null=False)
-    #meta-data
+    email = pw.CharField(max_length=1024,null=False,default="none@none.net")
     parent = pw.ForeignKeyField('self',related_name='children',null=True)
     rank = pw.IntegerField(null=False,default=0)
     indent = pw.IntegerField(null=False,default=0)
@@ -219,7 +235,7 @@ class Comment(BaseModel):
         return (count,Comment.select().where(Comment.post == postid).order_by(Comment.rank.asc()))
 
     @staticmethod
-    def new(postid,parentid,title,author,text):
+    def new(postid,parentid,title,author,text,email="none@none.net"):
         #1 get parent
         rank = 0
         indent = 0
@@ -234,7 +250,7 @@ class Comment(BaseModel):
             else:
                 #this must be the first record!?!?
                 print "Inserting first record!"
-            return Comment.create(title=title,author=author,post=postid,text=text,rank=rank,indent=indent,created_at=datetime.now())
+            return Comment.create(title=title,author=author,post=postid,text=text,rank=rank,indent=indent,email=email,created_at=datetime.now())
         else:
             parent=Comment.get(Comment.id==parentid)
             #prep for insertion 
@@ -244,6 +260,59 @@ class Comment(BaseModel):
             new_comment = Comment.create(title=title,author=author,post=postid,text=text,rank=parent.rank+1,indent=parent.indent+1,created_at=datetime.now())
 
             return new_comment
+
+#this class / table performs 2 function
+# 1. it is used as an optimization
+#    holding the results of other queries that rarely change
+# 2. Holding static data (blog title, admin page, etc, etc
+# It really should only have 1 row
+class BlogData(BaseModel):
+    #informational fields 
+    title = pw.CharField(max_length=512,default="My Blog")
+    adminurl = pw.CharField(max_length=4096,default="/blogadmin")
+    contactline = pw.TextField(null=False,default="""I'm happy to hear from my readers. Thoughts, feedback, critique - all welcome! Drop me a line:""")
+    owner = pw.ForeignKeyField(User,null=True)
+    #statistical blog fields, will be updated from time to time
+    total_posts = pw.IntegerField(null=False,default=0)
+    total_comments = pw.IntegerField(null=False,default=0)
+    total_authors = pw.IntegerField(null=False,default=0)
+    #csv of the 10 most popular tags on the site
+    popular_tags = pw.TextField(null=False,default="")
+    
+    @staticmethod
+    def initialize(title,adminurl,owner):
+        #just insert 1 row of defaults
+        if BlogData.select(BlogData.id).count() > 1:
+            #we already have a row, go away
+            print "BlogData already initalized!"
+            return None
+        return BlogData.create(title=title,adminurl=adminurl,owner=owner,created_at=datetime.now())
+    
+    @staticmethod
+    def update_stats():
+        
+        tp = Post.select(Post.id).count()
+        tc = Comment.select(Comment.id).count()
+        ta = Post.select(Post.author).distinct().count() 
+        #all_tags returns a list of tuples [(tag,cnt),(tag,cnt)]
+        popular_tagstr = ""
+        for tag,cnt in Post.all_tags()[0:10]:
+            popular_tagstr += ",%s" % tag
+            
+        bdata = BlogData.select().limit(1).get()
+        bdata.total_posts = tp
+        bdata.total_comments = tc
+        bdata.total_authors = ta
+        bdata.popular_tags = popular_tagstr
+        bdata.save()
+        
+    #TODO: Cache this in memory somehow, it rarely changes...
+    @staticmethod
+    def get(update=False):
+        if update == True:
+            BlogData.update_stats()
+            
+        return BlogData.select().limit(1).get()
     
 
 def print_dates(d):

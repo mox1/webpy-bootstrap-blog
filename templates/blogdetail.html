@@ -1,4 +1,4 @@
-$def with(blogpost,comments_html)
+$def with(blogpost,comment_count,comments,next_post,prev_post)
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -43,6 +43,8 @@ $def with(blogpost,comments_html)
         <div class="container">
             <div class="row">
                 <div class="col-md-8 blog-main">
+                    $:render('flash_messages', 'success')
+       				$:render('flash_messages', 'error')
                     <article class="blog-post">
                         <header>
                             <h1>$:(blogpost.title)</h1>
@@ -60,7 +62,7 @@ $def with(blogpost,comments_html)
                                     </div>
                                     <div class="comments">
                                         <i class="icon-comments"></i>
-                                        <span class="data"><a href="#comments">26 Comments</a></span>
+                                        <span class="data"><a href="#comments">$comment_count Comments</a></span>
                                     </div>                                
                                 </div>
                             </div>
@@ -86,7 +88,22 @@ $def with(blogpost,comments_html)
                                 <i class="icon-facebook"></i>
                         </a>
                     </aside>
-                    $:comments_html
+                    <div class="paging makecenter">
+                        $if prev_post != None:
+                            <a href="post?pid=$(prev_post.id)" class="newer"><i class="icon-long-arrow-left"></i>$(prev_post.title)</a>
+                    <span>&bull;</span>
+                        $if next_post != None:
+                            <a href="post?pid=$(next_post.id)" class="older">$(next_post.title)<i class="icon-long-arrow-right"></i></a>
+                    </div>
+                    $:render('comments',comment_count,comments)
+                    <div class="paging makecenter">
+                        $if prev_post != None:
+                            <a href="post?pid=$(prev_post.id)" class="newer"><i class="icon-long-arrow-left"></i>$(prev_post.title)</a>
+                    <span>&bull;</span>
+                        $if next_post != None:
+                            <a href="post?pid=$(next_post.id)" class="older">$(next_post.title)<i class="icon-long-arrow-right"></i></a>
+                    </div>
+                    $:render('add_comment',blogpost)
                 </div>
                <aside class="col-md-4 blog-aside">
                     

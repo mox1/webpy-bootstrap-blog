@@ -1,9 +1,7 @@
 $def with()
+$ hof_posts = popular_posts(5)
 <h3> <i class="icon-star"></i>Hall of Fame</h3>
 <ul class="tales-list">
-    <li><a href="index.html">Why we Need to Encrypt All Communication</a></li>
-    <li><a href="#">Selling is a Function of Design. Not Vice-Versa.</a></li>
-    <li><a href="#">It’s Hard To Come Up With Dummy Titles</a></li>
-    <li><a href="#">Why the Internet is Full of Cats</a></li>
-    <li><a href="#">Last Made-Up Headline, I Swear!</a></li>
+	$for post in hof_posts:
+		<li><a href="post?pid=$:(post.id)">$:(post.title)</a></li>
 </ul>

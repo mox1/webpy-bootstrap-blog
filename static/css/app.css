@@ -14,3 +14,16 @@ body {
 .comment.reply + .comment.reply + .comment.reply {
     margin-left: 300px;
 }
+
+.makecenter {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.comment-title {
+	font-size: 18px;
+	font-weight: bold;
+	margin-left:-20px;
+	
+}

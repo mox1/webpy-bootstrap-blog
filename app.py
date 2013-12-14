@@ -4,7 +4,7 @@ import web
 import datetime
 import config
 import model as m
-
+import hashlib
 
 VERSION = "0.0.1"
 
@@ -60,15 +60,16 @@ t_globals['pretty_date'] = m.print_dates
 t_globals['fav_posts'] = m.Post.get_favs
 t_globals['next_posts'] = m.Post.get_next
 t_globals['recent_posts'] = m.Post.recent_posts
+t_globals['popular_posts'] = m.Post.most_popular
 t_globals['dt_now'] = datetime.datetime.now
+t_globals['hashlib'] = hashlib
 
 
+#get statistics
 
-#FIX_ME: This will never update with new posts,
-#Consider this a temporary solution during beta here
-all_tags = m.Post.all_tags()
-#just use top 5 most popular tags
-t_globals['tags'] = all_tags[0:5]
+#TODO: Update this under certain conditions
+#like when a new post / comment is created
+t_globals['blog_data'] = m.BlogData.get(update = True)
 
 
 class Index:
@@ -135,7 +136,20 @@ class IndexFull:
     def GET(self):
         #return the newest post
         post = m.Post.nth_most_recent(1)
-        return render.blogdetail(post,render.comments())
+        count,comments = m.Comment.get_comments(post.id)
+        #for next and prev links
+        try:
+            next = m.Post.get_next(post.created_at,1).get()
+        except:
+            print "Ahhh error on next!"
+            next = None
+        try:
+            prev = m.Post.get_prev(post.created_at,1).get()
+        except:
+            print "Add error prev!!!!"
+            prev = None
+            
+        return render.blogdetail(post,count,comments,next,prev)
 
 class BlogPost:
     def GET(self):
@@ -146,9 +160,20 @@ class BlogPost:
             flash("error", "Sorry, that post doesn't exist!")
             return web.seeother("/")
         post = m.Post.by_id(pid)
+        #for next and prev links
+        try:
+            next = m.Post.get_next(post.created_at,1).get()
+        except:
+            print "Ahhh error on next!"
+            next = None
+        try:
+            prev = m.Post.get_prev(post.created_at,1).get()
+        except:
+            print "Add error prev!!!!"
+            prev = None
+            
         count,comments = m.Comment.get_comments(post.id)
-        return render.blogdetail(post,render.comments(count,comments))
-        
+        return render.blogdetail(post,count,comments,next,prev)
 class About:
     def GET(self):
         return render.about(m.User.by_id(1))
@@ -163,16 +188,46 @@ class ContactMe:
         except Exception,e:
             flash("error","Sorry, there was a problem, message not sent")
 
-        return web.seeother("/")
+        return web.seeother(url[0])
     
 class Credits:
     def GET(self):
         return render.credits(render.makecredits(m.Credit.get_all()))    
-    
+
+
+
+
+#TODO, maybe at some point AJAXify this
+#so we can post a comment without a page load
 class AddComment:
     def GET(self):
+        return web.seeother(urls[0])
+     
+    def POST(self):
         data = web.input()
+        print data
+        #verify our uber anti-spam technique 
+        #(that the user has javascript turned on :) )
+        if (data.get("email","") != "n0m0r3sp4m@n0p3.0rg"):
+            #failure, return him to homepage with a flash msg
+            flash("error","Sorry, you failed the spam test, post not accepted")
+            return web.seeother(url[0])
         
+        postid = int(data.get("pid",-1))
+        text = data.get("message",None)
+        if text == None:
+            flash("error","Please add some text to that comment!")
+            #TODO: can we use web.py to get the url referrer and send them back there?
+            return web.seeother('post?pid=%d' % postid)
+        #spam check passed, continue
+        postid = int(data.get("pid",-1))
+        parentid = int(data.get("replyto",-1))
+        title = data.get("title","Comment")
+        author = data.get("name","Anonymous")
+        email = data.get("e","none@none.net")
+        c1 = m.Comment.new(postid,parentid,title,author,text,email)
+        flash("success","Thanks for joining the discussion!" )
+        return web.seeother('post?pid=%d' % postid)
 #we can use next as the input to DB pagination queries
 #so we cant decrement by 1 in this function
 def calcprevnext(data):
