@@ -10,13 +10,13 @@ In its default configruation the full software stack consists of:
 * sqlite (http://www.sqlite.org/)
 
 
-blogstrap.py has been designed 
+blogstrap.py has been designed to be simple and "just work", if you experience issues please create an issue on github!
 
 Example
 ==============
 [My Blog](http://moxone.me) - Consider this site a real world example / demo of blogstrap.py
 
-While blogstrap.py is open-source, my blog does include a copyrighted bootstrap template, called [Tales](https://wrapbootstrap.com/theme/tales-responsive-blog-theme-WB034M8P5)
+While blogstrap.py is open-source, my blog does include a copyrighted bootstrap template, called [Tales](https://wrapbootstrap.com/theme/tales-responsive-blog-theme-WB034M8P5). 
 Tales is not required, but you will notice the default blogstrap.py is different from the example above. Please don't steal this guys hard work! 
 
 Usage
