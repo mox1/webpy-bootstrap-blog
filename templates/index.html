@@ -1,4 +1,4 @@
-$def with(title,teasers,cat,subcat,prev,next)
+$def with(title,content,cat,subcat)
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -45,9 +45,9 @@ $def with(title,teasers,cat,subcat,prev,next)
                 <div class="col-md-8 blog-main">
                     $:render('flash_messages', 'success')
        				$:render('flash_messages', 'error')
-           		<!-- Start Render Blog Teasers -->
-                    $:render('blog_teasers',teasers,prev,next)
-                <!-- End Render Blog Teasers -->
+           		<!-- Start Render Main Content -->
+                    $:content
+                <!-- End Render Main Content -->
                 </div>
                 <aside class="col-md-4 blog-aside">
                     <div class="aside-widget">

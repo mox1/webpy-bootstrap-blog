@@ -19,15 +19,21 @@ urls = (
     r'/newcomment',"AddComment",
     r'/contactme', 'ContactMe',
     r'/tags', 'Tags',
-    r'/search', 'Search')
+    r'/search', 'Search',
+    r'/admin','Admin')
 
 app = web.application(urls, globals())
 
+sinit = {
+        'flash'     : defaultdict(list),
+        'logged_in' : False,
+        'vcount'    : 0,
+        }
 
 # Allow session to be reloadable in development mode.
 if web.config.get('_session') is None:
     session = web.session.Session(app, web.session.DiskStore('sessions'),
-                                  initializer={'flash': defaultdict(list)})
+                                  initializer=sinit)
 
     web.config._session = session
 else:
@@ -72,15 +78,27 @@ t_globals['hashlib'] = hashlib
 t_globals['blog_data'] = m.BlogData.get(update = True)
 
 
+class Admin:
+    def POST(self):
+        data = web.input()
+        print data
+    def GET(self):
+        if session.logged_in == False:
+            #show login page
+            return render.fullpageindex("Please Login to Continue",render.login())
+        else:
+            return render.fullpageindex("Admin Interface",render.admin())
 class Index:
     def GET(self):
+
         data = web.input()
         #by default we show page 1
         #pages less than 1 show page 1
         #when we are one page 2, next = 3, prev = 1
         prev,next = calcprevnext(data)
         posts = m.Post.get_recent(page=next,max=10)
-        return render.index("mox1's Blog",posts,None,None,"?n=%s" % (prev-1),"?n=%s" % (next+1))
+        content = render.blog_teasers(posts,"?n=%s" % (prev-1),"?n=%s" % (next+1))
+        return render.index("mox1's Blog",content,None,None)
 
 class ByCategory:
     def GET(self):
@@ -98,12 +116,15 @@ class ByCategory:
                 #send them to the homepage
                 return web.seeother(urls[0])
             posts = m.Post.by_tag(subcat,page=next,max=10)
-            return render.index("Blog Posts for tag %s" % subcat, posts, "By Tag",subcat,"tags?tag=%s&n=%s" % (subcat,(prev-1)),"tags?tag=%s&n=%s" % (subcat,(next+1)))
+            content = render.blog_teasers(posts,"tags?tag=%s&n=%s" % (subcat,(prev-1)),
+                                                "tags?tag=%s&n=%s" % (subcat,(next+1)))
+            return render.index("Blog Posts for tag %s" % subcat, content, "By Tag",subcat)
         
         else:
             posts = m.Post.by_category(cat,subcat,page=next,max=10)
-            return render.index("%s / %s" % (cat,subcat),posts,cat,subcat,
-                                "bycategory?cat=%s&subcat=%s&n=%s" % (cat,subcat,(prev-1)),"bycategory?cat=%s&subcat=%s&n=%s" % (cat,subcat,(next+1)))
+            content = render.blog_teasers(posts,"bycategory?cat=%s&subcat=%s&n=%s" % (cat,subcat,(prev-1)),
+                                                "bycategory?cat=%s&subcat=%s&n=%s" % (cat,subcat,(next+1)))
+            return render.index("%s / %s" % (cat,subcat),content,cat,subcat)
         
 class Tags:
     def GET(self):
@@ -115,7 +136,10 @@ class Tags:
         prev,next = calcprevnext(data) 
         #if we drop down here, we have a good tag
         posts = m.Post.by_tag(tag,page=next,max=10)
-        return render.index("Blog Posts for tag %s" % tag, posts, "By Tag",tag,"tags?tag=%s&n=%s" % (tag,(prev-1)),"tags?tag=%s&n=%s" % (tag,(next+1)))
+        content = render.blog_teasers(posts,"tags?tag=%s&n=%s" % (tag,(prev-1)),
+                                            "tags?tag=%s&n=%s" % (tag,(next+1)))
+        
+        return render.index("Blog Posts for tag %s" % tag, content, "By Tag",tag)
 
 class Search:
     def GET(self):
@@ -128,9 +152,12 @@ class Search:
         if len(query) < 3:
             flash("error","Search string \"%s\" is too short." % q)
             return web.seeother(ursl[0])
+        prev,next = calcprevnext(data)
         #if we drop in here, qo query
-        posts = m.Post.search(query)
-        return render.index("Search results for %s" % query, posts, "Search Results",query)
+        posts = m.Post.search(query,page=next,max=10)
+        content = render.blog_teasers(posts,"search?q=%s&n=%s" % (query,(prev-1)),
+                                            "search?q=%s&n=%s" % (query,(next+1)))
+        return render.index("Search results for %s" % query, content, "Search Results",query)
 
 class IndexFull:
     def GET(self):
@@ -192,7 +219,7 @@ class ContactMe:
     
 class Credits:
     def GET(self):
-        return render.credits(render.makecredits(m.Credit.get_all()))    
+        return render.fullpageindex("Credits and Attribution",render.makecredits(m.Credit.get_all()))    
 
 
 
@@ -228,6 +255,18 @@ class AddComment:
         c1 = m.Comment.new(postid,parentid,title,author,text,email)
         flash("success","Thanks for joining the discussion!" )
         return web.seeother('post?pid=%d' % postid)
+    
+    
+    
+def set_auth(user):
+    #set session info
+    session.logged_in = True
+    session.user = user
+    session.username = user.username
+    session.dispname = user.displayname
+
+    
+
 #we can use next as the input to DB pagination queries
 #so we cant decrement by 1 in this function
 def calcprevnext(data):

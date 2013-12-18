@@ -73,6 +73,25 @@ class User(BaseModel):
     remember_token = pw.CharField(max_length=64, null=True)
     
     @staticmethod
+    def attempt_user_auth(username,pw):
+        try:
+            #check if user already exists
+            u = User.get(User.email == username)
+        except User.DoesNotExist:
+            print "Username %s doesn't exist!" % username
+            return (None, "Error: User %s doesn't exist!" % username)
+        resl = u.authenticate(pw)
+        if resl == True:
+            #update last login time
+            #u.last_login = datetime.now()
+            #u.save()
+            return (u, "Successfully Logged in as %s" % username)
+        else:
+            return (None,"Error: Incorrect Password!")
+
+
+
+    @staticmethod
     def create_user(name,email,password):
         try:
             #check if user already exists
@@ -269,7 +288,7 @@ class Comment(BaseModel):
 class BlogData(BaseModel):
     #informational fields 
     title = pw.CharField(max_length=512,default="My Blog")
-    adminurl = pw.CharField(max_length=4096,default="/blogadmin")
+    adminurl = pw.CharField(max_length=4096,default="/blogstrap-admin")
     contactline = pw.TextField(null=False,default="""I'm happy to hear from my readers. Thoughts, feedback, critique - all welcome! Drop me a line:""")
     owner = pw.ForeignKeyField(User,null=True)
     #statistical blog fields, will be updated from time to time
@@ -297,8 +316,9 @@ class BlogData(BaseModel):
         #all_tags returns a list of tuples [(tag,cnt),(tag,cnt)]
         popular_tagstr = ""
         for tag,cnt in Post.all_tags()[0:10]:
-            popular_tagstr += ",%s" % tag
-            
+            popular_tagstr += "%s," % tag
+        if(len(popular_tagstr) > 1):
+            popular_tagstr = popular_tagstr[:-1]
         bdata = BlogData.select().limit(1).get()
         bdata.total_posts = tp
         bdata.total_comments = tc

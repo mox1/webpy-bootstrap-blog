@@ -1,4 +1,4 @@
-$def with(credit_html)
+$def with(title,html)
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -6,7 +6,7 @@ $def with(credit_html)
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
 <head>
     <meta charset="utf-8">
-    <title>Credits and Attribution</title>
+    <title>$title</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 
@@ -41,9 +41,7 @@ $def with(credit_html)
 
     <div class="widewrapper main">
         <div class="container content">
-            <h1>Image Credits</h1>
-			$:credit_html
-                   
+			$:html
         </div>
     </div>
     <footer>
@@ -72,7 +70,7 @@ $def with(credit_html)
         </div>
         <div class="widewrapper copyright">
             <div class="container">
-                Copyright 2013, Blog Owner
+                Powered by blogstrap.py - <a href="github.com">Fork me on GitHub</a> 
             </div>
         </div>
     </footer>

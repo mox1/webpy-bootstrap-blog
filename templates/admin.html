@@ -1,0 +1,124 @@
+$def with()
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<h1 class="text-center">
+				Admin Settings
+			</h1>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">
+						New Post
+					</h3>
+				</div>
+				<div class="panel-body">
+					<form class="form-horizontal">
+						<div class="form-group">
+							<div class="col-md-6">
+								<label class="control-label" for="nptitle">Post Title:</label>
+								<input id="nptitle" name="nptitle" type="text" placeholder="Post Title" class="form-control input-md">
+							</div>
+							<div class="col-md-6">
+								<label class="control-label" for="nptitleimg">Title Image:</label>
+								<input id="nptitleimg" name="nptitleimg" type="text" placeholder="static/images/title_img.png" class="form-control input-md">
+							</div>
+							<div class="col-md-4">
+								<label class="control-label" for="nptitle">Full Image:</label>
+								<input id="npimg" name="npimg" type="text" placeholder="static/images/big_image.png" class="form-control input-md">
+							</div>
+							<div class="col-md-3">
+								<label class="control-label" for="nptags">Tags (comma separated):</label>
+								<input id="nptags" name="nptags" type="text" placeholder="general,rant,thing" class="form-control input-md">
+							</div>
+							<div class="col-md-2">
+								<label class="control-label" for="npcat">Category:</label>
+								<input id="npcat" name="npcat" type="text" placeholder="Technology" class="form-control input-md">
+							</div>
+							<div class="col-md-2">
+								<label class="control-label" for="npcat">Sub Category:</label>
+								<input id="npsubcat" name="npsubcat" type="text" placeholder="Python" class="form-control input-md">
+							</div>
+							<div class="col-md-12">
+								<label class="control-label" for="nphtml">Blog post/html:</label>
+ 								<textarea class="form-control" id="nphtml" name="nphtml" style="height: 300px; width:100%;">Blog post goes here, HTML is allowed.</textarea>
+							</div>
+							<div class="col-md-3">
+							 <label class="checkbox-inline" for="npfav">
+						      <input type="checkbox" name="npfav" id="npfav" value="1">
+						      Author Favorite
+						    </label>
+						    <label class="checkbox-inline" for="nppriv">
+						      <input type="checkbox" name="nppriv" id="nppriv" value="1">
+						      Private
+						    </label>
+						   </div>
+						     <div class="col-md-6 pull-right">
+						     	<label class="col-md-6 control-label" for="npsubmit" ></label>
+    							<button id="npsubmit" name="submit" class="btn btn-success btn-lg" style="margin-top: 10px;">Save my Post</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">
+						Manage Posts:
+					</h3>
+				</div>
+				<div class="panel-body">x
+				</div>
+				<div class="panel-footer">
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">
+						Global Blog Settings
+					</h3>
+				</div>
+				<div class="panel-body">
+				<form class="form-horizontal">
+				<fieldset>
+				<!-- Text input-->
+				<div class="form-group">
+				  <label class="col-md-2 control-label" for="title">Blog Title:</label>  
+				  <div class="col-md-10">
+				  <input id="title" name="title" type="text" placeholder="My Blog" class="form-control input-md">
+				  <span class="help-block">Appears in title and various other places</span>  
+				  </div>
+				</div>
+				
+				<!-- Text input-->
+				<div class="form-group">
+				  <label class="col-md-2 control-label" for="adminurl">Admin URL:</label>  
+				  <div class="col-md-10">
+				  <input id="adminurl" name="adminurl" type="text" placeholder="/blogstrap-admin" class="form-control input-md">
+				  <span class="help-block">Keep this private, for enhanced security!</span>  
+				  </div>
+				</div>
+				
+				<!-- Textarea -->
+				<div class="form-group">
+				  <label class="col-md-2 control-label" for="contact">Contact Line:</label>
+				  <div class="col-md-10">                     
+				    <textarea class="form-control" id="contact" name="contact" style="height: 120px; width:100%;">I'm happy to hear from my readers. Thoughts, feedback, critique - all welcome! Drop me a line:</textarea>
+				  </div>
+				</div>
+				
+				<!-- Button -->
+				<div class="form-group">
+				  <label class="col-md-2 control-label" for="submit"></label>
+				  <div class="col-md-10">
+				    <button id="submit" name="submit" class="btn btn-success">Save</button>
+				  </div>
+				</div>
+				
+				</fieldset>
+				</form>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
