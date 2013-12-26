@@ -1,6 +1,6 @@
 import hashlib
 from datetime import datetime
-
+import traceback
 import peewee as pw
 from playhouse.signals import Model, pre_save
 from peewee import SqliteDatabase
@@ -40,24 +40,44 @@ class BaseModel(Model):
         for field, value in kwargs.items():
             setattr(self, field, value)
         return self.save()
-    
-class Credit(BaseModel):
+
+class Image(BaseModel):
     url = pw.CharField(max_length=4096,null=False)
     alt = pw.CharField(max_length=512,null=True)
-    title = pw.CharField(max_length=1024,null=True)
+    title = pw.CharField(max_length=1024,null=False,default="Default Title")
     author = pw.CharField(max_length=1024,null=True)
     link = pw.CharField(max_length=4096,null=False)
     license = pw.CharField(max_length=1024,null=False)
     
     @staticmethod
+    def new_from_input(data):
+        try:
+            url = data["niurl"]
+            alt = data["nialt"]
+            title = data["nititle"]
+            author = data["niauthor"]
+            link = data["nilink"]
+            license = data["nilic"]
+        except KeyError,e:
+            traceback.print_exc()
+            return (None,"Required Field missing: %s" % e.message)
+        except Exception,e:
+            traceback.print_exc()
+            return (None,"Sorry there was an error: %s" % e.message)
+        
+        
+        image = Image.create(url=url,alt=alt,title=title,author=author,link=link,license=license)
+        return (image,"Successfully created new image: \"%s\"" % title)
+    
+    @staticmethod
     def get_all():
-        return Credit.select()
+        return Image.select()
     
     @staticmethod
     def by_id(id):
         u = None
         try:
-            u=Credit.get(Credit.id == id)
+            u=Image.get(Image.id == id)
         except: 
             return None
         return u
@@ -73,13 +93,13 @@ class User(BaseModel):
     remember_token = pw.CharField(max_length=64, null=True)
     
     @staticmethod
-    def attempt_user_auth(username,pw):
+    def attempt_auth(username,pw):
         try:
             #check if user already exists
             u = User.get(User.email == username)
         except User.DoesNotExist:
             print "Username %s doesn't exist!" % username
-            return (None, "Error: User %s doesn't exist!" % username)
+            return (None, "Bad username or password")
         resl = u.authenticate(pw)
         if resl == True:
             #update last login time
@@ -87,7 +107,7 @@ class User(BaseModel):
             #u.save()
             return (u, "Successfully Logged in as %s" % username)
         else:
-            return (None,"Error: Incorrect Password!")
+            return (None,"Bad username or password")
 
 
 
@@ -127,20 +147,80 @@ class User(BaseModel):
         return unicode(self.name)
 
 class Post(BaseModel):
+    image = pw.ForeignKeyField(Image,null=True)
+    small_image = pw.ForeignKeyField(Image,related_name="small_image")
     title = pw.CharField(max_length=200, null=False)
-    title_img = pw.CharField(max_length=1024,null=True)
-    big_img = pw.CharField(max_length=1024,null=True)
     #comma separated list of "tags"
-    tags = pw.TextField(null=True) 
+    tags = pw.TextField(null=True)
     author = pw.ForeignKeyField(User)
     updated = pw.DateTimeField(null=True)
     category = pw.CharField(max_length=256,null=True)
     subcategory = pw.CharField(max_length=256,null=True)
     html = pw.TextField(null=False)
+    prev_html = pw.TextField(null=True)
     favorite = pw.BooleanField(default=False)
     public = pw.BooleanField(default=True)
     views = pw.IntegerField(null=False,default=0)
-
+        
+    @staticmethod
+     #data is web.input, mapping is
+    # title = data.nptitle
+    # title_img = data.nptitleimg
+    # image = data.npimgsel
+    # small_image = data.npimgsmsel
+    # big_img = data.npimg
+    # tags = data.nptags
+    # category = data.npcat
+    # subcategory = data.npsubcat
+    # html = data.nphtml
+    # favorite = data.npfav
+    # public = data.nppriv
+    @staticmethod
+    def update_from_input(data,userid):
+        try:
+            postid = data["upostid"]
+            post = Post.get(Post.id==id)
+            title = data["uptitle"]
+            image = data["upimgsel"]
+            small_image = data["upimgsmsel"]
+            tags = data["uptags"]
+            cat = data["upcat"]
+            scat = data["upsubcat"]
+            html = data["uphtml"]
+            if data.get("upfav","false") == "true":
+                fav = True
+            else:
+                fav = False
+            if data.get("uppriv","false") == "true":
+                public = False
+            else:
+                public = True
+        except KeyError,e:
+            traceback.print_exc()
+            return (None,"Required Field missing: %s" % e.message)
+        except Exception,e:
+            traceback.print_exc()
+            return (None,"Sorry there was an error: %s" % e.message)
+        
+        #updat all fields
+        post.title = title
+        post.image = image
+        post.small_image = small_image
+        post.tags = tags
+        post.category = cat
+        post.subcategory = scat
+        #lets just save the old post, for user screw-ups
+        post.prev_html = post.html
+        post.html = html
+        post.favorite = fav
+        post.public = public
+        post.update = datetime.now()
+        return (post,"Successfully updated post!")
+    
+    
+    @staticmethod
+    def all():
+        return Post.select().order_by(Post.views.desc())
     #return the n most popular post, pased on views
     #TODO: Determine the performance of this query
     @staticmethod
@@ -196,14 +276,58 @@ class Post(BaseModel):
     @staticmethod
     def recent_posts(n):
         return Post.select().order_by(Post.created_at.desc()).limit(n)
+
+    
+    #data is web.input, mapping is
+    # title = data.nptitle
+    # title_img = data.nptitleimg
+    # image = data.npimgsel
+    # small_image = data.npimgsmsel
+    # big_img = data.npimg
+    # tags = data.nptags
+    # category = data.npcat
+    # subcategory = data.npsubcat
+    # html = data.nphtml
+    # favorite = data.npfav
+    # public = data.nppriv
+    @staticmethod
+    def new_from_input(data,userid):
+        try:
+            title = data["nptitle"]
+            image = data["npimgsel"]
+            small_image = data["npimgsmsel"]
+            tags = data["nptags"]
+            cat = data["npcat"]
+            scat = data["npsubcat"]
+            html = data["nphtml"]
+            if data.get("npfav","false") == "true":
+                fav = True
+            else:
+                fav = False
+            if data.get("nppriv","false") == "true":
+                public = False
+            else:
+                public = True
+        except KeyError,e:
+            traceback.print_exc()
+            return (None,"Required Field missing: %s" % e.message)
+        except Exception,e:
+            traceback.print_exc()
+            return (None,"Sorry there was an error: %s" % e.message)
+        
+        post = Post.new(title=title,tags=tags,author_id=userid,image=image,small_image=small_image,html=html,cat=cat,subcat=scat,fav=fav,public=public)
+        return (post,"Successfully created new post!")
+    
     
     @staticmethod
-    def new(title,tags,author_id,html,img,bimg,cat=None,subcat=None,fav = False):
+    def new(title,tags,author_id,html,image,small_image,cat=None,subcat=None,fav = False,public=True):
         #get user by id
         user = User.by_id(author_id)
         p = Post.create(title=title,tags=tags,author=user,html=html,
-                        title_img=img,big_img=bimg,created_at=datetime.now(),favorite=fav,category=cat,subcategory=subcat)
-
+                        image=image,small_image=small_image,created_at=datetime.now(),
+                        favorite=fav,category=cat,subcategory=subcat)
+        return p
+    
     #every time this is called, a pageview count is updated"
     #only call this when you actually render the post
     @staticmethod
@@ -288,7 +412,7 @@ class Comment(BaseModel):
 class BlogData(BaseModel):
     #informational fields 
     title = pw.CharField(max_length=512,default="My Blog")
-    adminurl = pw.CharField(max_length=4096,default="/blogstrap-admin")
+    adminurl = pw.CharField(max_length=4096,default="blogstrap-admin")
     contactline = pw.TextField(null=False,default="""I'm happy to hear from my readers. Thoughts, feedback, critique - all welcome! Drop me a line:""")
     owner = pw.ForeignKeyField(User,null=True)
     #statistical blog fields, will be updated from time to time
@@ -307,6 +431,26 @@ class BlogData(BaseModel):
             return None
         return BlogData.create(title=title,adminurl=adminurl,owner=owner,created_at=datetime.now())
     
+    @staticmethod
+    def update_info_from_input(data):
+        try:
+            title = data["title"]
+            adminurl = data["adminurl"]
+            contactline = data["contact"]
+        except KeyError,e:
+            traceback.print_exc()
+            return (None,"Required Field missing: %s" % e.message)
+        except Exception,e:
+            traceback.print_exc()
+            return (None,"Sorry there was an error: %s" % e.message)
+        bdata = BlogData.select().limit(1).get()
+        bdata.title = title
+        #slashes really hose the adminurl, remove them
+        adminurl = adminurl.replace("/","").replace("\\","")
+        bdata.adminurl = adminurl
+        bdata.contactline = contactline
+        bdata.save()
+        return (bdata,"Successfully updated blog data! Note: admin url is currently set to: /admin/%s " % adminurl)
     @staticmethod
     def update_stats():
         

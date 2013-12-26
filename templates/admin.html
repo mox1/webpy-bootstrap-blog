@@ -1,124 +1,242 @@
-$def with()
+$def with(images)
 <div class="container">
 	<div class="row clearfix">
 		<div class="col-md-12 column">
-			<h1 class="text-center">
-				Admin Settings
-			</h1>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h3 class="panel-title">
-						New Post
-					</h3>
-				</div>
-				<div class="panel-body">
-					<form class="form-horizontal">
-						<div class="form-group">
-							<div class="col-md-6">
-								<label class="control-label" for="nptitle">Post Title:</label>
-								<input id="nptitle" name="nptitle" type="text" placeholder="Post Title" class="form-control input-md">
+			<h1 class="text-center"> Admin Settings </h1>
+			<div class="tabbable" id="tabs-316895">
+				<ul class="nav nav-tabs nav-pills">
+					<li class="active">
+						<a href="#panel-1" data-toggle="tab">New Post</a>
+					</li>
+					<li>
+						<a href="#panel-5" data-toggle="tab">New Image</a>
+					</li>
+					<li>
+						<a href="#panel-2" data-toggle="tab">Global Settings</a>
+					</li>
+					<li>
+						<a href="#panel-3" id="manageposts" data-toggle="tab">Manage Posts</a>
+					</li>
+					<li>
+						<a href="#panel-4" data-toggle="tab">Manage Images</a>
+					</li>
+				</ul>
+				<div class="tab-content">
+					<div class="tab-pane active" id="panel-1">
+						<div class="panel panel-default">
+							<div class="panel-heading" >
+								<h3 class="panel-title"> New Post </h3>
 							</div>
-							<div class="col-md-6">
-								<label class="control-label" for="nptitleimg">Title Image:</label>
-								<input id="nptitleimg" name="nptitleimg" type="text" placeholder="static/images/title_img.png" class="form-control input-md">
-							</div>
-							<div class="col-md-4">
-								<label class="control-label" for="nptitle">Full Image:</label>
-								<input id="npimg" name="npimg" type="text" placeholder="static/images/big_image.png" class="form-control input-md">
-							</div>
-							<div class="col-md-3">
-								<label class="control-label" for="nptags">Tags (comma separated):</label>
-								<input id="nptags" name="nptags" type="text" placeholder="general,rant,thing" class="form-control input-md">
-							</div>
-							<div class="col-md-2">
-								<label class="control-label" for="npcat">Category:</label>
-								<input id="npcat" name="npcat" type="text" placeholder="Technology" class="form-control input-md">
-							</div>
-							<div class="col-md-2">
-								<label class="control-label" for="npcat">Sub Category:</label>
-								<input id="npsubcat" name="npsubcat" type="text" placeholder="Python" class="form-control input-md">
-							</div>
-							<div class="col-md-12">
-								<label class="control-label" for="nphtml">Blog post/html:</label>
- 								<textarea class="form-control" id="nphtml" name="nphtml" style="height: 300px; width:100%;">Blog post goes here, HTML is allowed.</textarea>
-							</div>
-							<div class="col-md-3">
-							 <label class="checkbox-inline" for="npfav">
-						      <input type="checkbox" name="npfav" id="npfav" value="1">
-						      Author Favorite
-						    </label>
-						    <label class="checkbox-inline" for="nppriv">
-						      <input type="checkbox" name="nppriv" id="nppriv" value="1">
-						      Private
-						    </label>
-						   </div>
-						     <div class="col-md-6 pull-right">
-						     	<label class="col-md-6 control-label" for="npsubmit" ></label>
-    							<button id="npsubmit" name="submit" class="btn btn-success btn-lg" style="margin-top: 10px;">Save my Post</button>
+							<div class="panel-body" style="padding: 20px;">
+								<form class="form-horizontal" method="post" action="">
+									<input type="hidden" name="method" value="newpost">
+									<div class="form-group">
+										<div class="row">
+										<div class="col-md-8">
+											<label class="control-label" for="nptitle">Post Title:</label>
+											<input id="nptitle" name="nptitle" type="text" placeholder="Post Title" class="form-control input-md">
+										</div>
+										</div>
+										<div class="row">
+										<div class="col-md-6">
+											<label class="control-label" for="npimgsel">Large Image:</label>
+											<select id="npimgsel" name="npimgsel" class="form-control input-md">
+												<option value="-1">None</option>
+												$for image in images:
+													$if loop.index == 0:
+														<option value="$(image.id)" selected>$:(image.title)</option>
+													$else:
+														<option value="$(image.id)">$:(image.title)</option>
+											</select>
+										</div>
+										<div class="col-md-6">
+											<label class="control-label" for="npimgsmsel">Small Image:</label>
+											<select id="npimgsmsel" name="npimgsmsel" class="form-control input-md">
+												<option value="-1">None</option>
+												$for image in images:
+													$if loop.index == 0:
+														<option value="$(image.id)" selected>$:(image.title)</option>
+													$else:
+														<option value="$(image.id)">$:(image.title)</option>
+											</select>
+										</div>
+										</div>
+										<div class="row">
+										<div class="col-md-3">
+											<label class="control-label" for="nptags">Tags (comma separated):</label>
+											<input id="nptags" name="nptags" type="text" placeholder="general,rant,thing" class="form-control input-md">
+										</div>
+										<div class="col-md-2">
+											<label class="control-label" for="npcat">Category:</label>
+											<input id="npcat" name="npcat" type="text" placeholder="Technology" class="form-control input-md">
+										</div>
+										<div class="col-md-2">
+											<label class="control-label" for="npcat">Sub Category:</label>
+											<input id="npsubcat" name="npsubcat" type="text" placeholder="Python" class="form-control input-md">
+										</div>
+										</div>
+										<div class="row">
+										<div class="col-md-12">
+											<label class="control-label" for="nphtml">Blog post/html:</label>
+											<textarea class="form-control" id="nphtml" name="nphtml" style="height: 300px; width:100%;">Blog post goes here, HTML is allowed.</textarea>
+										</div>
+										</div>
+										<div class="row">
+										<div class="col-md-3">
+											<label class="checkbox-inline" for="npfav">
+												<input type="checkbox" name="npfav" id="npfav" value="true">
+												Author Favorite </label>
+											<label class="checkbox-inline" for="nppriv">
+												<input type="checkbox" name="nppriv" id="nppriv" value="true">
+												Private </label>
+										</div>
+										<div class="col-md-6 pull-right">
+											<label class="col-md-6 control-label" for="npsubmit" ></label>
+											<button id="npsubmit" name="submit" class="btn btn-success btn-lg" style="margin-top: 10px;">
+												Save Post
+											</button>
+										</div>
+										</div>
+									</div>
+								</form>
 							</div>
 						</div>
-					</form>
-				</div>
-			</div>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h3 class="panel-title">
-						Manage Posts:
-					</h3>
-				</div>
-				<div class="panel-body">x
-				</div>
-				<div class="panel-footer">
-				</div>
-			</div>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h3 class="panel-title">
-						Global Blog Settings
-					</h3>
-				</div>
-				<div class="panel-body">
-				<form class="form-horizontal">
-				<fieldset>
-				<!-- Text input-->
-				<div class="form-group">
-				  <label class="col-md-2 control-label" for="title">Blog Title:</label>  
-				  <div class="col-md-10">
-				  <input id="title" name="title" type="text" placeholder="My Blog" class="form-control input-md">
-				  <span class="help-block">Appears in title and various other places</span>  
-				  </div>
-				</div>
-				
-				<!-- Text input-->
-				<div class="form-group">
-				  <label class="col-md-2 control-label" for="adminurl">Admin URL:</label>  
-				  <div class="col-md-10">
-				  <input id="adminurl" name="adminurl" type="text" placeholder="/blogstrap-admin" class="form-control input-md">
-				  <span class="help-block">Keep this private, for enhanced security!</span>  
-				  </div>
-				</div>
-				
-				<!-- Textarea -->
-				<div class="form-group">
-				  <label class="col-md-2 control-label" for="contact">Contact Line:</label>
-				  <div class="col-md-10">                     
-				    <textarea class="form-control" id="contact" name="contact" style="height: 120px; width:100%;">I'm happy to hear from my readers. Thoughts, feedback, critique - all welcome! Drop me a line:</textarea>
-				  </div>
-				</div>
-				
-				<!-- Button -->
-				<div class="form-group">
-				  <label class="col-md-2 control-label" for="submit"></label>
-				  <div class="col-md-10">
-				    <button id="submit" name="submit" class="btn btn-success">Save</button>
-				  </div>
-				</div>
-				
-				</fieldset>
-				</form>
+					</div>
+					<div class="tab-pane" id="panel-5">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title"> New Image</h3>
+							</div>
+							<div class="panel-body" style="padding: 20px;">
+								<form class="form-horizontal" method="post" action="">
+									<input type="hidden" name="method" value="newimage">
+									<div class="form-group">
+										<div class="row">
+										<div class="col-md-10">
+											<label class="control-label" for="niurl">URL:</label>
+											<input id="niurl" name="niurl" type="text" placeholder="static/images/name.png" class="form-control input-md">
+										</div>
+										</div>
+										<div class="row">
+										<div class="col-md-6">
+											<label class="control-label" for="nialt">Alt Text:</label>
+											<input id="nialt" name="nialt" type="text" placeholder="A Picture" class="form-control input-md">
+										</div>
+										<div class="col-md-6">
+											<label class="control-label" for="nititle">Title</label>
+											<input id="nititle" name="nititle" type="text" placeholder="Picture of Guy" class="form-control input-md">
+										</div>
+										</div>
+										<div class="row">
+										<div class="col-md-4">
+											<label class="control-label" for="niauthor">Author</label>
+											<input id="niauthor" name="niauthor" type="text" placeholder="Joh doe" class="form-control input-md">
+										</div>
+										<div class="col-md-4">
+											<label class="control-label" for="nilink">Source Url:</label>
+											<input id="nilink" name="nilink" type="text" placeholder="http://www.flickr.com/image.png" class="form-control input-md">
+										</div>
+										<div class="col-md-4">
+											<label class="control-label" for="nilic">License</label>
+											<input id="nilic" name="nilic" type="text" placeholder="Apache 2.0" class="form-control input-md">
+										</div>
+										</div>
+										<div class="row">
+										<div class="col-md-6 pull-right">
+											<label class="col-md-6 control-label" for="nisubmit" ></label>
+											<button id="nisubmit" name="submit" class="btn btn-success btn-lg" style="margin-top: 10px;">
+												Save Image
+											</button>
+										</div>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane" id="panel-2">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title"> Global Blog Settings </h3>
+							</div>
+							<div class="panel-body">
+								<form class="form-horizontal" method="post" action="">
+									<input type="hidden" name="method" value="globalsettings">
+									<fieldset>
+										<!-- Text input-->
+										<div class="form-group">
+											<label class="col-md-2 control-label" for="title">Blog Title:</label>
+											<div class="col-md-10">
+												<input id="title" name="title" type="text" 
+													class="form-control input-md" value="$(blog_data.title)">
+												<span class="help-block">Appears in title and various other places</span>
+											</div>
+										</div>
 
+										<!-- Text input-->
+										<div class="form-group">
+											<label class="col-md-2 control-label" for="adminurl">Admin URL:</label>
+											<div class="col-md-10">
+												/admin/<input id="adminurl" name="adminurl" type="text" 
+													class="form-control input-md" value="$(blog_data.adminurl)">
+												<span class="help-block">No slashes (/ or \)! For enhanced security Keep this private! (not insecure, allows brute force attacks)</span>
+											</div>
+										</div>
+
+										<!-- Textarea -->
+										<div class="form-group">
+											<label class="col-md-2 control-label" for="contact">Contact Line:</label>
+											<div class="col-md-10">
+												<textarea class="form-control" 
+													id="contact" name="contact" style="height: 120px; width:100%;">$(blog_data.contactline)</textarea>
+											</div>
+										</div>
+
+										<!-- Button -->
+										<div class="form-group">
+											<label class="col-md-2 control-label" for="submit"></label>
+											<div class="col-md-10">
+												<button id="submit" name="submit" class="btn btn-success btn-lg">
+													Save
+												</button>
+											</div>
+										</div>
+
+									</fieldset>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane" id="panel-3">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title"> Posts </h3>
+							</div>
+							<div class="panel-body" id="postsdata">
+								x
+							</div>
+							<div class="panel-footer"></div>
+						</div>
+					</div>
+					<!--end tab-pane -->
+					<div class="tab-pane" id="panel-4">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title"> Images </h3>
+							</div>
+							<div class="panel-body">
+								x
+							</div>
+							<div class="panel-footer"></div>
+						</div>
+					</div>
+					<!--end tab-pane -->
 				</div>
+				<!--end class "tab-content"-->
 			</div>
+			<!--end class "tabbable"-->
 		</div>
 	</div>
 </div>
+
+<script src="/static/js/app-admin.js"></script>

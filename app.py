@@ -6,7 +6,8 @@ import config
 import model as m
 import hashlib
 
-VERSION = "0.0.1"
+VERSION = "0.8.1"
+
 
 #if you change urls, make sure url[0]  is your homepage / index.!!
 urls = (
@@ -20,7 +21,7 @@ urls = (
     r'/contactme', 'ContactMe',
     r'/tags', 'Tags',
     r'/search', 'Search',
-    r'/admin','Admin')
+    r'/admin/(.*)','Admin')
 
 app = web.application(urls, globals())
 
@@ -72,22 +73,98 @@ t_globals['hashlib'] = hashlib
 
 
 #get statistics
-
 #TODO: Update this under certain conditions
 #like when a new post / comment is created
+#This is now updated in the Admin class, method globalsettings
 t_globals['blog_data'] = m.BlogData.get(update = True)
 
+print "Admin page currently set to: /admin/%s" % t_globals['blog_data'].adminurl
 
+
+#url is used here as a bit of security through obsecurity
+#it just prevents dumb attackers from searching google for our admin urls,
+#launching internet wide script attacks ,etc. 
 class Admin:
-    def POST(self):
-        data = web.input()
-        print data
-    def GET(self):
+    def GET(self,url):
+        #compare url vs our BlogData valid url
+        if url != t_globals['blog_data'].adminurl:
+            #nope go away, send em to the home page
+            print "Bad Adminurl (needed %s, got %s)" % (t_globals['blog_data'].adminurl,url)
+            return web.seeother(urls[0])
+        
+        #ok they found the magic url, good
         if session.logged_in == False:
             #show login page
             return render.fullpageindex("Please Login to Continue",render.login())
         else:
-            return render.fullpageindex("Admin Interface",render.admin())
+            images = m.Image.get_all()
+            return render.fullpageindex("Admin Interface (logged in as %s)" % session.dispname,render.admin(images))
+        
+    def POST(self,url):
+        global t_globals
+        #compare url vs our BlogData valid url
+        if url != t_globals['blog_data'].adminurl:
+            #nope go away, send em to the home page
+            print "Bad Adminurl (needed %s, got %s)" % (t_globals['blog_data'].adminurl,url)
+            return web.seeother(urls[0])
+        
+        admin_url = "/admin/%s" % t_globals['blog_data'].adminurl
+        #ok they found the magic url, good
+        data = web.input()
+        print data
+        method = data.get("method","malformed")
+        if session.logged_in == False:
+            #the only thing you can do here is try to login
+            if method =="login":
+                (resl,msg) = m.User.attempt_auth(data.email,data.password)
+                if resl != None:
+                    set_auth(resl)
+                    return web.seeother(admin_url)
+                else:
+                    flash("error",msg)
+                    return web.seeother(admin_url)
+            else:
+                flash("error","Please login first")
+                return web.seeother(admin_url)
+        else:   
+            #if we drop down here session says we are logged in
+            if method == "malformed":
+                flash("error","Unknown admin method!")
+                return web.seeother(admin_url)
+            elif method == "login":
+                (resl,msg) = m.User.attempt_auth(data.email,data.password)
+                if resl != None:
+                    set_auth(resl)
+                else:
+                    flash("error",msg)
+                return web.seeother(admin_url)
+            elif method == "newpost":
+                (resl,msg) = m.Post.new_from_input(data,session.uid)
+                if resl != None:
+                    flash("success","Succes, blog entry saved! (id = %s)" % resl.id)
+                else:
+                    flash("error",msg)
+                return web.seeother(admin_url)
+            elif method == "newimage":
+                (resl,msg) = m.Image.new_from_input(data)
+                if resl!= None:
+                    flash("success",msg)
+                else:
+                    flash("error",msg)
+                return web.seeother(admin_url)
+            elif method == "globalsettings":
+                (resl,msg) = m.BlogData.update_info_from_input(data)
+                #always update blog_data, even in error cases
+                t_globals['blog_data'] = m.BlogData.get()
+                if resl != None:
+                    flash("success",msg)
+                else:
+                    flash("error",msg)
+                #adminurl can change from the BlogData.update call above
+                admin_url = "/admin/%s" % t_globals['blog_data'].adminurl
+                return web.seeother(admin_url)
+
+        
 class Index:
     def GET(self):
 
@@ -219,7 +296,7 @@ class ContactMe:
     
 class Credits:
     def GET(self):
-        return render.fullpageindex("Credits and Attribution",render.makecredits(m.Credit.get_all()))    
+        return render.fullpageindex("Credits and Attribution",render.makecredits(m.Image.get_all()))    
 
 
 
@@ -261,9 +338,9 @@ class AddComment:
 def set_auth(user):
     #set session info
     session.logged_in = True
-    session.user = user
-    session.username = user.username
-    session.dispname = user.displayname
+    session.uid = user.id
+    session.username = user.email
+    session.dispname = user.name
 
     
 

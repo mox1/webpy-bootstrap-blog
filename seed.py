@@ -25,7 +25,7 @@ Does your lorem ipsum text long for something a little meatier? Give our generat
 
 
 def init():
-    models = [m.User,m.Post,m.Credit,m.Comment,m.BlogData]
+    models = [m.User,m.Post,m.Image,m.Comment,m.BlogData]
     for t in reversed(models):
         logger.debug("Dropping %s" % t)
         t.drop_table(True)
@@ -43,49 +43,56 @@ def seed():
     u = m.User.create_user(name='testuser',email='test@example.com',password='testy')
     
         #Initialize BlogData table, always has 1 row
-    m.BlogData.initialize(title="My Testing Blog",adminurl="/testadmin",owner=u.id)
+    m.BlogData.initialize(title="My Testing Blog",adminurl="testadmin",owner=u.id)
     
-    #add dummy credits
-    m.Credit.create(url="""<img src="static/img/cat.png" class="img-responsive" alt="Cat">""",
-                    alt='',
+    #add dummy Images
+    m.Image.create(url="static/img/cat.png",
+                    alt='Cat',
                     title="Innocence",
                     author="""<a href="http://500px.com/RKingston" target="_blank">Rochelle Kingston</a>""",
                     link="""<a href="http://500px.com/photo/39364720" target="_blank">http://500px.com/photo/39364720</a>""",
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
-    m.Credit.create(url="""<img src="static/img/hands.png" class="img-responsive" alt="Hands">""",
-                    alt='',
-                    title="The Dirt of Coal",
+    m.Image.create(url="static/img/hands.png",
+                    alt='Hands',
+                    title="The Dirt of Coal-sm",
                     author="""<a href="http://500px.com/NadavYacobi" target="_blank">Nadav Yacobi</a>""",
                     link="""<a href="http://500px.com/photo/30720921" target="_blank">http://500px.com/photo/30720921</a>""",
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
-    m.Credit.create(url="""<img src="static/img/bike.png" class="img-responsive" alt="Bike">""",
-                    alt='',
+    m.Image.create(url="static/img/hands-big.png",
+                    alt='Hands',
+                    title="The Dirt of Coal-big",
+                    author="""<a href="http://500px.com/NadavYacobi" target="_blank">Nadav Yacobi</a>""",
+                    link="""<a href="http://500px.com/photo/30720921" target="_blank">http://500px.com/photo/30720921</a>""",
+                    license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
+                    )
+    m.Image.create(url="static/img/bike.png",
+                    alt='Bike',
                     title="Reserved",
                     author="""<a href="http://500px.com/MartinHricko" target="_blank">Martin Hricko</a>""",
                     link="""<a href="http://500px.com/photo/8849012" target="_blank">http://500px.com/photo/8849012</a>""",
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
-    m.Credit.create(url="""<img src="static/img/violin.png" class="img-responsive" alt="Violin">""",
-                    alt='',
+    m.Image.create(url="static/img/violin.png",
+                    alt='Violin',
                     title="Passion",
                     author="""<a href="http://500px.com/MartinHricko"  target="_blank">Martin Hricko</a>""",
                     link="""<a href="http://500px.com/photo/20808109" target="_blank">http://500px.com/photo/20808109</a>""",
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
-    m.Credit.create(url="""<img src="static/img/smartguy.png" class="img-responsive" alt="SmartGuy">""",
-                    alt='',
+    m.Image.create(url="static/img/smartguy.png",
+                    alt='SmartGuy',
                     title="Stranger #7",
                     author="""<a href="http://500px.com/enthuan" target="_blank">Antoine Robiez</a>""",
                     link="""<a href="http://500px.com/photo/36102156" target="_blank">http://500px.com/photo/36102156</a>""",
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
     #add some dummy posts
-    m.Post.new(title="1st Post!",tags="blog,intro,example",author_id=u.id,html=html1,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Rants")
-    m.Post.new(title="What a wonderful Thing",tags="intro,wonder,cat",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Misc",fav=True)
-    m.Post.new(title="Yet another Example Post",tags="example,post,dog",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Python",subcat="Django")
-    m.Post.new(title="Why thingX sucks",tags="thingX,rant",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Robots")
+    #m.Post.new(title="1st Post!",tags="blog,intro,example",author_id=u.id,html=html1,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Rants")
+    #m.Post.new(title="What a wonderful Thing",tags="intro,wonder,cat",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Misc",fav=True)
+    #m.Post.new(title="Yet another Example Post",tags="example,post,dog",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Python",subcat="Django")
+    #m.Post.new(title="Why thingX sucks",tags="thingX,rant",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Robots")
     
     #new
     c1 = m.Comment.new(1,-1,"First Post!","BillyBob","nt")

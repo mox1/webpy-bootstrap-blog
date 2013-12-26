@@ -11,37 +11,39 @@ $def with(title,html)
     <meta name="viewport" content="width=device-width">
 
     <!-- Bootstrap styles -->
-    <link rel="stylesheet" href="static/css/vendor/bootstrap/bootstrap.css">
-    <link rel="stylesheet" href="static/css/vendor/bootstrap/bootstrap-theme.css">
-    <link rel="stylesheet" type="text/css" href="static/css/app.css">
+    <link rel="stylesheet" href="/static/css/vendor/bootstrap/bootstrap.css">
+    <link rel="stylesheet" href="/static/css/vendor/bootstrap/bootstrap-theme.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/app.css">
 
     <!-- Font-Awesome -->
-    <link rel="stylesheet" href="static/css/vendor/font-awesome/font-awesome.css">
+    <link rel="stylesheet" href="/static/css/vendor/font-awesome/font-awesome.css">
 
     <!-- Google Webfonts -->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600|PT+Serif:400,400italic' rel='stylesheet' type='text/css'>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="static/css/styles-bluered.css" id="theme-styles">
+    <link rel="stylesheet" href="/static/css/styles-bluered.css" id="theme-styles">
 
     <!--[if lt IE 9]>
         <link rel="stylesheet" href="css/ie8.css">        
-        <script src="static/js/vendor/google/html5-3.6-respond-1.1.0.min.js"></script>
+        <script src="/static/js/vendor/google/html5-3.6-respond-1.1.0.min.js"></script>
     <![endif]-->
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="/static/js/vendor/jquery/jquery-1.9.1.min.js"></script>
 
-    <script>window.jQuery || document.write('<script src="static/js/vendor/jquery/jquery-1.9.1.min.js"><\/script>')</script>
+    <script>window.jQuery || document.write('<script src="/static/js/vendor/jquery/jquery-1.9.1.min.js"><\/script>')</script>
 
     <script src="/static/js/app.js"></script>
     
 </head>
 <body>
-       $:render('header','Credits',None,None)
+       $:render('header',title,None,None)
 
     <div class="widewrapper main">
         <div class="container content">
-			$:html
+	       $:render('flash_messages', 'success')
+           $:render('flash_messages', 'error')
+           $:html
         </div>
     </div>
     <footer>
@@ -75,8 +77,8 @@ $def with(title,html)
         </div>
     </footer>
     
-    <script src="static/js/vendor/bootstrap/bootstrap.min.js"></script>
-    <script src="static/js/vendor/modernizr/modernizr.js"></script>
+    <script src="/static/js/vendor/bootstrap/bootstrap.min.js"></script>
+    <script src="/static/js/vendor/modernizr/modernizr.js"></script>
 
 </body>
 </html>

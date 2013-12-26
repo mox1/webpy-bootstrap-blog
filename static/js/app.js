@@ -14,5 +14,6 @@ $(document).ready(function(){
 	$('#sbmt-btn').on('click', function(e) {
 		$("#input-email").val('n0m0r3sp4m@n0p3.0rg');	
 	});
-	//input-email
+	
 });
+

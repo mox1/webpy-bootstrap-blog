@@ -1,0 +1,19 @@
+$def with(selected,mmap,post_url)
+
+<form class="form-horizontal">
+<fieldset>
+<div class="form-group">
+<div class="col-md-8">
+<select id="tstatesel" name="tstatesel" class="form-control">
+    $for sv in mmap:
+        $ name = mmap[sv]
+        $if sv == selected:
+            <option value="$:sv" selected>$:name</option>
+        $else:
+            <option value="$:sv">$:name</option>
+</select>
+</div>
+</div>
+</fieldset>
+</form>
+~         
