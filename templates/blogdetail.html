@@ -58,7 +58,7 @@ $def with(blogpost,comment_count,comments,next_post,prev_post)
                                     </div>
                                     <div class="date">
                                         <i class="icon-calendar"></i>
-                                        <span class="data">$:pretty_date(blogpost.created_at)</span>
+                                        <span class="data">$dt_as_str(blogpost.created_at,False)</span>
                                     </div>
                                     <div class="comments">
                                         <i class="icon-comments"></i>

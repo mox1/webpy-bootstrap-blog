@@ -48,6 +48,32 @@ class Image(BaseModel):
     author = pw.CharField(max_length=1024,null=True)
     link = pw.CharField(max_length=4096,null=False)
     license = pw.CharField(max_length=1024,null=False)
+    @staticmethod
+    def update_from_input(data):
+        try:
+            imageid = data["uimageid"]
+            image = Image.get(Image.id==int(imageid))
+            url = data["uiurl"]
+            alt = data["uialt"]
+            title = data["uititle"]
+            author = data["uiauthor"]
+            link = data["uilink"]
+            license = data["uilic"]
+        except KeyError,e:
+            traceback.print_exc()
+            return (None,"Required Field missing: %s" % e.message)
+        except Exception,e:
+            traceback.print_exc()
+            return (None,"Sorry there was an error: %s" % e.message)
+        
+        image.url = url
+        image.alt = alt
+        image.title = title
+        image.author = author
+        image.link = link
+        image.license = license
+        image.save()
+        return (image,"Successfully updated image: \"%s\"" % title)
     
     @staticmethod
     def new_from_input(data):
@@ -162,8 +188,7 @@ class Post(BaseModel):
     public = pw.BooleanField(default=True)
     views = pw.IntegerField(null=False,default=0)
         
-    @staticmethod
-     #data is web.input, mapping is
+    #data is web.input, mapping is
     # title = data.nptitle
     # title_img = data.nptitleimg
     # image = data.npimgsel
@@ -179,7 +204,7 @@ class Post(BaseModel):
     def update_from_input(data,userid):
         try:
             postid = data["upostid"]
-            post = Post.get(Post.id==id)
+            post = Post.get(Post.id==int(postid))
             title = data["uptitle"]
             image = data["upimgsel"]
             small_image = data["upimgsmsel"]
@@ -214,18 +239,22 @@ class Post(BaseModel):
         post.html = html
         post.favorite = fav
         post.public = public
-        post.update = datetime.now()
+        post.updated = datetime.now()
+        post.save()
         return (post,"Successfully updated post!")
     
     
     @staticmethod
-    def all():
-        return Post.select().order_by(Post.views.desc())
+    def all(evenprivate=False):
+        if evenprivate == True:
+            return Post.select().order_by(Post.views.desc())
+        else:
+            return Post.select().where(Post.public==True).order_by(Post.views.desc())
     #return the n most popular post, pased on views
     #TODO: Determine the performance of this query
     @staticmethod
     def most_popular(n):
-        return Post.select().order_by(Post.views.desc()).limit(n)
+        return Post.select().where(Post.public==True).order_by(Post.views.desc()).limit(n)
     
     #TODO: optimize this in some way, kludgy and slow, but works
     @staticmethod
@@ -239,43 +268,43 @@ class Post(BaseModel):
     def by_category(cat,subcat,page=1,max=10):
         posts = None
         if subcat == "":
-            posts = Post.select().where(Post.category == cat).order_by(Post.created_at.desc()).paginate(page,max)
+            posts = Post.select().where((Post.category == cat) & (Post.public==True)).order_by(Post.created_at.desc()).paginate(page,max)
         else:   
-            posts = Post.select().where(Post.category == cat).where(Post.subcategory == subcat).order_by(Post.created_at.desc()).paginate(page,max)
+            posts = Post.select().where((Post.category == cat) & (Post.subcategory == subcat) & (Post.public==True)).order_by(Post.created_at.desc()).paginate(page,max)
             
         return posts
     
     @staticmethod
     def by_tag(tag,page=1,max=10):
         search_str = "%s%s%s" % (config.db_wildcard,tag,config.db_wildcard)
-        posts = Post.select().where(Post.tags % search_str).order_by(Post.created_at.desc()).paginate(page,max)
+        posts = Post.select().where((Post.tags % search_str) & (Post.public==True)).order_by(Post.created_at.desc()).paginate(page,max)
         return posts
     
     @staticmethod
     #get the next amt posts afer date
     def get_next(date,amt=5):
-        posts = Post.select().where(Post.created_at > date).order_by(Post.created_at.desc()).limit(amt)
+        posts = Post.select().where((Post.created_at > date) & (Post.public==True)).order_by(Post.created_at.desc()).limit(amt)
         return posts
     @staticmethod
     #get the previous amt posta before date
     def get_prev(date,amt=5):
-        posts = Post.select().where(Post.created_at < date).order_by(Post.created_at.desc()).limit(amt)
+        posts = Post.select().where((Post.created_at < date) & (Post.public==True)).order_by(Post.created_at.desc()).limit(amt)
         return posts
     
     @staticmethod
     def get_favs(amt=5):
-        posts = Post.select().where(Post.favorite == True).order_by(Post.created_at.desc()).limit(amt)
+        posts = Post.select().where((Post.favorite == True) & (Post.public==True)).order_by(Post.created_at.desc()).limit(amt)
         #print "Favorite posts:" + posts
         return posts
     @staticmethod
     def nth_most_recent(n):
-        posts = Post.select().order_by(Post.created_at.desc()).limit(n)
+        posts = Post.select().where(Post.public==True).order_by(Post.created_at.desc()).limit(n)
         for item in posts:
             pass
         return item
     @staticmethod
     def recent_posts(n):
-        return Post.select().order_by(Post.created_at.desc()).limit(n)
+        return Post.select().where(Post.public==True).order_by(Post.created_at.desc()).limit(n)
 
     
     #data is web.input, mapping is
@@ -334,8 +363,9 @@ class Post(BaseModel):
     def by_id(id):
         p = None
         try:
-            p=Post.get(Post.id==id)
-        except: 
+            p=Post.select().where((Post.id==id) & (Post.public==True) ).get()
+        except Exception:
+            traceback.print_exc()
             return None
         #Naive hit count
         p.views += 1
@@ -344,14 +374,14 @@ class Post(BaseModel):
     
     @staticmethod
     def get_recent(page=1,max=10):
-        return Post.select().order_by(Post.created_at.desc()).paginate(page,max)
+        return Post.select().where(Post.public==True).order_by(Post.created_at.desc()).paginate(page,max)
     
     #This should *NEVER* be called on each page hit, it is an expensive query/op
     #cached inside BlogData below
     @staticmethod
     def all_tags():
         tag_map = {}
-        tags = Post.select(Post.tags)
+        tags = Post.select(Post.tags).where(Post.public==True)
         for taglist in tags:
             for tag in taglist.tags.split(","):
                 cur = tag_map.get(tag,0)
@@ -371,6 +401,17 @@ class Comment(BaseModel):
     parent = pw.ForeignKeyField('self',related_name='children',null=True)
     rank = pw.IntegerField(null=False,default=0)
     indent = pw.IntegerField(null=False,default=0)
+
+    #TODO: Definately not finished yet, need to fix all of the ranks and indents
+    @staticmethod
+    def remove(postid):
+        try:
+            pid = int(postid)
+            Comment.delete().where(Comment.id == pid).execute()
+            return "Comment successfully deleted"
+        except Exception, e:
+            traceback.print_exc()
+            return "Error removing comment: %s" % e 
 
     @staticmethod
     def get_comments(postid):
@@ -498,6 +539,31 @@ try:
 except:
     pass
 
+
+def day_suffix(dom):
+    if (dom % 100 > 10) and (dom % 100 < 14):
+        return str(dom)+"th"
+    x = dom % 10
+    if dom == 1:  return str(dom)+"st"
+    elif dom == 2:  return str(dom)+"nd"
+    elif dom == 3:  return str(dom)+"rd"
+    else: return str(dom)+"th"
+
+#input a datetime
+#output str, formatted according to config.TIME_FORMAT
+def datetime_str(d,short=True):
+    if short == True:
+        try:
+            return datetime.strftime(d,config.TIME_FORMAT)
+        except Exception:
+            return "Mon, Jan 1 1900"
+    else:
+        #try:
+        ds = day_suffix(d.day)
+        return datetime.strftime(d,config.LONG_TIME_FORMAT % ds)
+        #except:
+        traceback.print_exc()
+        return "Monday, January 1st 1900"
 
 #update comment display order when posting
 #see :http://evolt.org/node/4047/

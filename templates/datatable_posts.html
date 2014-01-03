@@ -1,0 +1,102 @@
+$def with(posts)
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>
+							ID (click to edit)
+						</th>
+						<th>
+							Title
+						</th>
+						<th>
+							Category
+						</th>
+						<th>
+							Created
+						</th>
+						<th>
+							Last Updated
+						</th>
+						<th>
+							Views
+						</th>
+						<th>
+							Public
+						</th>
+						<th>
+							Comments
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+				$for post in posts:
+					$ cls = "normal"
+					$if loop.even:
+						$ cls = "active"
+					<tr class="$cls">
+					<td><a postid="$(post.id)" href="#modal-container" role="button" class="btn editpost" data-toggle="modal">$(post.id)</a></td>
+					<td>$(post.title)</td>
+					<td>$(post.category)</td>
+					<td>$dt_as_str(post.created_at)</td><td>$dt_as_str(post.updated)</td>
+					<td>$(post.views)</td><td>$(post.public)</td>
+					<td>
+						<a postid="$(post.id)" href="#modal-container" role="button" class="btn btn-xs btn-info editcomments" data-toggle="modal">Manage</a>
+					</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="modal-container" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog" style="width: 80%;">
+	<div class="modal-content" id="editpost-modal">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h4 class="modal-title" id="myModalLabel">Please Wait</h4>
+		</div>
+		<div class="modal-body">Loading...</div>
+	</div>			
+	</div>
+</div>
+<script type="application/javascript">
+	$$(document).ready(function(){
+		//Launch edit post modal when user clicks
+		$$('.editpost').on('click',function(e) {
+			//alert("Boom!");
+			id = $$(this).attr('postid');
+			$$.ajax({
+				dataType: "html",
+				type: "POST",
+				url: "",
+				data: "method=getsinglepost&id=" + id ,
+				success: function(html) {
+					$$('#editpost-modal').html(html);
+				},
+				beforeSend: function() {
+					//$$('#postdata').html("<p>Loading...</p>");
+				}
+			});
+		});
+		$$('.editcomments').on('click',function(e) {
+			//alert("Boom!");
+			id = $$(this).attr('postid');
+			$$.ajax({
+				dataType: "html",
+				type: "POST",
+				url: "",
+				data: "method=getcomments&id=" + id ,
+				success: function(html) {
+					$$('#editpost-modal').html(html);
+				},
+				beforeSend: function() {
+					//$$('#postdata').html("<p>Loading...</p>");
+				}
+			});
+		});
+	});
+</script>

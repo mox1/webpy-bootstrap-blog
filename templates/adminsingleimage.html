@@ -1,0 +1,63 @@
+$def with(image)
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h4 class="modal-title" id="myModalLabel">Editing Image #$(image.id) - "$(image.title)"</h4>
+</div>
+<div class="modal-body">
+	<form class="form-horizontal" method="post" action="">
+		<input type="hidden" name="method" value="editimage">
+		<input type="hidden" name="uimageid" value="$(image.id)">
+		<div class="form-group">
+			<div class="row">
+			<div class="col-md-10">
+				<label class="control-label" for="uiurl">URL:</label>
+				<textarea id="uiurl" name="uiurl" class="form-control input-md ta-as-input" rows="1">$:(image.url)</textarea>
+			</div>
+			</div>
+			<div class="row">
+			<div class="col-md-6">
+				<label class="control-label" for="uialt">Alt Text:</label>
+				<input id="uialt" name="uialt" type="text" class="form-control input-md" value="$:(image.alt)">
+			</div>
+			<div class="col-md-6">
+				<label class="control-label" for="uititle">Title</label>
+				<input id="uititle" name="uititle" type="text" class="form-control input-md" value="$:(image.title)">
+			</div>
+			</div>
+			<div class="row">
+			<div class="col-md-10">
+				<label class="control-label" for="uiauthor">Author</label>
+				<textarea id="uiauthor" name="uiauthor" class="form-control input-md ta-as-input" rows="1">$:(image.author)</textarea>
+			</div>
+			</div>
+			<div class="row">
+			<div class="col-md-10">
+				<label class="control-label" for="uilink">Source Url:</label>
+				<textarea id="uilink" name="uilink" class="form-control input-md ta-as-input" rows="1">$:(image.link)</textarea>
+			</div>
+			</div>
+			<div class="row">
+			<div class="col-md-10">
+				<label class="control-label" for="uilic">License</label>
+				<textarea id="uilic" name="uilic" class="form-control input-md ta-as-input" rows="1">$:(image.license)</textarea>
+			</div>
+			</div>
+			<div class="row">
+			<div class="col-md-2 pull-right">
+				<button id="uisubmit" name="submit" class="btn btn-success btn-lg" style="margin-top: 10px;">
+					Update Image
+				</button>
+			</div>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="application/javascript">
+$$(document).ready(function(){
+	$$('.ta-as-input').bind('keypress', function(e) {
+		if ((e.keyCode || e.which) == 13) {
+			e.preventDefault();
+		}
+	});
+});
+</script>

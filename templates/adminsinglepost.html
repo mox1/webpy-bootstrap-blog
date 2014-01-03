@@ -1,0 +1,84 @@
+$def with(post,images)
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h4 class="modal-title" id="myModalLabel">Editing Post #$(post.id) - "$(post.title)"</h4>
+</div>
+<div class="modal-body">
+	<form class="form-horizontal" method="post" action="">
+		<input type="hidden" name="method" value="editpost">
+		<input type="hidden" name="upostid" value="$(post.id)">
+		<div class="form-group">
+			<div class="row">
+			<div class="col-md-8">
+				<label class="control-label" for="uptitle">Post Title:</label>
+				<input id="uptitle" name="uptitle" type="text" class="form-control input-md" value="$(post.title)">
+			</div>
+			</div>
+			<div class="row">
+			<div class="col-md-6">
+				<label class="control-label" for="upimgsel">Large Image:</label>
+				<select id="upimgsel" name="upimgsel" class="form-control input-md">
+					<option value="-1">None</option>
+					$for image in images:
+						$if image.id == post.image.id:
+							<option value="$(image.id)" selected>$:(image.title)</option>
+						$else:
+							<option value="$(image.id)">$:(image.title)</option>
+				</select>
+			</div>
+			<div class="col-md-6">
+				<label class="control-label" for="upimgsmsel">Small Image:</label>
+				<select id="upimgsmsel" name="upimgsmsel" class="form-control input-md">
+					<option value="-1">None</option>
+					$for image in images:
+						$if image.id == post.small_image.id:
+							<option value="$(image.id)" selected>$:(image.title)</option>
+						$else:
+							<option value="$(image.id)">$:(image.title)</option>
+				</select>
+			</div>
+			</div>
+			<div class="row">
+			<div class="col-md-3">
+				<label class="control-label" for="uptags">Tags (comma separated):</label>
+				<input id="uptags" name="uptags" type="text" class="form-control input-md" value="$(post.tags)">
+			</div>
+			<div class="col-md-2">
+				<label class="control-label" for="upcat">Category:</label>
+				<input id="upcat" name="upcat" type="text" class="form-control input-md" value="$(post.category)">
+			</div>
+			<div class="col-md-2">
+				<label class="control-label" for="upcat">Sub Category:</label>
+				<input id="upsubcat" name="upsubcat" type="text" class="form-control input-md" value="$(post.subcategory)">
+			</div>
+			</div>
+			<div class="row">
+			<div class="col-md-12">
+				<label class="control-label" for="uphtml">Blog post/html:</label>
+				<textarea class="form-control" id="uphtml" name="uphtml" style="height: 300px; width:100%;">$(post.html)</textarea>
+			</div>
+			</div>
+			<div class="row">
+			<div class="col-md-3">
+				<label class="checkbox-inline" for="upfav">
+					$if post.favorite == True: 
+						<input type="checkbox" name="upfav" id="upfav" value="true" checked>
+					$else:
+						<input type="checkbox" name="upfav" id="upfav" value="true">
+					Author Favorite </label>
+				<label class="checkbox-inline" for="uppriv">
+					$if post.public == True:
+						<input type="checkbox" name="uppriv" id="uppriv" value="true">
+					$else:
+						<input type="checkbox" name="uppriv" id="uppriv" value="true" checked>
+					Private </label>
+			</div>
+			<div class="col-md-2 pull-right">
+				<button id="upsubmit" name="submit" class="btn btn-success btn-lg" style="margin-top: 10px;">
+					Update Post
+				</button>
+			</div>
+			</div>
+		</div>
+	</form>
+</div>

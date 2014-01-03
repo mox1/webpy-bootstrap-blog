@@ -1,5 +1,5 @@
 from collections import defaultdict
-
+from datetime import datetime
 import web
 import datetime
 import config
@@ -69,6 +69,7 @@ t_globals['next_posts'] = m.Post.get_next
 t_globals['recent_posts'] = m.Post.recent_posts
 t_globals['popular_posts'] = m.Post.most_popular
 t_globals['dt_now'] = datetime.datetime.now
+t_globals['dt_as_str'] = m.datetime_str
 t_globals['hashlib'] = hashlib
 
 
@@ -97,9 +98,21 @@ class Admin:
             #show login page
             return render.fullpageindex("Please Login to Continue",render.login())
         else:
-            images = m.Image.get_all()
-            return render.fullpageindex("Admin Interface (logged in as %s)" % session.dispname,render.admin(images))
-        
+            #ok were logged in 
+            data = web.input()
+            print data
+            method = data.get("method","")
+            #most of the other admin options are "POSTS"
+            #but this method is invoked by clicking on a link, which really cant
+            #be a POST.
+            #TODO in the future maybe change this or work these into a separate function
+            if method == "editpost":
+                #ajax call, send html to exit back
+                pass
+            else:
+                images = m.Image.get_all()
+                return render.fullpageindex("Admin Interface (logged in as %s)" % session.dispname,render.admin(images))
+                
     def POST(self,url):
         global t_globals
         #compare url vs our BlogData valid url
@@ -162,6 +175,47 @@ class Admin:
                     flash("error",msg)
                 #adminurl can change from the BlogData.update call above
                 admin_url = "/admin/%s" % t_globals['blog_data'].adminurl
+                return web.seeother(admin_url)
+            elif method == "getallposts":
+                resl = m.Post.all(evenprivate=True)
+                print resl
+                return render.datatable_posts(resl)
+            elif method == "getallimages":
+                images = m.Image.get_all()
+                return render.datatable_images(images)
+            elif method == "getsinglepost":
+                id = data.get("id","-1")
+                resl = m.Post.get(m.Post.id==id)
+                images = m.Image.get_all()
+                return render.adminsinglepost(resl,images)
+            elif method == "getsingleimage":
+                id = data.get("id","-1")
+                resl = m.Image.by_id(id)
+                return render.adminsingleimage(resl)
+            elif method == "editpost":
+                (resl,msg) = m.Post.update_from_input(data,session.uid)
+                if resl != None:
+                    flash("success","Succes, blog entry updated! (id = %s)" % resl.id)
+                else:
+                    flash("error",msg)
+                return web.seeother(admin_url)             
+            elif method == "editimage":
+                (resl,msg) = m.Image.update_from_input(data)
+                if resl != None:
+                    flash("success","Succes, image updated! (id = %s)" % resl.id)
+                else:
+                    flash("error",msg)
+                return web.seeother(admin_url)
+            elif method == "getcomments":
+                id = data.get("id","-1")
+                (count,comments) = m.Comment.get_comments(id)
+                return render.admincomments(count,comments)
+            elif method == "deletecomment":
+                id = data.get("id","-1")
+                msg = m.Comment.remove(id)
+                return msg
+            else:
+                flash("error","Unkown method: %s" % method)
                 return web.seeother(admin_url)
 
         
@@ -342,8 +396,9 @@ def set_auth(user):
     session.username = user.email
     session.dispname = user.name
 
-    
 
+    
+    
 #we can use next as the input to DB pagination queries
 #so we cant decrement by 1 in this function
 def calcprevnext(data):

@@ -1,0 +1,92 @@
+$def with(count,comments)
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h4 class="modal-title" id="myModalLabel">Manage comments ($count)</h4>
+</div>
+<div class="modal-body">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>
+							Name
+						</th>
+						<th>
+							E-mail
+						</th>
+						<th>
+							Title
+						</th>
+						<th>
+							Comment
+						</th>
+						<th>
+							Modify
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+				$for comment in comments:
+					$ cls = "normal"
+					$if loop.even:
+						$ cls = "active"
+					<tr class="$cls">
+						<form class="form-horizontal" method="post" action="">
+							<input type="hidden" name="method" value="editcomment">
+							<input type="hidden" name="ucommentid" value="$(comment.id)">
+							<td>$(comment.author)</td>
+							<td>$(comment.email)</td>
+							<td>$(comment.title)</td>
+							<td>$(comment.text)</td>
+							<td>
+								<div class="edit-comment" style="float: left; margin-right: 10px"><i class="icon-gears editcomment" cid="$(comment.id)"></i></div>
+								<div class="delete-comment"><i class="icon-minus-sign deletecomment" cid="$(comment.id)"></i></div> 
+							</td>
+						</form>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<div class="modal-footer">
+	<div id="statusMessage"></div>
+</div>
+<script type="application/javascript">
+	$$(document).ready(function(){
+		$$('.deletecomment').on('click',function(e) {
+			id = $$(this).attr('cid');
+			$$('#statusMessage')
+				.empty()
+    			.fadeIn(500) // You can change .show to .fadeIn or some other animation
+    			.css('margin', '0 1px 20px 0')
+    			.html('Click the icon again to confirm deletion!')
+    			.delay(8000)
+    			.fadeOut(400);
+    		up_div = $$(this).parent();
+    		up_div.empty();
+    		up_div.html('<i class="icon-remove-sign delete-confirmed" cid="' + id +'"></i>');
+    		$$('.delete-confirmed').on('click',function(e) {
+    			//make ajax call
+    			var row = $$(this).closest('tr');
+    			$$.ajax({
+					dataType: "html",
+					type: "POST",
+					url: "",
+					data: "method=deletecomment&id=" + id ,
+					success: function(html) {
+		   				row.fadeOut(400, function() { row.remove(); });
+						$$('#statusMessage')
+							.empty()
+	    					.fadeIn(500) // You can change .show to .fadeIn or some other animation
+	    					.css('margin', '0 1px 20px 0')
+	    					.html(html)
+	    					.delay(8000)
+	    					.fadeOut(400);
+					}
+				});
+ 
+    		});
+		});
+	});

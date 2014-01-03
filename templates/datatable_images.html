@@ -1,0 +1,78 @@
+$def with(images)
+
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>
+							ID
+						</th>
+						<th>
+							Title
+						</th>
+						<th>
+							Author
+						</th>
+						<th>
+							URL
+						</th>
+						<th>
+							Source
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+				$for image in images:
+					$ cls = "normal"
+					$if loop.even:
+						$ cls = "active"
+					<tr class="$cls">
+					<td><a imageid="$(image.id)" href="#modal-container" role="button" class="btn editimage" data-toggle="modal">$(image.id)</a></td>
+					<td>$(image.title)</td><td>$:(image.author)</td>
+					<td>$:(image.url)</td><td>$:(image.link)</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade" id="modal-container" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog" style="width: 80%;">
+	<div class="modal-content" id="editpost-modal">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h4 class="modal-title" id="myModalLabel">Please Wait</h4>
+		</div>
+		<div class="modal-body">Loading...</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button> 
+				<button type="button" class="btn btn-primary">Save changes</button>
+			</div>
+		</div>			
+	</div>
+</div>
+<script type="application/javascript">
+	$$(document).ready(function(){
+		//Launch edit post modal when user clicks
+		$$('.editimage').on('click',function(e) {
+			//alert("Boom!");
+			id = $$(this).attr('imageid');
+			$$.ajax({
+				dataType: "html",
+				type: "POST",
+				url: "",
+				data: "method=getsingleimage&id=" + id ,
+				success: function(html) {
+					$$('#editpost-modal').html(html);
+				},
+				beforeSend: function() {
+					//$$('#postdata').html("<p>Loading...</p>");
+				}
+			});
+		});
+	});
+</script>

@@ -12,7 +12,7 @@ $(document).ready(function(){
 	});
 	//anti spam, set a hidden field when user clicks submit
 	$('#sbmt-btn').on('click', function(e) {
-		$("#input-email").val('n0m0r3sp4m@n0p3.0rg');	
+		$('#input-email').val('n0m0r3sp4m@n0p3.0rg');	
 	});
 	
 });

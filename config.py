@@ -1,7 +1,6 @@
 import logging
 import os
 import sys
-
 import web
 
 env = os.environ.get("WEB_ENV", "development")
@@ -22,6 +21,10 @@ db_name = 'peewee.db'
 web.config.debug = True
 cache = False
 
+
+#for printing time
+TIME_FORMAT = "%a, %d %b %Y" # %H:%M:%S
+LONG_TIME_FORMAT = "%%A, %%b %s %%Y"
 email_errors = web.storage(to_address='',
                            from_address='server-error@example.com')
 

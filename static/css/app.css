@@ -27,3 +27,7 @@ body {
 	margin-left:-20px;
 	
 }
+
+.ta-as-input {
+	resize:none;
+}
