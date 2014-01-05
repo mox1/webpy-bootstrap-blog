@@ -1,0 +1,50 @@
+$def with(comment)
+
+<h4>Edit Comment</h4>
+<form id="formeditcomment" action="" method="post" accept-charset="utf-8" class="form-horizontal">
+	<input type="hidden" name="method" value="editcomment">
+	<input type="hidden" name="cid" value="$(comment.id)">
+    <div class="row">
+        <div class="col-md-6">
+        	<label class="control-label" for="name">Author:</label>
+            <input type="text" name="name" id="comment-name" class="form-control input-md" value="$(comment.author)">    
+        </div>
+        <div class="col-md-6">
+        	<label class="control-label" for="email">e-mail:</label>
+            <input type="email" name="email" id="comment-email" class="form-control input-md" value="$(comment.email)">    
+        </div>
+    </div>
+	<label class="control-label" for="title">Title:</label>
+    <input type="text" name="title" id="input-comment-title" class="form-control input-md" value="$(comment.title)">
+	
+	<label class="control-label" for="message">Comment:</label>
+    <textarea rows="10" name="message" id="comment-body" class="form-control input-md" maxlength="4096">$(comment.text)</textarea>
+    <div class="buttons clearfix">
+        <a href="#" id="canceledit" class="btn btn-warning btn-small">Cancel</a>
+        <button id="submitedit" type="submit" class="btn btn-success btn-small" id="sbmt-btn">Submit</button>
+    </div>
+</form>
+<script type="application/javascript">
+	$$(document).ready(function(){
+		$$('#canceledit').on('click', function(e) {
+			$$('#statusMessage').empty();
+			e.preventDefault();
+		});
+		$$('#submitedit').on('click', function(e) {
+			$$.ajax({
+				datatype: "html",
+				type: "POST",
+				url: "",
+				data: $$('#formeditcomment').serialize(),
+				success: function(html) {
+					$$('#statusMessage')
+						.empty()
+						.fadeIn(500)
+						.css('margin', '0 1px 20px 0')
+						.html(html);
+				}
+			});
+			e.preventDefault();
+		});
+	});
+</script>

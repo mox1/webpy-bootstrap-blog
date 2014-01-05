@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
 import web
+from web import websafe
 import datetime
 import config
 import model as m
@@ -70,6 +71,7 @@ t_globals['recent_posts'] = m.Post.recent_posts
 t_globals['popular_posts'] = m.Post.most_popular
 t_globals['dt_now'] = datetime.datetime.now
 t_globals['dt_as_str'] = m.datetime_str
+t_globals['dt_as_ago'] = m.datetime_ago
 t_globals['hashlib'] = hashlib
 
 
@@ -82,9 +84,12 @@ t_globals['blog_data'] = m.BlogData.get(update = True)
 print "Admin page currently set to: /admin/%s" % t_globals['blog_data'].adminurl
 
 
+#This is the main Admin handler class. All admin functions are executed through POST's
+#utilizing a method=XXX variable passed by an ajax call, a form, etc.
+
 #url is used here as a bit of security through obsecurity
 #it just prevents dumb attackers from searching google for our admin urls,
-#launching internet wide script attacks ,etc. 
+#launching internet wide script attacks ,etc.
 class Admin:
     def GET(self,url):
         #compare url vs our BlogData valid url
@@ -98,20 +103,8 @@ class Admin:
             #show login page
             return render.fullpageindex("Please Login to Continue",render.login())
         else:
-            #ok were logged in 
-            data = web.input()
-            print data
-            method = data.get("method","")
-            #most of the other admin options are "POSTS"
-            #but this method is invoked by clicking on a link, which really cant
-            #be a POST.
-            #TODO in the future maybe change this or work these into a separate function
-            if method == "editpost":
-                #ajax call, send html to exit back
-                pass
-            else:
-                images = m.Image.get_all()
-                return render.fullpageindex("Admin Interface (logged in as %s)" % session.dispname,render.admin(images))
+            images = m.Image.get_all()
+            return render.fullpageindex("Admin Interface (logged in as %s)" % session.dispname,render.admin(images))
                 
     def POST(self,url):
         global t_globals
@@ -183,6 +176,10 @@ class Admin:
             elif method == "getallimages":
                 images = m.Image.get_all()
                 return render.datatable_images(images)
+            elif method == "getcomments":
+                id = data.get("id","-1")
+                (count,comments) = m.Comment.get_comments(id)
+                return render.datatable_comments(count,comments)
             elif method == "getsinglepost":
                 id = data.get("id","-1")
                 resl = m.Post.get(m.Post.id==id)
@@ -192,6 +189,10 @@ class Admin:
                 id = data.get("id","-1")
                 resl = m.Image.by_id(id)
                 return render.adminsingleimage(resl)
+            elif method == "getsinglecomment":
+                id = data.get("id","-1")
+                resl = m.Comment.by_id(id)
+                return render.adminsinglecomment(resl)
             elif method == "editpost":
                 (resl,msg) = m.Post.update_from_input(data,session.uid)
                 if resl != None:
@@ -206,13 +207,12 @@ class Admin:
                 else:
                     flash("error",msg)
                 return web.seeother(admin_url)
-            elif method == "getcomments":
-                id = data.get("id","-1")
-                (count,comments) = m.Comment.get_comments(id)
-                return render.admincomments(count,comments)
             elif method == "deletecomment":
                 id = data.get("id","-1")
                 msg = m.Comment.remove(id)
+                return msg
+            elif method == "editcomment":
+                msg = m.Comment.update_from_input(data)
                 return msg
             else:
                 flash("error","Unkown method: %s" % method)
@@ -221,7 +221,6 @@ class Admin:
         
 class Index:
     def GET(self):
-
         data = web.input()
         #by default we show page 1
         #pages less than 1 show page 1
@@ -234,8 +233,8 @@ class Index:
 class ByCategory:
     def GET(self):
         data = web.input()
-        cat= data.get("cat","")
-        subcat = data.get("subcat","")
+        cat= websafe(data.get("cat",""))
+        subcat = websafe(data.get("subcat",""))
         print "By Category // %s // %s //" % (cat,subcat)
         
         prev,next = calcprevnext(data)
@@ -260,7 +259,7 @@ class ByCategory:
 class Tags:
     def GET(self):
         data = web.input()
-        tag = data.get("tag",None)
+        tag = websafe(data.get("tag",None))
         if tag == None:
             flash("error","Sorry, no blog posts for tag %s" % tag)
             return web.seeother(urls[0])
@@ -278,11 +277,11 @@ class Search:
         if "q" not in data:
             flash("error","Search Error, query empty...")
             return web.seeother(urls[0])
-        query = data['q']
+        query = websafe(data['q'])
         #short querys are a heachache, lets avoid them
         if len(query) < 3:
             flash("error","Search string \"%s\" is too short." % q)
-            return web.seeother(ursl[0])
+            return web.seeother(urls[0])
         prev,next = calcprevnext(data)
         #if we drop in here, qo query
         posts = m.Post.search(query,page=next,max=10)
@@ -313,7 +312,7 @@ class BlogPost:
     def GET(self):
         pid = -1
         try:
-            pid = web.input().pid
+            pid = websafe(web.input().pid)
         except:
             flash("error", "Sorry, that post doesn't exist!")
             return web.seeother("/")
@@ -339,9 +338,8 @@ class About:
 class ContactMe:
     def POST(self):
         data = web.input()
-        print data
         try:
-            web.sendmail(data.email, m.User.by_id(1).email, "Blog About Page Contact from: %s" % data.name, data.message)
+            web.sendmail(websafe(data.email), m.User.by_id(1).email, "Blog About Page Contact from: %s" % websafe(data.name), websafe(data.message))
             flash("error","Thanks for Contacting me!")
         except Exception,e:
             flash("error","Sorry, there was a problem, message not sent")
@@ -366,28 +364,30 @@ class AddComment:
         print data
         #verify our uber anti-spam technique 
         #(that the user has javascript turned on :) )
-        if (data.get("email","") != "n0m0r3sp4m@n0p3.0rg"):
+        if (websafe(data.get("email","")) != "n0m0r3sp4m@n0p3.0rg"):
             #failure, return him to homepage with a flash msg
-            flash("error","Sorry, you failed the spam test, post not accepted")
+            flash("error","Sorry, you failed the spam test, post not accepted. Turn on javascript.")
             return web.seeother(url[0])
         
-        postid = int(data.get("pid",-1))
-        text = data.get("message",None)
+        postid = websafe(int(data.get("pid",-1)))
+        text = websafe(data.get("message",None))
         if text == None:
             flash("error","Please add some text to that comment!")
             #TODO: can we use web.py to get the url referrer and send them back there?
             return web.seeother('post?pid=%d' % postid)
+        if len(text) > config.MAX_COMMENT:
+            flash("error","Comment too large, max %d characters" % config.MAX_COMMENT)
+            return web.seeother('post?pid=%d' % postid)
+        
         #spam check passed, continue
-        postid = int(data.get("pid",-1))
-        parentid = int(data.get("replyto",-1))
-        title = data.get("title","Comment")
-        author = data.get("name","Anonymous")
-        email = data.get("e","none@none.net")
+        postid = int(websafe(data.get("pid",-1)))
+        parentid = int(websafe(data.get("replyto",-1)))
+        title = websafe(data.get("title","Comment"))
+        author = websafe(data.get("name","Anonymous"))
+        email = websafe(data.get("e","none@none.net"))
         c1 = m.Comment.new(postid,parentid,title,author,text,email)
         flash("success","Thanks for joining the discussion!" )
         return web.seeother('post?pid=%d' % postid)
-    
-    
     
 def set_auth(user):
     #set session info
@@ -403,7 +403,7 @@ def set_auth(user):
 #so we cant decrement by 1 in this function
 def calcprevnext(data):
         try:
-            next = int(data.get("n","1"))
+            next = int(websafe(data.get("n","1")))
         except:
             next = 1
         if next == 1:

@@ -16,7 +16,7 @@ $def with(cur_post)
 
         <input type="text" name="title" id="input-comment-title" placeholder="Title..." class="form-control input-lg">
 
-        <textarea rows="10" name="message" id="comment-body" placeholder="Your thoughts..." class="form-control input-lg"></textarea>
+        <textarea rows="10" name="message" id="comment-body" placeholder="Your thoughts..." class="form-control input-lg" maxlength="4096"></textarea>
         <input type="hidden" name="pid" id="input-pid" value="$(cur_post.id)">
         <input type="hidden" name="replyto" id="input-replyto" value="-1">
         <input type="hidden" name="email" id="input-email" value="">

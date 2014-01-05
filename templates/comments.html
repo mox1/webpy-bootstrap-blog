@@ -3,11 +3,10 @@ $def with(count,comments)
 	<hr>
 	<h2><i class="icon-comments"></i> $count Comments</h2>
 	$for comment in comments:
-    	$ indent = comment.indent
+		$ indent = comment.indent
 		$ indent_txt = ""
-		$while indent != 0:
-			$ indent_txt += " reply"
-			$ indent = indent - 1
+		$if indent > 6: $ indent_txt = "replyx"
+		$else: $ indent_txt = "reply%d" % indent
 		<article class="comment $:(indent_txt)">
 		    <header class="clearfix">
 		    	$#calc image md5 for gravatar
@@ -18,9 +17,9 @@ $def with(count,comments)
 		        $#<img src="static/img/avatar.png" alt="A Smart Guy" class="avatar">
 		        <div class="meta">
 		            <h3><a href="#">$(comment.author)</a></h3>
-		            <span class="date"> $(comment.created_at)</span>
+		            <span class="date"> Posted $dt_as_ago(comment.created_at)</span>
 		            <span class="separator">-</span>
-		            <a class = "replyto" commentid="$comment.id" href="#create-comment" class="reply-link">Reply</a>                
+		            <a commentid="$comment.id" href="#create-comment" class=" replyto reply-link">Reply</a>                
 		        </div>
 		    </header>
 		    <div class="body">

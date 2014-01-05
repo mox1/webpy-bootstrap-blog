@@ -38,7 +38,7 @@ $def with(count,comments)
 							<td>$(comment.author)</td>
 							<td>$(comment.email)</td>
 							<td>$(comment.title)</td>
-							<td>$(comment.text)</td>
+							<td>$(comment.text[0:30])...</td>
 							<td>
 								<div class="edit-comment" style="float: left; margin-right: 10px"><i class="icon-gears editcomment" cid="$(comment.id)"></i></div>
 								<div class="delete-comment"><i class="icon-minus-sign deletecomment" cid="$(comment.id)"></i></div> 
@@ -51,7 +51,7 @@ $def with(count,comments)
 	</div>
 </div>
 <div class="modal-footer">
-	<div id="statusMessage"></div>
+	<div id="statusMessage" style="text-align: left;"></div>
 </div>
 <script type="application/javascript">
 	$$(document).ready(function(){
@@ -59,7 +59,7 @@ $def with(count,comments)
 			id = $$(this).attr('cid');
 			$$('#statusMessage')
 				.empty()
-    			.fadeIn(500) // You can change .show to .fadeIn or some other animation
+    			.fadeIn(500) 
     			.css('margin', '0 1px 20px 0')
     			.html('Click the icon again to confirm deletion!')
     			.delay(8000)
@@ -79,14 +79,29 @@ $def with(count,comments)
 		   				row.fadeOut(400, function() { row.remove(); });
 						$$('#statusMessage')
 							.empty()
-	    					.fadeIn(500) // You can change .show to .fadeIn or some other animation
+	    					.fadeIn(500)
 	    					.css('margin', '0 1px 20px 0')
 	    					.html(html)
 	    					.delay(8000)
 	    					.fadeOut(400);
 					}
 				});
- 
     		});
+		});
+		$$('.editcomment').on('click',function(e) {
+			id = $$(this).attr('cid');
+			$$.ajax({
+				dataType: "html",
+				type: "POST",
+				url: "",
+				data: "method=getsinglecomment&id=" + id ,
+				success: function(html) {
+					$$('#statusMessage')
+						.empty()
+    					.fadeIn(500) 
+    					.css('margin', '0 1px 20px 0')
+    					.html(html);
+				}
+			});
 		});
 	});

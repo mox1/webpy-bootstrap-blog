@@ -2,18 +2,30 @@ body {
     padding-top: 0px; /* 50px to make the container go all the way to the bottom of the topbar */
 }
 
-
-
-/*allow comments to go 3 levels deep 
-  after 3, they just line up 
+/* There is probably a better way to do this, but it works for now 
  * */
-.comment.reply + .comment.reply {
-    margin-left: 200px;
+aside.comments .comment.reply1 {
+	margin-left: 100px;
+}
+aside.comments .comment.reply2 {
+	margin-left: 200px;
+}
+aside.comments .comment.reply3 {
+	margin-left: 300px;
+}
+aside.comments .comment.reply4 {
+	margin-left: 400px;
+}
+aside.comments .comment.reply5 {
+	margin-left: 500px;
+}
+aside.comments .comment.reply6 {
+	margin-left: 600px;
+}
+aside.comments .comment.replyx {
+	margin-left: 700px;
 }
 
-.comment.reply + .comment.reply + .comment.reply {
-    margin-left: 300px;
-}
 
 .makecenter {
 	margin-left: auto;

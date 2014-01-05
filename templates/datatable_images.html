@@ -7,7 +7,7 @@ $def with(images)
 				<thead>
 					<tr>
 						<th>
-							ID
+							ID (click to edit)
 						</th>
 						<th>
 							Title
@@ -29,7 +29,7 @@ $def with(images)
 					$if loop.even:
 						$ cls = "active"
 					<tr class="$cls">
-					<td><a imageid="$(image.id)" href="#modal-container" role="button" class="btn editimage" data-toggle="modal">$(image.id)</a></td>
+					<td><a imageid="$(image.id)" href="#modal-containeri" role="button" class="btn editimage" data-toggle="modal">$(image.id)</a></td>
 					<td>$(image.title)</td><td>$:(image.author)</td>
 					<td>$:(image.url)</td><td>$:(image.link)</td>
 					</tr>
@@ -40,12 +40,12 @@ $def with(images)
 </div>
 
 
-<div class="modal fade" id="modal-container" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal-containeri" role="dialog" aria-labelledby="myModalLabeli" aria-hidden="true">
 	<div class="modal-dialog" style="width: 80%;">
-	<div class="modal-content" id="editpost-modal">
+	<div class="modal-content" id="editimage-modal">
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h4 class="modal-title" id="myModalLabel">Please Wait</h4>
+			<h4 class="modal-title" id="myModalLabeli">Please Wait</h4>
 		</div>
 		<div class="modal-body">Loading...</div>
 			<div class="modal-footer">
@@ -67,7 +67,7 @@ $def with(images)
 				url: "",
 				data: "method=getsingleimage&id=" + id ,
 				success: function(html) {
-					$$('#editpost-modal').html(html);
+					$$('#editimage-modal').html(html);
 				},
 				beforeSend: function() {
 					//$$('#postdata').html("<p>Loading...</p>");

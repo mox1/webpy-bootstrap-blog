@@ -402,16 +402,79 @@ class Comment(BaseModel):
     rank = pw.IntegerField(null=False,default=0)
     indent = pw.IntegerField(null=False,default=0)
 
-    #TODO: Definately not finished yet, need to fix all of the ranks and indents
+    @staticmethod
+    def update_from_input(data):
+        try:
+            commentid = data["cid"]
+            comment = Comment.get(Comment.id ==int(commentid))
+            title = data["title"]
+            author = data["name"]
+            email = data["email"]
+            text = data["message"]
+        except KeyError,e:
+            traceback.print_exc()
+            return (None,"Required Field missing: %s" % e.message)
+        except Exception,e:
+            traceback.print_exc()
+            return (None,"Sorry there was an error: %s" % e.message)
+        
+        comment.title = title
+        comment.author = author
+        comment.email = email
+        comment.text = text    
+        comment.save()
+        return "Successfully updated comment \"%s\" by \"%s\"" % (title,author)
+            
+    @staticmethod
+    def by_id(id):
+        u = None
+        try:
+            u=Comment.get(Comment.id == id)
+        except: 
+            return None
+        return u
+
+
     @staticmethod
     def remove(postid):
         try:
             pid = int(postid)
-            Comment.delete().where(Comment.id == pid).execute()
+            com = Comment.get(Comment.id == pid)
+            rank = com.rank
+            indent = com.indent
+            gp = com.parent
+            #we need to "fix" this posts descendants indentation, do that now
+            with db.transaction():            
+                Comment.recur_del(com)
+                #we also need to find our children and fix the "parent" to our parent (from grandparent to parent)
+                Comment.update(parent = gp).where(Comment.parent == pid).execute()
+                #remove comment fom db
+                com.delete_instance()
+                #update rank of all comments below this
+                Comment.update(rank = Comment.rank - 1).where(Comment.rank > rank).execute()
+
             return "Comment successfully deleted"
         except Exception, e:
             traceback.print_exc()
-            return "Error removing comment: %s" % e 
+            return "Error removing comment: %s" % e
+         
+    @staticmethod
+    def recur_del(comment):
+        if comment == None or comment.id == None or comment.id < 0:
+            print "None comment"
+            return
+        else:
+            comment.indent -= 1
+            #comment.rank -= 1
+            comment.save()
+        print "Just fixed %d - new is %d" % (comment.id,comment.indent)
+        children = Comment.select().where(Comment.parent == comment.id).execute()
+        if children == None:
+            print "Select None"
+            return
+        for c in children:
+            print "Calling recursive on %d" % c.id
+            Comment.recur_del(c)
 
     @staticmethod
     def get_comments(postid):
@@ -432,16 +495,29 @@ class Comment(BaseModel):
             if lastcomment != None:
                 rank = lastcomment.rank+1
             else:
-                #this must be the first record!?!?
-                print "Inserting first record!"
+                #this must be the first comment
+                pass
             return Comment.create(title=title,author=author,post=postid,text=text,rank=rank,indent=indent,email=email,created_at=datetime.now())
         else:
             parent=Comment.get(Comment.id==parentid)
             #prep for insertion 
+            #we need to find the "start_rank"
+            #which is the rank of the last children + 1
+            #the_kids = Comment.select().where((Comment.post == postid) & (Comment.parent == parent.id)).order_by(Comment.rank.desc()).limit(1).execute()
+            #kid = None
+            #for kid in the_kids:
+            #    pass
+            #if kid == None:
+            #    #no kids, insert right below parent
+            print "\n\nInserting below parent at rank %s+1\n\n" % parent.rank
+            start_rank = parent.rank
+            #else:
+            #    print "\n\nGoing kid.rank, insertin at %s+1\n\n" % kid.rank
+            #    start_rank = kid.rank
             #update all old posts whose rank are greater than parent
-            Comment.update(rank=Comment.rank + 1).where(Comment.rank > parent.rank).execute()
+            Comment.update(rank=Comment.rank + 1).where(Comment.rank > start_rank).execute()
             #insert at rank of parent + 1 aka where we just made room
-            new_comment = Comment.create(title=title,author=author,post=postid,text=text,rank=parent.rank+1,indent=parent.indent+1,created_at=datetime.now())
+            new_comment = Comment.create(email=email,parent=parent,title=title,author=author,post=postid,text=text,rank=start_rank+1,indent=parent.indent+1,created_at=datetime.now())
 
             return new_comment
 
@@ -565,6 +641,48 @@ def datetime_str(d,short=True):
         traceback.print_exc()
         return "Monday, January 1st 1900"
 
+#input a datetime
+#ouput str, formatted as days hours minutes ago
+def datetime_ago(d):
+    now = datetime.now()
+    delta = now - d
+    out_str = ""
+    #if we are older than 1 day, just print years, days
+    if delta.days > 1:
+        #yes were ignoring leap year here, this is for display only
+        years,days = divmod(delta.days,365)
+        if years > 1:
+            out_str += "%d years " % years
+        elif years == 1:
+            out_str += "1 year "
+            
+        if days > 1:
+            out_str += "%d days" % days
+        elif days == 1:
+            out_str += "1 day"
+        else:
+            #remove the space we added
+            out_str = out_str[:-1]
+    #print hours and minutes
+    else:
+        hours, rem = divmod(delta.seconds, 3600)
+        mins,secs = divmod(rem, 60)
+        if hours > 1:
+            out_str += "%d hours " % hours
+        elif hours == 1:
+            out_str += "1 hour "
+            
+        if mins > 1:
+            out_str += "%d minutes" % mins
+        elif mins == 1:
+            out_str += "1 minute"
+        else:
+            #remove the space we added
+            out_str = out_str[:-1]
+            
+    return out_str + " ago"
+            
+    
 #update comment display order when posting
 #see :http://evolt.org/node/4047/
 #@pre_save(sender=Comment)

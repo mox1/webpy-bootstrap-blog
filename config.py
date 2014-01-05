@@ -25,6 +25,7 @@ cache = False
 #for printing time
 TIME_FORMAT = "%a, %d %b %Y" # %H:%M:%S
 LONG_TIME_FORMAT = "%%A, %%b %s %%Y"
+MAX_COMMENT = 4096
 email_errors = web.storage(to_address='',
                            from_address='server-error@example.com')
 
