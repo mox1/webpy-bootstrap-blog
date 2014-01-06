@@ -95,7 +95,7 @@ class Admin:
         #compare url vs our BlogData valid url
         if url != t_globals['blog_data'].adminurl:
             #nope go away, send em to the home page
-            print "Bad Adminurl (needed %s, got %s)" % (t_globals['blog_data'].adminurl,url)
+            #print "Bad Adminurl (needed %s, got %s)" % (t_globals['blog_data'].adminurl,url)
             return web.seeother(urls[0])
         
         #ok they found the magic url, good
@@ -111,13 +111,12 @@ class Admin:
         #compare url vs our BlogData valid url
         if url != t_globals['blog_data'].adminurl:
             #nope go away, send em to the home page
-            print "Bad Adminurl (needed %s, got %s)" % (t_globals['blog_data'].adminurl,url)
+            #print "Bad Adminurl (needed %s, got %s)" % (t_globals['blog_data'].adminurl,url)
             return web.seeother(urls[0])
         
         admin_url = "/admin/%s" % t_globals['blog_data'].adminurl
         #ok they found the magic url, good
         data = web.input()
-        print data
         method = data.get("method","malformed")
         if session.logged_in == False:
             #the only thing you can do here is try to login
@@ -171,7 +170,6 @@ class Admin:
                 return web.seeother(admin_url)
             elif method == "getallposts":
                 resl = m.Post.all(evenprivate=True)
-                print resl
                 return render.datatable_posts(resl)
             elif method == "getallimages":
                 images = m.Image.get_all()
@@ -235,7 +233,6 @@ class ByCategory:
         data = web.input()
         cat= websafe(data.get("cat",""))
         subcat = websafe(data.get("subcat",""))
-        print "By Category // %s // %s //" % (cat,subcat)
         
         prev,next = calcprevnext(data)
         #special selector for "By Tag" , which is a "custom" category
@@ -298,12 +295,10 @@ class IndexFull:
         try:
             next = m.Post.get_next(post.created_at,1).get()
         except:
-            print "Ahhh error on next!"
             next = None
         try:
             prev = m.Post.get_prev(post.created_at,1).get()
         except:
-            print "Add error prev!!!!"
             prev = None
             
         return render.blogdetail(post,count,comments,next,prev)
@@ -321,12 +316,10 @@ class BlogPost:
         try:
             next = m.Post.get_next(post.created_at,1).get()
         except:
-            print "Ahhh error on next!"
             next = None
         try:
             prev = m.Post.get_prev(post.created_at,1).get()
         except:
-            print "Add error prev!!!!"
             prev = None
             
         count,comments = m.Comment.get_comments(post.id)
@@ -361,7 +354,6 @@ class AddComment:
      
     def POST(self):
         data = web.input()
-        print data
         #verify our uber anti-spam technique 
         #(that the user has javascript turned on :) )
         if (websafe(data.get("email","")) != "n0m0r3sp4m@n0p3.0rg"):

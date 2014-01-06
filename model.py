@@ -124,7 +124,6 @@ class User(BaseModel):
             #check if user already exists
             u = User.get(User.email == username)
         except User.DoesNotExist:
-            print "Username %s doesn't exist!" % username
             return (None, "Bad username or password")
         resl = u.authenticate(pw)
         if resl == True:
@@ -294,7 +293,6 @@ class Post(BaseModel):
     @staticmethod
     def get_favs(amt=5):
         posts = Post.select().where((Post.favorite == True) & (Post.public==True)).order_by(Post.created_at.desc()).limit(amt)
-        #print "Favorite posts:" + posts
         return posts
     @staticmethod
     def nth_most_recent(n):
@@ -387,7 +385,6 @@ class Post(BaseModel):
                 cur = tag_map.get(tag,0)
                 tag_map[tag] = cur+1
         sorted_x = sorted(tag_map.iteritems(), key=operator.itemgetter(1),reverse=True)
-        print sorted_x
         return sorted_x
 
 
@@ -461,19 +458,15 @@ class Comment(BaseModel):
     @staticmethod
     def recur_del(comment):
         if comment == None or comment.id == None or comment.id < 0:
-            print "None comment"
             return
         else:
             comment.indent -= 1
             #comment.rank -= 1
             comment.save()
-        print "Just fixed %d - new is %d" % (comment.id,comment.indent)
         children = Comment.select().where(Comment.parent == comment.id).execute()
         if children == None:
-            print "Select None"
             return
         for c in children:
-            print "Calling recursive on %d" % c.id
             Comment.recur_del(c)
 
     @staticmethod
@@ -500,20 +493,7 @@ class Comment(BaseModel):
             return Comment.create(title=title,author=author,post=postid,text=text,rank=rank,indent=indent,email=email,created_at=datetime.now())
         else:
             parent=Comment.get(Comment.id==parentid)
-            #prep for insertion 
-            #we need to find the "start_rank"
-            #which is the rank of the last children + 1
-            #the_kids = Comment.select().where((Comment.post == postid) & (Comment.parent == parent.id)).order_by(Comment.rank.desc()).limit(1).execute()
-            #kid = None
-            #for kid in the_kids:
-            #    pass
-            #if kid == None:
-            #    #no kids, insert right below parent
-            print "\n\nInserting below parent at rank %s+1\n\n" % parent.rank
             start_rank = parent.rank
-            #else:
-            #    print "\n\nGoing kid.rank, insertin at %s+1\n\n" % kid.rank
-            #    start_rank = kid.rank
             #update all old posts whose rank are greater than parent
             Comment.update(rank=Comment.rank + 1).where(Comment.rank > start_rank).execute()
             #insert at rank of parent + 1 aka where we just made room
@@ -544,7 +524,6 @@ class BlogData(BaseModel):
         #just insert 1 row of defaults
         if BlogData.select(BlogData.id).count() > 1:
             #we already have a row, go away
-            print "BlogData already initalized!"
             return None
         return BlogData.create(title=title,adminurl=adminurl,owner=owner,created_at=datetime.now())
     
