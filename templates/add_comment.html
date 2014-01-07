@@ -20,6 +20,7 @@ $def with(cur_post)
         <input type="hidden" name="pid" id="input-pid" value="$(cur_post.id)">
         <input type="hidden" name="replyto" id="input-replyto" value="-1">
         <input type="hidden" name="email" id="input-email" value="">
+        <input type="hidden" name="csrf_token" value="$csrf_token()">
         <div class="buttons clearfix">
             <button class="btn btn-xlarge btn-tales-two">Cancel</button>
             <button type="submit" class="btn btn-xlarge btn-tales-one" id="sbmt-btn">Submit</button>

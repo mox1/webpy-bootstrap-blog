@@ -12,29 +12,29 @@ VERSION = "0.8.1"
 
 #if you change urls, make sure url[0]  is your homepage / index.!!
 urls = (
-    r'/', 'Index',
-    r'/newest', 'IndexFull',
-    r'/post', 'BlogPost',
-    r'/about', 'About',
-    r'/credits','Credits',
-    r'/bycategory',"ByCategory",
-    r'/newcomment',"AddComment",
-    r'/contactme', 'ContactMe',
-    r'/tags', 'Tags',
-    r'/search', 'Search',
-    r'/admin/(.*)','Admin')
+    r"/", "Index",
+    r"/newest", "IndexFull",
+    r"/post", "BlogPost",
+    r"/about", "About",
+    r"/credits","Credits",
+    r"/bycategory","ByCategory",
+    r"/newcomment","AddComment",
+    r"/contactme", "ContactMe",
+    r"/tags", "Tags",
+    r"/search", "Search",
+    r"/admin/(.*)","Admin")
 
 app = web.application(urls, globals())
 
 sinit = {
-        'flash'     : defaultdict(list),
-        'logged_in' : False,
-        'vcount'    : 0,
+        "flash"     : defaultdict(list),
+        "logged_in" : False,
+        "vcount"    : 0,
         }
 
 # Allow session to be reloadable in development mode.
-if web.config.get('_session') is None:
-    session = web.session.Session(app, web.session.DiskStore('sessions'),
+if web.config.get("_session") is None:
+    session = web.session.Session(app, web.session.DiskStore("sessions"),
                                   initializer=sinit)
 
     web.config._session = session
@@ -47,7 +47,7 @@ def flash(group, message):
 
 
 def flash_messages(group=None):
-    if not hasattr(web.ctx, 'flash'):
+    if not hasattr(web.ctx, "flash"):
         web.ctx.flash = session.flash
         session.flash = defaultdict(list)
     if group:
@@ -55,33 +55,52 @@ def flash_messages(group=None):
     else:
         return web.ctx.flash
 
-render = web.template.render('templates/',
-                             #base='base',
+def csrf_token():
+    if not session.has_key('csrf_token'):
+        from uuid import uuid4
+        session.csrf_token=uuid4().hex
+    return session.csrf_token
+
+def csrf_protected(f):
+    def decorated(*args,**kwargs):
+        inp = web.input()
+        if not (inp.has_key('csrf_token') and inp.csrf_token==session.pop('csrf_token',None)):
+            raise web.HTTPError(
+                "400 Bad request",
+                {'content-type':'text/html'},
+                """Cross-site request forgery (CSRF) attempt (or stale browser form). 
+                <a href="">Back to the form</a>.""") 
+        return f(*args,**kwargs)
+    return decorated
+
+
+render = web.template.render("templates/",
+                             #base="base",
                              cache=config.cache)
 t_globals = web.template.Template.globals
-t_globals['datestr'] = web.datestr
-t_globals['app_version'] = lambda: VERSION + ' - ' + config.env
-t_globals['flash_messages'] = flash_messages
-t_globals['render'] = lambda t, *args: render._template(t)(*args)
-t_globals['get_recent_posts'] = m.Post.get_recent
-t_globals['pretty_date'] = m.print_dates
-t_globals['fav_posts'] = m.Post.get_favs
-t_globals['next_posts'] = m.Post.get_next
-t_globals['recent_posts'] = m.Post.recent_posts
-t_globals['popular_posts'] = m.Post.most_popular
-t_globals['dt_now'] = datetime.datetime.now
-t_globals['dt_as_str'] = m.datetime_str
-t_globals['dt_as_ago'] = m.datetime_ago
-t_globals['hashlib'] = hashlib
-
+t_globals["datestr"] = web.datestr
+t_globals["app_version"] = lambda: VERSION + " - " + config.env
+t_globals["flash_messages"] = flash_messages
+t_globals["render"] = lambda t, *args: render._template(t)(*args)
+t_globals["get_recent_posts"] = m.Post.get_recent
+t_globals["pretty_date"] = m.print_dates
+t_globals["fav_posts"] = m.Post.get_favs
+t_globals["next_posts"] = m.Post.get_next
+t_globals["recent_posts"] = m.Post.recent_posts
+t_globals["popular_posts"] = m.Post.most_popular
+t_globals["dt_now"] = datetime.datetime.now
+t_globals["dt_as_str"] = m.datetime_str
+t_globals["dt_as_ago"] = m.datetime_ago
+t_globals["hashlib"] = hashlib
+t_globals["csrf_token"] = csrf_token
 
 #get statistics
 #TODO: Update this under certain conditions
 #like when a new post / comment is created
 #This is now updated in the Admin class, method globalsettings
-t_globals['blog_data'] = m.BlogData.get(update = True)
+t_globals["blog_data"] = m.BlogData.get(update = True)
 
-print "Admin page currently set to: /admin/%s" % t_globals['blog_data'].adminurl
+print "Admin page currently set to: /admin/%s" % t_globals["blog_data"].adminurl
 
 
 #This is the main Admin handler class. All admin functions are executed through POST's
@@ -93,9 +112,9 @@ print "Admin page currently set to: /admin/%s" % t_globals['blog_data'].adminurl
 class Admin:
     def GET(self,url):
         #compare url vs our BlogData valid url
-        if url != t_globals['blog_data'].adminurl:
+        if url != t_globals["blog_data"].adminurl:
             #nope go away, send em to the home page
-            #print "Bad Adminurl (needed %s, got %s)" % (t_globals['blog_data'].adminurl,url)
+            #print "Bad Adminurl (needed %s, got %s)" % (t_globals["blog_data"].adminurl,url)
             return web.seeother(urls[0])
         
         #ok they found the magic url, good
@@ -109,12 +128,12 @@ class Admin:
     def POST(self,url):
         global t_globals
         #compare url vs our BlogData valid url
-        if url != t_globals['blog_data'].adminurl:
+        if url != t_globals["blog_data"].adminurl:
             #nope go away, send em to the home page
-            #print "Bad Adminurl (needed %s, got %s)" % (t_globals['blog_data'].adminurl,url)
+            #print "Bad Adminurl (needed %s, got %s)" % (t_globals["blog_data"].adminurl,url)
             return web.seeother(urls[0])
         
-        admin_url = "/admin/%s" % t_globals['blog_data'].adminurl
+        admin_url = "/admin/%s" % t_globals["blog_data"].adminurl
         #ok they found the magic url, good
         data = web.input()
         method = data.get("method","malformed")
@@ -160,13 +179,13 @@ class Admin:
             elif method == "globalsettings":
                 (resl,msg) = m.BlogData.update_info_from_input(data)
                 #always update blog_data, even in error cases
-                t_globals['blog_data'] = m.BlogData.get()
+                t_globals["blog_data"] = m.BlogData.get(update = True)
                 if resl != None:
                     flash("success",msg)
                 else:
                     flash("error",msg)
                 #adminurl can change from the BlogData.update call above
-                admin_url = "/admin/%s" % t_globals['blog_data'].adminurl
+                admin_url = "/admin/%s" % t_globals["blog_data"].adminurl
                 return web.seeother(admin_url)
             elif method == "getallposts":
                 resl = m.Post.all(evenprivate=True)
@@ -226,7 +245,7 @@ class Index:
         prev,next = calcprevnext(data)
         posts = m.Post.get_recent(page=next,max=10)
         content = render.blog_teasers(posts,"?n=%s" % (prev-1),"?n=%s" % (next+1))
-        return render.index("mox1's Blog",content,None,None)
+        return render.index(t_globals["blog_data"].title,content,None,None)
 
 class ByCategory:
     def GET(self):
@@ -274,7 +293,7 @@ class Search:
         if "q" not in data:
             flash("error","Search Error, query empty...")
             return web.seeother(urls[0])
-        query = websafe(data['q'])
+        query = websafe(data["q"])
         #short querys are a heachache, lets avoid them
         if len(query) < 3:
             flash("error","Search string \"%s\" is too short." % q)
@@ -351,7 +370,8 @@ class Credits:
 class AddComment:
     def GET(self):
         return web.seeother(urls[0])
-     
+
+    @csrf_protected # Verify this is not CSRF, or fail
     def POST(self):
         data = web.input()
         #verify our uber anti-spam technique 
@@ -366,10 +386,10 @@ class AddComment:
         if text == None:
             flash("error","Please add some text to that comment!")
             #TODO: can we use web.py to get the url referrer and send them back there?
-            return web.seeother('post?pid=%d' % postid)
+            return web.seeother("post?pid=%d" % postid)
         if len(text) > config.MAX_COMMENT:
             flash("error","Comment too large, max %d characters" % config.MAX_COMMENT)
-            return web.seeother('post?pid=%d' % postid)
+            return web.seeother("post?pid=%d" % postid)
         
         #spam check passed, continue
         postid = int(websafe(data.get("pid",-1)))
@@ -379,7 +399,7 @@ class AddComment:
         email = websafe(data.get("e","none@none.net"))
         c1 = m.Comment.new(postid,parentid,title,author,text,email)
         flash("success","Thanks for joining the discussion!" )
-        return web.seeother('post?pid=%d' % postid)
+        return web.seeother("post?pid=%d" % postid)
     
 def set_auth(user):
     #set session info
@@ -420,8 +440,6 @@ if config.email_errors.to_address:
     app.internalerror = web.emailerrors(config.email_errors.to_address,
                                         app.internalerror,
                                         config.email_errors.from_address)
-
-
 
 
 # Adds a wsgi callable for uwsgi

@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 from config import logger
 import model as m
+import sys
 
 html1 = """
 <p> Hello Friends, Welcome to my blog. This is my first post! </p>
@@ -105,4 +106,9 @@ def seed():
     
 
 if __name__ == "__main__":
+    print "This will ERASE the database and place some test data inside. For testing / DEV only!!!"
+    x = raw_input("Continue (type YES)?")
+    if x != "YES":
+        print "Canceled"
+        sys.exit(0)
     seed()
