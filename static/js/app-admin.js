@@ -34,4 +34,19 @@ $(document).ready(function(){
 			}
 		});
 	});
+	//Load user data when user clicks button
+	$('#manageuser').on('click',function(e) {
+		$.ajax({
+			dataType: "html",
+			type: "POST",
+			url: "",
+			data: "method=getuserdata" ,
+			success: function(html) {
+				$('#usersettings').html(html);
+			},
+			beforeSend: function() {
+				$('#usersettings').html("<p>Loading...</p>");
+			}
+		});
+	});
 });

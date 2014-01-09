@@ -22,7 +22,7 @@ $def with(title,content,cat,subcat)
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600|PT+Serif:400,400italic' rel='stylesheet' type='text/css'>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="/static/css/styles-bluered.css" id="theme-styles">
+    <link rel="stylesheet" href="/static/css/styles-basic.css" id="theme-styles">
 
     <!--[if lt IE 9]>
         <link rel="stylesheet" href="css/ie8.css">        
@@ -98,7 +98,7 @@ $def with(title,content,cat,subcat)
         </div>
         <div class="widewrapper copyright">
             <div class="container">
-                Powered by blogstrap.py - <a href="github.com">Fork me on GitHub</a> 
+                $:render('copyright')
             </div>
         </div>
     </footer>

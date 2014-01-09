@@ -22,7 +22,7 @@ $def with(blogpost,comment_count,comments,next_post,prev_post)
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600|PT+Serif:400,400italic' rel='stylesheet' type='text/css'>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="static/css/styles-bluered.css" id="theme-styles">
+    <link rel="stylesheet" href="static/css/styles-basic.css" id="theme-styles">
 
     <!--[if lt IE 9]>
         <link rel="stylesheet" href="css/ie8.css">        
@@ -62,7 +62,7 @@ $def with(blogpost,comment_count,comments,next_post,prev_post)
                                     </div>
                                     <div class="comments">
                                         <i class="icon-comments"></i>
-                                        <span class="data"><a href="#comments">$comment_count Comments</a></span>
+                                        <span class="data"><a class="clink" href="#comments">$comment_count Comments</a></span>
                                     </div>                                
                                 </div>
                             </div>
@@ -73,6 +73,7 @@ $def with(blogpost,comment_count,comments,next_post,prev_post)
                     </article>
 
                     <aside class="social-icons clearfix">
+                    	<div class="si-container">
                         <a id="tweet" href="#" target="_blank" class="social-icon color-one">
                                 <div class="inner-circle" ></div>
                                 <i class="icon-twitter"></i>
@@ -87,6 +88,7 @@ $def with(blogpost,comment_count,comments,next_post,prev_post)
                                 <div class="inner-circle" ></div>
                                 <i class="icon-facebook"></i>
                         </a>
+                       </div>
                     </aside>
                     <div class="paging makecenter">
                         $if prev_post != None:
@@ -155,7 +157,7 @@ $def with(blogpost,comment_count,comments,next_post,prev_post)
         </div>
         <div class="widewrapper copyright">
             <div class="container">
-                Copyright 2013, Blog Owner
+            	$:render('copyright')
             </div>
         </div>
     </footer>

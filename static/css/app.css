@@ -26,6 +26,13 @@ aside.comments .comment.replyx {
 	margin-left: 700px;
 }
 
+.comment {
+	padding: 20px;
+	margin: 30px;
+	background-color: #F5F5F5;
+  	border-radius: 35px;
+  	border: 1px solid #49545D;	
+}
 
 .makecenter {
 	margin-left: auto;
@@ -36,10 +43,19 @@ aside.comments .comment.replyx {
 .comment-title {
 	font-size: 18px;
 	font-weight: bold;
-	margin-left:-20px;
+	margin-left:-15px;
 	
 }
 
 .ta-as-input {
 	resize:none;
+}
+
+
+p {
+	margin-bottom: 0 
+}
+p + p {
+	text-indent: 1.5em;
+  	margin-top: 0 
 }

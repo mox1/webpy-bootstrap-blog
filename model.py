@@ -113,11 +113,58 @@ class Image(BaseModel):
 class User(BaseModel):
     name = pw.CharField(max_length=200, null=False)
     email = pw.CharField(max_length=200, null=False)
+    about = pw.TextField(null=False,default="I'm the owner of this Blog")
     contact_html = pw.TextField(null=False,default="<a href=\"mailto:changethis@localhost.local\">changethis@localhost.local</a>" )
     crypted_password = pw.CharField(max_length=40, null=False)
     salt = pw.CharField(max_length=40, null=False)
     remember_token = pw.CharField(max_length=64, null=True)
     
+    @staticmethod
+    def update_from_input(data):
+        
+        try:
+            userid = data["userid"]
+            user = User.get(User.id==int(userid))
+            name = data["name"]
+            email = data["email"]
+            about = data["about"]
+            contact_html = data["contact_html"]
+            #lets see if user wants to update password
+            p1 = data.get("p1","")
+            p2 = data.get("p2","")
+            if len(p1) > 1 and (p1 == p2):
+                #yep update password
+                user.password = p1
+            else:
+                user.password = None
+            user.name = name
+            user.email = email
+            user.about = about
+            user.contact_html = contact_html
+            user.save()
+             
+        except KeyError,e:
+            traceback.print_exc()
+            return (None,"Required Field missing: %s" % e.message)
+        except Exception,e:
+            traceback.print_exc()
+            return (None,"Sorry there was an error: %s" % e.message)
+        
+        user.save()
+        return (user,"Successfully updated user!")
+    
+        
+    
+    @staticmethod 
+    def firstuser():
+        try:
+            resl = User.select().limit(1).execute()
+            for x in resl:
+                pass
+            return x
+        except Exception:
+            return None
+        
     @staticmethod
     def attempt_auth(username,pw):
         try:
@@ -137,14 +184,14 @@ class User(BaseModel):
 
 
     @staticmethod
-    def create_user(name,email,password):
+    def create_user(name,email,password,about=""):
         try:
             #check if user already exists
             User.get(User.name == name)
         except User.DoesNotExist:
             #nope , create him
             #the @pre_save thingy below will auto salt and hash the password
-            return User.create(name=name,email=email,password=password,created_at=datetime.now())
+            return User.create(name=name,email=email,password=password,created_at=datetime.now(),about=about)
             
     @staticmethod
     def by_id(id):
@@ -566,7 +613,9 @@ class BlogData(BaseModel):
         bdata.popular_tags = popular_tagstr
         bdata.save()
         
-    #TODO: Cache this in memory somehow, it rarely changes...
+    #cached in a global variable most of the time
+    #update at various times (when admin updates global settings
+    #at requested interval
     @staticmethod
     def get(update=False):
         if update == True:

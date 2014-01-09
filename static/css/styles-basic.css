@@ -1,0 +1,459 @@
+/*
+ *  blogstrap.py Basic Style By mox1
+ *  
+ *  Minimal style to get you started. 
+ *  
+ *  I highly recommend you purchase ($4) the full style that i use on
+ *  my blog (http://moxone.me/) 
+ *  I am not associated with the full styles author in any way
+ *  Pick it up at:
+ *  https://wrapbootstrap.com/theme/tales-responsive-blog-theme-WB034M8P5?l=e
+ *
+ *  Copyright 2014 by mox1. Licensed under FreeBSD License:
+ *  http://www.freebsd.org/copyright/freebsd-license.html
+ *
+ */
+
+
+.widewrapper {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+.widewrapper.masthead {
+  background-color: #A8A8A8;
+}
+.widewrapper.subheader {
+  background-color: #BBBBBB;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+}
+.widewrapper.footer {
+  margin-top: 50px;
+  background-color: #A8A8A8;
+  padding-bottom: 15px;
+}
+
+.widewrapper.copyright {
+    background-color: #BBBBBB;
+}
+/* Widewrappers that span the whole width of the page */
+.widewrapper {
+  background-color: #feffff;
+}
+
+.tales-breadcrumb {
+  float: left;
+}
+
+.tales-searchbox {
+  float: right;
+  display: inline-block;
+}
+
+.blog-teaser {
+  padding: 20px;
+  margin-top: 40px;
+  background-color: #ececec;
+  margin-bottom: 40px;
+  -moz-border-radius: 35px;
+  border-radius: 35px;
+  text-align: center;
+}
+.blog-teaser header .bt_teaser{
+  display: inline-block;
+}
+
+.blog-teaser header .meta {
+  color: #1E1E1E;
+  font-size: 75%;
+}
+.searchbutton {
+  float: right;
+}
+.copyright {
+  text-align: right;
+  padding-left: 30px;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  font-size: 14px;
+}
+.paging {
+  text-align: center;
+  font-size: 125%;
+}
+
+.blog-post header .lead-image {
+  position: relative;
+}
+
+.blog-post header .lead-image .meta {
+  padding-left: 30px;
+  padding-bottom: 10px;
+  position: absolute;
+  bottom: 15px;
+  background-color:#0088CC;
+  background-color: rgba(0, 136, 204, 0.85);
+  color: #eeffff;
+
+}
+a.clink:link {
+  color: #eeffff;
+  text-decoration: none;
+}
+a.social-icon {
+  color: #0E0D0E;
+  text-decoration: none;
+}
+a.social-icon:hover {
+  color: #3E4953;
+  text-decoration: none;
+}
+
+.blog-post header .lead-image .author {
+  float: left;
+  padding-right: 20px;
+}
+.blog-post header .lead-image .date {
+  float:left;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.blog-post header .lead-image .comments {
+  float:left;
+  padding-right: 20px;
+  color: #eeffff;
+}
+
+.social-icons {
+  text-align: center;
+}
+.si-container {
+  width: 50%;
+  margin: 0 auto;
+}
+.social-icon {
+  float: left;
+  padding: 35px;
+  font-size: 300%;
+  margin-bottom: 90px;
+}
+
+.blog-aside:before {
+  border-left: 2px solid #eeeeee;
+  height: 100%;
+  content: "";
+  position: absolute;
+}
+.aside-widget {
+  padding-bottom: 100px;
+}
+.aside-widget header {
+  border-top: 2px solid #eeeeee;
+  padding-left: 30px;
+  margin-bottom: 15px;
+}
+.tags {
+  list-style: none;
+  padding-left: 0;
+}
+.tags li {
+  float: left;
+}
+.tags li a {
+  padding: 10px;
+  margin: 10px;
+}
+
+img.avatar {
+  float: left;
+  margin-right: 10px;
+  border: 1px solid #feffff;
+  border-radius: 10px;
+}
+img.credit {
+  width: 150px;
+  height: auto;
+}
+.image {
+  margin-bottom: 50px;
+}
+.line {
+  margin-bottom: 1px;
+}
+span.counter {
+  font-size: 125%;
+  font-style: bold;
+  padding-right: 5px;
+}
+.body {
+  margin-top: 10px;
+}
+body {
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  color: #333333;
+  background-color: #feffff;
+}
+
+a {
+  color: #006DCC;
+} 
+
+p {
+  font-size: 16px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #333333;
+}
+
+.page-header {
+  border-bottom: 1pxpx solid #eeeeee;
+}
+
+hr {
+  border-top: 1px solid #e5e5e5;
+  border-bottom: 1px solid #ffffff;
+}
+
+select,
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"],
+.uneditable-input {
+  background-color: #ffffff;
+  padding: 4px 4px 4px 4px;
+  font-size: 13px;
+  color: #555555;
+  border: 1px solid #ccc;
+}
+
+.well {
+  background-color: #f5f5f5;
+}
+
+.btn {
+  color: #333333;
+  background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -ms-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
+  background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
+  background-image: linear-gradient(top, #ffffff, #e6e6e6);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#'ffffff, endColorstr='#'e6e6e6, GradientType=0);
+}
+
+.btn:hover,
+.btn:active,
+.btn.active,
+.btn.disabled,
+.btn[disabled] {
+  color: #333333;
+  background-color: #e6e6e6;
+}
+
+.btn-primary {
+  background-color: #006dcc;
+  color: #ffffff;
+  background-image: -moz-linear-gradient(top, #0088cc, #0044cc);
+  background-image: -ms-linear-gradient(top, #0088cc, #0044cc);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0044cc));
+  background-image: -webkit-linear-gradient(top, #0088cc, #0044cc);
+  background-image: -o-linear-gradient(top, #0088cc, #0044cc);
+  background-image: linear-gradient(top, #0088cc, #0044cc);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#'0088cc, endColorstr='#'0044cc, GradientType=0);
+}
+
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary.active,
+.btn-primary.disabled,
+.btn-primary[disabled] {
+  background-color: #0044cc;
+}
+
+.btn-warning {
+  color: #ffffff;
+  background-image: -moz-linear-gradient(top, #fbb450, #f89406);
+  background-image: -ms-linear-gradient(top, #fbb450, #f89406);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fbb450), to(#f89406));
+  background-image: -webkit-linear-gradient(top, #fbb450, #f89406);
+  background-image: -o-linear-gradient(top, #fbb450, #f89406);
+  background-image: linear-gradient(top, #fbb450, #f89406);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#'fbb450, endColorstr='#'f89406, GradientType=0);
+}
+
+.btn-warning:hover,
+.btn-warning:active,
+.btn-warning.active,
+.btn-warning.disabled,
+.btn-warning[disabled] {
+  background-color: #f89406;
+}
+
+.btn-danger {
+  color: #ffffff;
+  background-image: -moz-linear-gradient(top, #ee5f5b, #bd362f);
+  background-image: -ms-linear-gradient(top, #ee5f5b, #bd362f);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ee5f5b), to(#bd362f));
+  background-image: -webkit-linear-gradient(top, #ee5f5b, #bd362f);
+  background-image: -o-linear-gradient(top, #ee5f5b, #bd362f);
+  background-image: linear-gradient(top, #ee5f5b, #bd362f);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#'ee5f5b, endColorstr='#'bd362f, GradientType=0);
+}
+
+.btn-danger:hover,
+.btn-danger:active,
+.btn-danger.active,
+.btn-danger.disabled,
+.btn-danger[disabled] {
+  background-color: #bd362f}
+
+.btn-success {
+  color: #ffffff;
+  background-image: -moz-linear-gradient(top, #62c462, #51a351);
+  background-image: -ms-linear-gradient(top, #62c462, #51a351);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#62c462), to(#51a351));
+  background-image: -webkit-linear-gradient(top, #62c462, #51a351);
+  background-image: -o-linear-gradient(top, #62c462, #51a351);
+  background-image: linear-gradient(top, #62c462, #51a351);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#'62c462, endColorstr='#'51a351, GradientType=0);
+}
+.btn-success:hover,
+.btn-success:active,
+.btn-success.active,
+.btn-success.disabled,
+.btn-success[disabled] {
+  background-color: #51a351;
+}
+
+.btn-info {
+  color: #ffffff;
+  background-image: -moz-linear-gradient(top, #5bc0de, #2f96b4);
+  background-image: -ms-linear-gradient(top, #5bc0de, #2f96b4);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#5bc0de), to(#2f96b4));
+  background-image: -webkit-linear-gradient(top, #5bc0de, #2f96b4);
+  background-image: -o-linear-gradient(top, #5bc0de, #2f96b4);
+  background-image: linear-gradient(top, #5bc0de, #2f96b4);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#'5bc0de, endColorstr='#'2f96b4, GradientType=0);
+}
+.btn-info:hover,
+.btn-info:active,
+.btn-info.active,
+.btn-info.disabled,
+.btn-info[disabled] {
+  background-color: #2f96b4;
+}
+
+.alert {
+  padding: 8px 35px 8px 14px;
+  background-color: #fcf8e3;
+  border: 1px solid #fbeed5;
+}
+
+.alert-success {
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+}
+.alert-success, .alert-success .alert-heading {
+  color: #468847;
+}
+.alert-danger, .alert-error {
+  background-color: #f2dede;
+  border-color: #eed3d7;
+}
+.alert-danger,
+.alert-error,
+.alert-danger .alert-heading,
+.alert-error .alert-heading {
+  color: #b94a48;
+}
+.alert-info {
+  background-color: #d9edf7;
+  border-color: #bce8f1;
+}
+.alert-info, .alert-info .alert-heading {
+  color: #3a87ad;
+}
+
+.navbar-inner {
+  background-image: -moz-linear-gradient(top, #ffffff, #f2f2f2);
+  background-image: -ms-linear-gradient(top, #ffffff, #f2f2f2);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#f2f2f2));
+  background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+  background-image: -o-linear-gradient(top, #ffffff, #f2f2f2);
+  background-image: linear-gradient(top, #ffffff, #f2f2f2);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#'ffffff, endColorstr='#'f2f2f2, GradientType=0);
+}
+
+.navbar .brand {
+  padding: 8px 20px 12px;
+  font-size: 20px;
+  color: #727272;
+}
+
+.navbar .divider-vertical {
+  height: 41px;
+  background-color: #ffffff;
+  border-right: 1px solid #c6c6c6;
+}
+
+.navbar .nav > li > a {
+  padding: 10px 10px 11px;
+  font-size: 14px;
+  color: #666666;
+}
+
+.navbar .nav > .active > a,
+.navbar .nav > .active > a:hover,
+.navbar .nav > .active > a:focus {
+  color: #424242;
+}
+
+.label,
+.badge {
+  padding: 1px 3px 2px;
+  font-size: 9.75px;
+  color: #ffffff;
+  background-color: #999999;
+}
+
+.label-important,
+.badge-important {
+  background-color: #468847;
+}
+
+.label-warning,
+.badge-warning {
+  background-color: #b94a48;
+}
+
+.label-success,
+.badge-success {
+  background-color: #f89406;
+}
+
+.label-info,
+.badge-info {
+   background-color: #3a87ad;
+}
+

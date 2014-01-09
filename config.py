@@ -15,7 +15,8 @@ TIME_FORMAT = "%a, %d %b %Y" # %H:%M:%S
 #double %% required
 LONG_TIME_FORMAT = "%%A, %%b %s %%Y"
 MAX_COMMENT = 4096
-
+#how often to update stats (in seconds)
+STAT_UPDATES = 60 * 60
 ####END USER EDITABLE####
 
 

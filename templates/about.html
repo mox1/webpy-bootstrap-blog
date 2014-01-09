@@ -22,7 +22,7 @@ $def with(me)
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600|PT+Serif:400,400italic' rel='stylesheet' type='text/css'>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="static/css/styles-bluered.css" id="theme-styles">
+    <link rel="stylesheet" href="static/css/styles-basic.css" id="theme-styles">
 
     <!--[if lt IE 9]>
         <link rel="stylesheet" href="css/ie8.css">        
@@ -42,13 +42,7 @@ $def with(me)
     <div class="widewrapper main">
         <div class="container about">
             <h1>Hello There, I’m <span class="about-bold">$:(me.name)</span></h1>
-            <span class="about-large">I’m a <span class="about-italic">linux server administrator</span> and <span class="about-italic">reliability expert</span>. <br> <img src="static/img/about-me.png" alt="Willy Wonka" class="about-portrait img-responsive"></span>
-            <span class="about-medium">I hold a Bachelor of Science in Information Technology and have 13 years of experience in the IT business.</span> 
-            <span class="about-small"> I also contribute to various open source projects including 
-            <span class="about-italic">linux-kernel</span>, <span class="about-italic">emacs</span>, <span class="about-italic">node.js</span> and 
-            <span class="about-italic">homebrew</span>. I use this Blog to share my experiences and my knowledge with the world.</span>
-			<br><br>
-			<span class="about-small">You can reach me via-email: <span class="about-italic">user at gmail dot com</span> or use the form below.</span>
+           		$:(me.about)
             <hr>
         </div>
 
@@ -118,7 +112,7 @@ $def with(me)
         </div>
         <div class="widewrapper copyright">
             <div class="container">
-                Copyright 2013, Blog Owner
+                $:render('copyright')
             </div>
         </div>
     </footer>

@@ -39,9 +39,17 @@ def init():
 
 def seed():
     init()
-        
+    about = """
+             <span class="about-large">I’m a <span class="about-italic">linux server administrator</span> and <span class="about-italic">reliability expert</span>. <br> <img src="static/img/about-me.png" alt="Willy Wonka" class="about-portrait img-responsive"></span>
+            <span class="about-medium">I hold a Bachelor of Science in Information Technology and have 13 years of experience in the IT business.</span> 
+            <span class="about-small"> I also contribute to various open source projects including 
+            <span class="about-italic">linux-kernel</span>, <span class="about-italic">emacs</span>, <span class="about-italic">node.js</span> and 
+            <span class="about-italic">homebrew</span>. I use this Blog to share my experiences and my knowledge with the world.</span>
+            <br><br>
+            <span class="about-small">You can reach me via-email: <span class="about-italic">user at gmail dot com</span> or use the form below.</span>
+    """    
     #add dummy user
-    u = m.User.create_user(name='testuser',email='test@example.com',password='testy')
+    u = m.User.create_user(name='testuser',email='test@example.com',password='testy',about=about)
     
         #Initialize BlogData table, always has 1 row
     m.BlogData.initialize(title="My Testing Blog",adminurl="testadmin",owner=u.id)

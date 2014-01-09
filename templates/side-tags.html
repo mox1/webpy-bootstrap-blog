@@ -6,9 +6,9 @@ $def with(tags,type)
                             <ul class="tags">
                             	$if type == 1:
                             		$for tag in tags.split(",")
-                                        <li><a href="tags?tag=$tag">$tag</a></li>
+                                        <li><a class="btn btn-default" href="tags?tag=$tag">$tag</a></li>
                                  $else:
                                  	$for tag,cnt in tags:
-                                        <li><a href="tags?tag=$tag">$tag</a></li>
+                                        <li><a class="btn btn-default" href="tags?tag=$tag">$tag</a></li>
                             </ul>
                         </div>

@@ -15,6 +15,9 @@ $def with(images)
 						<a href="#panel-2" data-toggle="tab">Global Settings</a>
 					</li>
 					<li>
+						<a href="#panel-6" id="manageuser" data-toggle="tab">User Settings</a>
+					</li>
+					<li>
 						<a href="#panel-3" id="manageposts" data-toggle="tab">Manage Posts</a>
 					</li>
 					<li>
@@ -78,7 +81,7 @@ $def with(images)
 										<div class="row">
 										<div class="col-md-12">
 											<label class="control-label" for="nphtml">Blog post/html:</label>
-											<textarea class="form-control" id="nphtml" name="nphtml" style="height: 300px; width:100%;">Blog post goes here, HTML is allowed.</textarea>
+											<textarea class="form-control" id="nphtml" name="nphtml" style="height: 300px; width:100%;" placeholder="Blog post goes here, HTML is allowed."> </textarea>
 										</div>
 										</div>
 										<div class="row">
@@ -229,7 +232,17 @@ $def with(images)
 						</div>
 					</div>
 					<!--end tab-pane -->
-
+					<div class="tab-pane" id="panel-6">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title"> User Settings </h3>
+							</div>
+							<div class="panel-body" id="usersettings">
+							</div>
+							<div class="panel-footer"></div>
+						</div>
+					</div>
+					<!--end tab-pane -->
 				</div>
 				<!--end class "tab-content"-->
 			</div>

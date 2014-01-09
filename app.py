@@ -1,5 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
+import time
+import threading
 import web
 from web import websafe
 import datetime
@@ -7,10 +9,10 @@ import config
 import model as m
 import hashlib
 
-VERSION = "0.8.1"
+VERSION = "0.9.1"
 
 
-#if you change urls, make sure url[0]  is your homepage / index.!!
+#if you change urls, make sure url[0]  is your homepage!!
 urls = (
     r"/", "Index",
     r"/newest", "IndexFull",
@@ -41,6 +43,29 @@ if web.config.get("_session") is None:
 else:
     session = web.config._session
 
+
+def update_db():
+    print "Start updating blog data"
+    t_globals["blog_data"] = m.BlogData.get(update = True)
+    print "Finish updating blog data"
+    
+    
+#this function allows us to do periodic things
+#not perfect, but eh. 
+#for now this simply updates the statistics
+#but could easily be used to do more "cron" like things
+next_cron_run = 0
+def my_processor(handler): 
+    global next_cron_run,td_next
+    if (time.time() > next_cron_run):
+        print "\n\n\nDOING CRON RUN\n\n\n"
+        thr = threading.Thread(target=update_db)
+        thr.start()
+        next_cron_run = time.time() + config.STAT_UPDATES 
+    
+    return handler()
+
+app.add_processor(my_processor)
 
 def flash(group, message):
     session.flash[group].append(message)
@@ -98,6 +123,7 @@ t_globals["csrf_token"] = csrf_token
 #TODO: Update this under certain conditions
 #like when a new post / comment is created
 #This is now updated in the Admin class, method globalsettings
+#And in the my_processor function above 
 t_globals["blog_data"] = m.BlogData.get(update = True)
 
 print "Admin page currently set to: /admin/%s" % t_globals["blog_data"].adminurl
@@ -210,6 +236,8 @@ class Admin:
                 id = data.get("id","-1")
                 resl = m.Comment.by_id(id)
                 return render.adminsinglecomment(resl)
+            elif method == "getuserdata":
+                return render.adminuser(m.User.firstuser())
             elif method == "editpost":
                 (resl,msg) = m.Post.update_from_input(data,session.uid)
                 if resl != None:
@@ -231,6 +259,13 @@ class Admin:
             elif method == "editcomment":
                 msg = m.Comment.update_from_input(data)
                 return msg
+            elif method == "edituser":
+                (resl,msg) = m.User.update_from_input(data)
+                if resl != None:
+                    flash("success","Succes, user %s updated!" % resl.name)
+                else:
+                    flash("error",msg)
+                return web.seeother(admin_url)
             else:
                 flash("error","Unkown method: %s" % method)
                 return web.seeother(admin_url)
