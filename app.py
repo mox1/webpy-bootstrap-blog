@@ -523,6 +523,7 @@ def calcprevnext(data):
         return (prev,next)
 # Set a custom internal error message
 def internalerror():
+    logger.error("Internal error:",exc_info=True)
     msg = """
     An internal server error occurred. Please try your request again by
     hitting back on your web browser. You can also <a href="/"> go back
