@@ -6,6 +6,7 @@ from playhouse.signals import Model, pre_save
 from peewee import SqliteDatabase
 import config
 import operator
+import re
 
 DoesNotExist = pw.DoesNotExist
 SelectQuery = pw.SelectQuery
@@ -28,6 +29,13 @@ def better_get(self, **kwargs):
 
 pw.SelectQuery.get = better_get
 
+
+#http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python
+#used to access dict elements with a .
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
 
 class BaseModel(Model):
     created_at = pw.DateTimeField(default="now()",null=False)
@@ -120,6 +128,13 @@ class User(BaseModel):
     remember_token = pw.CharField(max_length=64, null=True)
     
     @staticmethod
+    def is_setup():
+        if User.select(User.id).count() > 0:
+            return True
+        else:
+            return False
+    
+    @staticmethod
     def update_from_input(data):
         
         try:
@@ -181,7 +196,22 @@ class User(BaseModel):
         else:
             return (None,"Bad username or password")
 
-
+    @staticmethod
+    def new_from_input(data):
+        try:
+            name = data["username"]
+            email = data["email"]
+            password = data["pass1"]
+        except KeyError,e:
+            traceback.print_exc()
+            return (None,"Required Field missing: %s" % e.message)
+        except Exception,e:
+            traceback.print_exc()
+            return (None,"Sorry there was an error: %s" % e.message)
+        
+        user = User.create_user(name=name,email=email,password=password)
+        return (user,"User %s created!" % name)
+    
 
     @staticmethod
     def create_user(name,email,password,about=""):
@@ -191,7 +221,11 @@ class User(BaseModel):
         except User.DoesNotExist:
             #nope , create him
             #the @pre_save thingy below will auto salt and hash the password
-            return User.create(name=name,email=email,password=password,created_at=datetime.now(),about=about)
+            user = User.create(name=name,email=email,password=password,created_at=datetime.now(),about=about)
+            #users chang change all of this in the admin page, just create it now
+            #This call can safely be made multiple times, it is just a no-op for users 2+
+            BlogData.initialize(title="My Blog",adminurl="admin",owner=user.id)
+            return user
             
     @staticmethod
     def by_id(id):
@@ -233,6 +267,11 @@ class Post(BaseModel):
     favorite = pw.BooleanField(default=False)
     public = pw.BooleanField(default=True)
     views = pw.IntegerField(null=False,default=0)
+    #Post moderation options for comments
+    #0 = no moderation (all comments allowed)
+    #1 = moderated (admin must approve comments)
+    #2 = disabled (no new comments allowed)
+    moderate = pw.IntegerField(null=False,default=0)
         
     #data is web.input, mapping is
     # title = data.nptitle
@@ -258,6 +297,7 @@ class Post(BaseModel):
             cat = data["upcat"]
             scat = data["upsubcat"]
             html = data["uphtml"]
+            mod = int(data["upmod"])
             if data.get("upfav","false") == "true":
                 fav = True
             else:
@@ -286,6 +326,7 @@ class Post(BaseModel):
         post.favorite = fav
         post.public = public
         post.updated = datetime.now()
+        post.moderate = mod
         post.save()
         return (post,"Successfully updated post!")
     
@@ -344,6 +385,7 @@ class Post(BaseModel):
     @staticmethod
     def nth_most_recent(n):
         posts = Post.select().where(Post.public==True).order_by(Post.created_at.desc()).limit(n)
+        item = None
         for item in posts:
             pass
         return item
@@ -374,6 +416,7 @@ class Post(BaseModel):
             cat = data["npcat"]
             scat = data["npsubcat"]
             html = data["nphtml"]
+            mod = int(data["npmod"])
             if data.get("npfav","false") == "true":
                 fav = True
             else:
@@ -389,17 +432,18 @@ class Post(BaseModel):
             traceback.print_exc()
             return (None,"Sorry there was an error: %s" % e.message)
         
-        post = Post.new(title=title,tags=tags,author_id=userid,image=image,small_image=small_image,html=html,cat=cat,subcat=scat,fav=fav,public=public)
+        post = Post.new(title=title,tags=tags,author_id=userid,image=image,
+                        small_image=small_image,html=html,cat=cat,subcat=scat,fav=fav,public=public,moderate=mod)
         return (post,"Successfully created new post!")
     
     
     @staticmethod
-    def new(title,tags,author_id,html,image,small_image,cat=None,subcat=None,fav = False,public=True):
+    def new(title,tags,author_id,html,image,small_image,cat=None,subcat=None,fav = False,public=True,moderate=0):
         #get user by id
         user = User.by_id(author_id)
         p = Post.create(title=title,tags=tags,author=user,html=html,
                         image=image,small_image=small_image,created_at=datetime.now(),
-                        favorite=fav,category=cat,subcategory=subcat)
+                        favorite=fav,category=cat,subcategory=subcat,moderate=moderate)
         return p
     
     #every time this is called, a pageview count is updated"
@@ -439,12 +483,19 @@ class Comment(BaseModel):
     title = pw.CharField(max_length=512,default="Comment")
     author = pw.CharField(max_length=512,null=False)
     auth_url = pw.CharField(max_length=2048,null=True)
+    ip = pw.CharField(max_length=20,null=True)
     post = pw.ForeignKeyField(Post,null=False)
     text = pw.TextField(max_length=16656,null=False)
     email = pw.CharField(max_length=1024,null=False,default="none@none.net")
     parent = pw.ForeignKeyField('self',related_name='children',null=True)
     rank = pw.IntegerField(null=False,default=0)
     indent = pw.IntegerField(null=False,default=0)
+    from_admin = pw.BooleanField(null=False,default=False)
+    #0 = displayed 
+    #1-4 Future use?
+    #5 = in moderation Q
+    #6+ future use 
+    status = pw.IntegerField(null=False,default=0)
 
     @staticmethod
     def update_from_input(data):
@@ -455,6 +506,7 @@ class Comment(BaseModel):
             author = data["name"]
             email = data["email"]
             text = data["message"]
+            status = int(data["status"])
         except KeyError,e:
             traceback.print_exc()
             return (None,"Required Field missing: %s" % e.message)
@@ -465,7 +517,8 @@ class Comment(BaseModel):
         comment.title = title
         comment.author = author
         comment.email = email
-        comment.text = text    
+        comment.text = text
+        comment.status = status
         comment.save()
         return "Successfully updated comment \"%s\" by \"%s\"" % (title,author)
             
@@ -517,13 +570,33 @@ class Comment(BaseModel):
             Comment.recur_del(c)
 
     @staticmethod
-    def get_comments(postid):
-        count = Comment.select().where(Comment.post == postid).order_by(Comment.rank.asc()).count()
-        return (count,Comment.select().where(Comment.post == postid).order_by(Comment.rank.asc()))
+    def get_comments(postid,show_mod):
+        if show_mod == False:
+            count = Comment.select().where(Comment.post == postid & Comment.status == 0).order_by(Comment.rank.asc()).count()
+            comments = Comment.select().where(Comment.post == postid & Comment.status == 0).order_by(Comment.rank.asc())
+        else:
+            count = Comment.select().where(Comment.post == postid).order_by(Comment.rank.asc()).count()
+            comments = Comment.select().where(Comment.post == postid).order_by(Comment.rank.asc())  
+                 
+        return (count,comments)
 
     @staticmethod
-    def new(postid,parentid,title,author,text,email="none@none.net"):
-        #1 get parent
+    def new(postid,parentid,title,author,text,email="none@none.net",admin=False,ip=None):
+        #1st get post, check if comments are allowed
+        post = Post.by_id(postid)
+        if (post == None) or (post.moderate == 2):
+            return None
+        #put this post into a "review by admin state"
+        if post.moderate ==1:
+            status = 5
+        else:
+            status = 0
+        
+        #never moderate admin posts
+        if admin == True:
+            status = 0
+        #we need to convert \n into <br>
+        text = newline_to_break(text)
         rank = 0
         indent = 0
         lastcomment = None
@@ -537,14 +610,18 @@ class Comment(BaseModel):
             else:
                 #this must be the first comment
                 pass
-            return Comment.create(title=title,author=author,post=postid,text=text,rank=rank,indent=indent,email=email,created_at=datetime.now())
+            return Comment.create(title=title,author=author,post=postid,text=text,
+                                  rank=rank,indent=indent,email=email,created_at=datetime.now(),from_admin=admin,status=status,ip=ip)
         else:
             parent=Comment.get(Comment.id==parentid)
             start_rank = parent.rank
             #update all old posts whose rank are greater than parent
             Comment.update(rank=Comment.rank + 1).where(Comment.rank > start_rank).execute()
             #insert at rank of parent + 1 aka where we just made room
-            new_comment = Comment.create(email=email,parent=parent,title=title,author=author,post=postid,text=text,rank=start_rank+1,indent=parent.indent+1,created_at=datetime.now())
+            new_comment = Comment.create(email=email,parent=parent,title=title,
+                                         author=author,post=postid,text=text,rank=start_rank+1,indent=parent.indent+1,
+                                         created_at=datetime.now(),from_admin=admin,status=status,ip=ip)
+            
 
             return new_comment
 
@@ -567,9 +644,16 @@ class BlogData(BaseModel):
     popular_tags = pw.TextField(null=False,default="")
     
     @staticmethod
+    def is_setup():
+        if BlogData.select(BlogData.id).count() > 0:
+            return True
+        else:
+            return False
+    
+    @staticmethod
     def initialize(title,adminurl,owner):
         #just insert 1 row of defaults
-        if BlogData.select(BlogData.id).count() > 1:
+        if BlogData.select(BlogData.id).count() > 0:
             #we already have a row, go away
             return None
         return BlogData.create(title=title,adminurl=adminurl,owner=owner,created_at=datetime.now())
@@ -596,6 +680,11 @@ class BlogData(BaseModel):
         return (bdata,"Successfully updated blog data! Note: admin url is currently set to: /admin/%s " % adminurl)
     @staticmethod
     def update_stats():
+        try:
+            bdata = BlogData.select().limit(1).get()
+        except:
+            #BlogData doesnt have any data yet
+            return
         
         tp = Post.select(Post.id).count()
         tc = Comment.select(Comment.id).count()
@@ -606,7 +695,6 @@ class BlogData(BaseModel):
             popular_tagstr += "%s," % tag
         if(len(popular_tagstr) > 1):
             popular_tagstr = popular_tagstr[:-1]
-        bdata = BlogData.select().limit(1).get()
         bdata.total_posts = tp
         bdata.total_comments = tc
         bdata.total_authors = ta
@@ -620,8 +708,30 @@ class BlogData(BaseModel):
     def get(update=False):
         if update == True:
             BlogData.update_stats()
-            
-        return BlogData.select().limit(1).get()
+        
+        try:
+            bd = BlogData.select().limit(1).get()
+        except:
+            #BlogData isnt setup, return some simple default values
+
+            return AttrDict({"title" : "Blog",
+                             "total_posts" : 0, 
+                             "total_comments" : 0, 
+                             "total_authors" : 0, 
+                             "popular_tags" : "",
+                             "adminurl" : "admin",
+                             "owner" : None,
+                             "contactline": ""})
+        
+        return bd
+
+def newline_to_break(text):
+    #first re
+    #normalize newlines
+    out = text.replace("\r\n", "\n")
+    #convert \n to <br> while replacing multipls with a single <br>
+    out = re.sub("\n+","<br>",out)
+    return out
     
 
 def print_dates(d):

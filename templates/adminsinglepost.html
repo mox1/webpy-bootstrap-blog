@@ -72,6 +72,15 @@ $def with(post,images)
 					$else:
 						<input type="checkbox" name="uppriv" id="uppriv" value="true" checked>
 					Private </label>
+				<label class="control-label" for="upmod">Comment Options:</label>
+					$ options = ["Allowed","Moderated (Admin Approval)","Disabled"]
+					<select id="upmod" name="upmod" class="form-control input-md">
+						$for o in options:
+							$if loop.index == post.moderate: 
+								<option value="$(loop.index0)" selected>$o</option>
+							$else:
+								<option value="$(loop.index0)">$o</option>
+					</select>
 			</div>
 			<div class="col-md-2 pull-right">
 				<button id="upsubmit" name="submit" class="btn btn-success btn-lg" style="margin-top: 10px;">

@@ -99,6 +99,12 @@ def csrf_protected(f):
     return decorated
 
 
+#lets check if out database tables exist, if not create them
+for x in [m.User,m.Post,m.Image,m.Comment,m.BlogData]:
+ #this will fail silently if they already exist
+ x.create_table(True)
+
+
 render = web.template.render("templates/",
                              #base="base",
                              cache=config.cache)
@@ -119,14 +125,13 @@ t_globals["dt_as_ago"] = m.datetime_ago
 t_globals["hashlib"] = hashlib
 t_globals["csrf_token"] = csrf_token
 
+
 #get statistics
-#TODO: Update this under certain conditions
-#like when a new post / comment is created
 #This is now updated in the Admin class, method globalsettings
 #And in the my_processor function above 
 t_globals["blog_data"] = m.BlogData.get(update = True)
-
 print "Admin page currently set to: /admin/%s" % t_globals["blog_data"].adminurl
+
 
 
 #This is the main Admin handler class. All admin functions are executed through POST's
@@ -138,18 +143,27 @@ print "Admin page currently set to: /admin/%s" % t_globals["blog_data"].adminurl
 class Admin:
     def GET(self,url):
         #compare url vs our BlogData valid url
-        if url != t_globals["blog_data"].adminurl:
+        if url == "logout":
+                session.logged_in = False
+                session.kill()
+                flash("success","Session Data removed!")
+                return web.seeother(urls[0])
+        elif url != t_globals["blog_data"].adminurl:
             #nope go away, send em to the home page
             #print "Bad Adminurl (needed %s, got %s)" % (t_globals["blog_data"].adminurl,url)
             return web.seeother(urls[0])
         
         #ok they found the magic url, good
         if session.logged_in == False:
-            #show login page
-            return render.fullpageindex("Please Login to Continue",render.login())
+            if m.User.is_setup() == False:
+                #we have 0 users, ask to add a new one
+                return render.fullpageindex("Please Create a user",render.createuser())
+            else:
+                #show login page
+                return render.fullpageindex("Please Login to Continue",render.login())
         else:
             images = m.Image.get_all()
-            return render.fullpageindex("Admin Interface (logged in as %s)" % session.dispname,render.admin(images))
+            return render.fullpageindex("Logged in as %s" % session.dispname,render.admin(images))
                 
     def POST(self,url):
         global t_globals
@@ -164,7 +178,7 @@ class Admin:
         data = web.input()
         method = data.get("method","malformed")
         if session.logged_in == False:
-            #the only thing you can do here is try to login
+            #the only thing you can do here is try to login or create a user
             if method =="login":
                 (resl,msg) = m.User.attempt_auth(data.email,data.password)
                 if resl != None:
@@ -173,6 +187,14 @@ class Admin:
                 else:
                     flash("error",msg)
                     return web.seeother(admin_url)
+            elif method == "createuser":
+                (resl,msg) = m.User.new_from_input(data)
+                if resl != None:
+                    flash("success",msg)
+                    set_auth(resl)
+                else:
+                    flash("error",msg)
+                return web.seeother(admin_url)
             else:
                 flash("error","Please login first")
                 return web.seeother(admin_url)
@@ -221,7 +243,7 @@ class Admin:
                 return render.datatable_images(images)
             elif method == "getcomments":
                 id = data.get("id","-1")
-                (count,comments) = m.Comment.get_comments(id)
+                (count,comments) = m.Comment.get_comments(id,True)
                 return render.datatable_comments(count,comments)
             elif method == "getsinglepost":
                 id = data.get("id","-1")
@@ -344,7 +366,10 @@ class IndexFull:
     def GET(self):
         #return the newest post
         post = m.Post.nth_most_recent(1)
-        count,comments = m.Comment.get_comments(post.id)
+        if post == None:
+            return web.seeother(urls[0])
+        
+        count,comments = m.Comment.get_comments(post.id,False)
         #for next and prev links
         try:
             next = m.Post.get_next(post.created_at,1).get()
@@ -355,17 +380,20 @@ class IndexFull:
         except:
             prev = None
             
-        return render.blogdetail(post,count,comments,next,prev)
+        return render.blogdetail(post,count,comments,next,prev,session.logged_in)
 
 class BlogPost:
     def GET(self):
         pid = -1
         try:
             pid = websafe(web.input().pid)
+            post = m.Post.by_id(pid)
+            if post == None:
+                raise Exception
         except:
             flash("error", "Sorry, that post doesn't exist!")
             return web.seeother("/")
-        post = m.Post.by_id(pid)
+
         #for next and prev links
         try:
             next = m.Post.get_next(post.created_at,1).get()
@@ -376,8 +404,8 @@ class BlogPost:
         except:
             prev = None
             
-        count,comments = m.Comment.get_comments(post.id)
-        return render.blogdetail(post,count,comments,next,prev)
+        count,comments = m.Comment.get_comments(post.id,False)
+        return render.blogdetail(post,count,comments,next,prev,session.logged_in)
 class About:
     def GET(self):
         return render.about(m.User.by_id(1))
@@ -409,11 +437,13 @@ class AddComment:
     @csrf_protected # Verify this is not CSRF, or fail
     def POST(self):
         data = web.input()
+        ip = web.ctx.ip
         #verify our uber anti-spam technique 
         #(that the user has javascript turned on :) )
         if (websafe(data.get("email","")) != "n0m0r3sp4m@n0p3.0rg"):
             #failure, return him to homepage with a flash msg
             flash("error","Sorry, you failed the spam test, post not accepted. Turn on javascript.")
+            print "New comment SPAM test failed by %s" % ip 
             return web.seeother(url[0])
         
         postid = websafe(int(data.get("pid",-1)))
@@ -426,14 +456,23 @@ class AddComment:
             flash("error","Comment too large, max %d characters" % config.MAX_COMMENT)
             return web.seeother("post?pid=%d" % postid)
         
+        
         #spam check passed, continue
         postid = int(websafe(data.get("pid",-1)))
         parentid = int(websafe(data.get("replyto",-1)))
         title = websafe(data.get("title","Comment"))
-        author = websafe(data.get("name","Anonymous"))
-        email = websafe(data.get("e","none@none.net"))
-        c1 = m.Comment.new(postid,parentid,title,author,text,email)
-        flash("success","Thanks for joining the discussion!" )
+        if session.logged_in == False:
+            author = websafe(data.get("name","Anonymous"))
+            email = websafe(data.get("e","none@none.net"))
+        else:
+            user = m.User.by_id(session.uid)
+            author = user.name
+            email = user.email
+        c1 = m.Comment.new(postid,parentid,title,author,text,email,session.logged_in,ip)
+        if c1 != None:
+            flash("success","Thanks for joining the discussion!")
+        else:
+            flash("error","There was an error with your comment")
         return web.seeother("post?pid=%d" % postid)
     
 def set_auth(user):
@@ -443,8 +482,6 @@ def set_auth(user):
     session.username = user.email
     session.dispname = user.name
 
-
-    
     
 #we can use next as the input to DB pagination queries
 #so we cant decrement by 1 in this function

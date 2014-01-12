@@ -93,9 +93,16 @@ $def with(images)
 												<input type="checkbox" name="nppriv" id="nppriv" value="true">
 												Private </label>
 										</div>
-										<div class="col-md-6 pull-right">
-											<label class="col-md-6 control-label" for="npsubmit" ></label>
-											<button id="npsubmit" name="submit" class="btn btn-success btn-lg" style="margin-top: 10px;">
+										<div class="col-md-3">
+											<label class="control-label" for="npmod">Comment Options:</label>
+											<select id="npmod" name="npmod" class="form-control input-md">
+												<option value="0" selected>Allowed</option>
+												<option value="1">Moderated (Admin Approval)</option>
+												<option value="2">Disabled</option>
+											</select>
+										</div>
+										<div class="col-md-6">
+											<button id="npsubmit" name="submit" class="btn btn-success btn-lg pull-right" style="margin-top: 10px;">
 												Save Post
 											</button>
 										</div>
@@ -248,6 +255,7 @@ $def with(images)
 			</div>
 			<!--end class "tabbable"-->
 		</div>
+		<p>Click here to <a href="logout">logout</a></p>
 	</div>
 </div>
 

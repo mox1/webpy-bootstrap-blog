@@ -4,36 +4,45 @@ body {
 
 /* There is probably a better way to do this, but it works for now 
  * */
-aside.comments .comment.reply1 {
+aside.comments  .reply1 {
+	margin-left: 50px;
+}
+aside.comments  .reply2 {
 	margin-left: 100px;
 }
-aside.comments .comment.reply2 {
+aside.comments  .reply3 {
+	margin-left: 150px;
+}
+aside.comments  .reply4 {
 	margin-left: 200px;
 }
-aside.comments .comment.reply3 {
+aside.comments  .reply5 {
+	margin-left: 250px;
+}
+aside.comments  .reply6 {
 	margin-left: 300px;
 }
-aside.comments .comment.reply4 {
-	margin-left: 400px;
+aside.comments  .replyx {
+	margin-left: 300px;
 }
-aside.comments .comment.reply5 {
-	margin-left: 500px;
-}
-aside.comments .comment.reply6 {
-	margin-left: 600px;
-}
-aside.comments .comment.replyx {
-	margin-left: 700px;
-}
-
 .comment {
+	width: auto;
 	padding: 20px;
-	margin: 30px;
+	margin: 20px 10px 20px 0px;
 	background-color: #F5F5F5;
   	border-radius: 35px;
-  	border: 1px solid #49545D;	
+  	border: 1px solid #49545D;
+  	font-size: 80%;	
 }
 
+.admincomment {
+	padding: 20px;
+	margin: 20px 10px 20px 0px;
+	background-color:#A4B6C8;
+  	border-radius: 35px;
+  	border: 1px solid #49545D;
+  	font-size: 80%;	
+}
 .makecenter {
 	margin-left: auto;
 	margin-right: auto;

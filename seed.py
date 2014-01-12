@@ -55,42 +55,42 @@ def seed():
     m.BlogData.initialize(title="My Testing Blog",adminurl="testadmin",owner=u.id)
     
     #add dummy Images
-    m.Image.create(url="static/img/cat.png",
+    img_cat = m.Image.create(url="static/img/cat.png",
                     alt='Cat',
                     title="Innocence",
                     author="""<a href="http://500px.com/RKingston" target="_blank">Rochelle Kingston</a>""",
                     link="""<a href="http://500px.com/photo/39364720" target="_blank">http://500px.com/photo/39364720</a>""",
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
-    m.Image.create(url="static/img/hands.png",
+    img_hands = m.Image.create(url="static/img/hands.png",
                     alt='Hands',
                     title="The Dirt of Coal-sm",
                     author="""<a href="http://500px.com/NadavYacobi" target="_blank">Nadav Yacobi</a>""",
                     link="""<a href="http://500px.com/photo/30720921" target="_blank">http://500px.com/photo/30720921</a>""",
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
-    m.Image.create(url="static/img/hands-big.png",
+    img_handb = m.Image.create(url="static/img/hands-big.png",
                     alt='Hands',
                     title="The Dirt of Coal-big",
                     author="""<a href="http://500px.com/NadavYacobi" target="_blank">Nadav Yacobi</a>""",
                     link="""<a href="http://500px.com/photo/30720921" target="_blank">http://500px.com/photo/30720921</a>""",
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
-    m.Image.create(url="static/img/bike.png",
+    img_bike = m.Image.create(url="static/img/bike.png",
                     alt='Bike',
                     title="Reserved",
                     author="""<a href="http://500px.com/MartinHricko" target="_blank">Martin Hricko</a>""",
                     link="""<a href="http://500px.com/photo/8849012" target="_blank">http://500px.com/photo/8849012</a>""",
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
-    m.Image.create(url="static/img/violin.png",
+    img_voilin = m.Image.create(url="static/img/violin.png",
                     alt='Violin',
                     title="Passion",
                     author="""<a href="http://500px.com/MartinHricko"  target="_blank">Martin Hricko</a>""",
                     link="""<a href="http://500px.com/photo/20808109" target="_blank">http://500px.com/photo/20808109</a>""",
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
-    m.Image.create(url="static/img/smartguy.png",
+    img_guy = m.Image.create(url="static/img/smartguy.png",
                     alt='SmartGuy',
                     title="Stranger #7",
                     author="""<a href="http://500px.com/enthuan" target="_blank">Antoine Robiez</a>""",
@@ -98,7 +98,8 @@ def seed():
                     license="""<a href="http://creativecommons.org/licenses/by/3.0/deed.en_US" target="_blank">CC BY 3.0</a>""",
                     )
     #add some dummy posts
-    #m.Post.new(title="1st Post!",tags="blog,intro,example",author_id=u.id,html=html1,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Rants")
+    m.Post.new(title="1st Post!",tags="blog,intro,example",author_id=u.id,html=html1,
+               cat="General",subcat="Rants",image=img_handb,small_image=img_hands)
     #m.Post.new(title="What a wonderful Thing",tags="intro,wonder,cat",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="General",subcat="Misc",fav=True)
     #m.Post.new(title="Yet another Example Post",tags="example,post,dog",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Python",subcat="Django")
     #m.Post.new(title="Why thingX sucks",tags="thingX,rant",author_id=u.id,html=html2,img="<img src=\"static/img/cat.png\" alt=\"A Cat\">",bimg="<img src=\"static/img/hands-big.png\" alt=\"Hands\" class=\"img-responsive\">",cat="Robots")

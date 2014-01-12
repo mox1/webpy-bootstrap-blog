@@ -1,29 +1,38 @@
-$def with(cur_post)
+$def with(cur_post,logged_in)
 <aside class="create-comment" id="create-comment">
-    <hr>    
-
-    <h2><i class="icon-heart"></i> Add Comment</h2>
-
-    <form action="newcomment" method="post" accept-charset="utf-8">
-        <div class="row">
-            <div class="col-md-6">
-                <input type="text" name="name" id="comment-name" placeholder="Name" class="form-control input-lg">    
-            </div>
-            <div class="col-md-6">
-                <input type="email" name="e" id="comment-email" placeholder="Email" class="form-control input-lg">    
-            </div>
-        </div>
-
-        <input type="text" name="title" id="input-comment-title" placeholder="Title..." class="form-control input-lg">
-
-        <textarea rows="10" name="message" id="comment-body" placeholder="Your thoughts..." class="form-control input-lg" maxlength="4096"></textarea>
-        <input type="hidden" name="pid" id="input-pid" value="$(cur_post.id)">
-        <input type="hidden" name="replyto" id="input-replyto" value="-1">
-        <input type="hidden" name="email" id="input-email" value="">
-        <input type="hidden" name="csrf_token" value="$csrf_token()">
-        <div class="buttons clearfix">
-            <button class="btn btn-xlarge btn-tales-two">Cancel</button>
-            <button type="submit" class="btn btn-xlarge btn-tales-one" id="sbmt-btn">Submit</button>
-        </div>
-    </form>
+	$if cur_post.moderate != 2:
+		<hr>
+		<h2><i class="icon-heart"></i> Add Comment</h2>
+	
+		<form action="newcomment" method="post" accept-charset="utf-8">
+			$if logged_in == False:
+				<div class="row">
+					<div class="col-md-6">
+						<input type="text" name="name" id="comment-name" placeholder="Name" class="form-control input-lg">
+					</div>
+					<div class="col-md-6">
+						<input type="email" name="e" id="comment-email" placeholder="Email" class="form-control input-lg">
+					</div>
+				</div>
+			$else:
+				<p>You are logged in, your current username and e-mail will be used for this post.</p>
+	
+			<input type="text" name="title" id="input-comment-title" placeholder="Title..." class="form-control input-lg">
+			<textarea rows="10" name="message" id="comment-body" placeholder="Your thoughts..." class="form-control input-lg" maxlength="4096"></textarea>
+	
+			<input type="hidden" name="pid" id="input-pid" value="$(cur_post.id)">
+			<input type="hidden" name="replyto" id="input-replyto" value="-1">
+			<input type="hidden" name="email" id="input-email" value="">
+			<input type="hidden" name="csrf_token" value="$csrf_token()">
+			<div class="buttons clearfix">
+				<button class="btn btn-xlarge btn-tales-two">
+					Cancel
+				</button>
+				<button type="submit" class="btn btn-xlarge btn-tales-one" id="sbmt-btn">
+					Submit
+				</button>
+			</div>
+		</form>
+	$else:
+		<p>Sorry, new comments have been closed for this post.</p>
 </aside>

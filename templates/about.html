@@ -4,9 +4,15 @@ $def with(me)
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+$if me == None:
+	$ name = "Nobody"
+	$ about = "<p>This blog hasn't been configured yet!</p>"
+$else:
+	$ name = me.name
+	$ about = me.about
 <head>
     <meta charset="utf-8">
-    <title>About $:(me.name)</title>
+    <title>About $:(name)</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 
@@ -41,8 +47,8 @@ $def with(me)
 
     <div class="widewrapper main">
         <div class="container about">
-            <h1>Hello There, I’m <span class="about-bold">$:(me.name)</span></h1>
-           		$:(me.about)
+            <h1>Hello There, I’m <span class="about-bold">$:(name)</span></h1>
+           		$:(about)
             <hr>
         </div>
 

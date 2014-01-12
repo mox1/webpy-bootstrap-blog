@@ -3,11 +3,15 @@ $def with(count,comments)
 	<hr>
 	<h2><i class="icon-comments"></i> $count Comments</h2>
 	$for comment in comments:
+		$if comment.from_admin == True:
+			$ a_cls = "admincomment"
+		$else:
+			$ a_cls = "comment"
 		$ indent = comment.indent
 		$ indent_txt = ""
 		$if indent > 6: $ indent_txt = "replyx"
 		$else: $ indent_txt = "reply%d" % indent
-		<article class="comment $:(indent_txt)">
+		<article class="$a_cls $:(indent_txt)">
 		    <header class="clearfix">
 		    	$#calc image md5 for gravatar
 		    	$ md5 = hashlib.new("md5")
@@ -16,7 +20,7 @@ $def with(count,comments)
 		    	<img src="http://www.gravatar.com/avatar/$(md5)?d=identicon" alt="Comment Author Gravatar" class="avatar">
 		        $#<img src="static/img/avatar.png" alt="A Smart Guy" class="avatar">
 		        <div class="meta">
-		            <h3><a href="#">$(comment.author)</a></h3>
+		            <h4>$(comment.author)</h4>
 		            <span class="date"> Posted $dt_as_ago(comment.created_at)</span>
 		            <span class="separator">-</span>
 		            <a commentid="$comment.id" href="#create-comment" class=" replyto reply-link">Reply</a>                
@@ -24,11 +28,8 @@ $def with(count,comments)
 		    </header>
 		    <div class="body">
 		    <div class="comment-title" id="ctitle$(comment.id)">$(comment.title)</div>
-		    	$#TODO: Right now this escapes all html, which is good
-		    	$# but when users type enter for a newline
-		    	$# it gets ignored when rendered, we need to find a way
-		    	$# to convert newlines to <br> or something
-		        $(comment.text)
+		    	$# this field gets websafe(d) upon upload, so it is safe to allow html here
+		        $:(comment.text)
 		    </div>
 		    </article>
 

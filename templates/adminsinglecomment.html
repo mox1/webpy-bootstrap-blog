@@ -1,9 +1,23 @@
 $def with(comment)
 
-<h4>Edit Comment</h4>
+<h4>Edit Comment (IP <a href="http://www.geoiptool.com/en/?IP=$(comment.ip)">$(comment.ip) )</a></h4>
 <form id="formeditcomment" action="" method="post" accept-charset="utf-8" class="form-horizontal">
 	<input type="hidden" name="method" value="editcomment">
 	<input type="hidden" name="cid" value="$(comment.id)">
+	<div class="row">
+		<div class="col-md-6">
+			<label class="control-label" for="status">Moderation Status:</label>
+			<select id="status" name="status" class="form-control input-md">
+				$if comment.status == 5:
+					<option value="5" selected>Hide (Moderated)</option>
+					<option value="0">Show</option>
+				$else:
+					<option value="0" selected>Show</option>
+					<option value="5">Hide (Moderated)</option>
+			</select>
+				
+		</div>
+	</div>
     <div class="row">
         <div class="col-md-6">
         	<label class="control-label" for="name">Author:</label>

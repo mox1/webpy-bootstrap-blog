@@ -1,0 +1,63 @@
+$def with()
+<div class="row clearfix">
+	<div class="col-md-2 column">
+	</div>
+	<div class="col-md-6 column">
+		<p>It looks like your Blog has not been setup yet. Please fill out the form below to create your account.</p>
+		<form action="" method="post" id="fcreate" name="fcreate" class="form-horizontal">
+				<input type="hidden" name="method" value="createuser">
+        <fieldset>
+                <!-- Form Name -->
+                <legend>Your Information</legend>
+
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="control-label" for="username">Username:</label>
+                    <input id="username" name="username" type="text" placeholder="ZeroCool" class="form-control input-md" required="">
+                    <span class="help-block">Your username, this is what will be displayed when you post comments</span>
+                </div>
+                <!-- Text input-->
+                <div class="form-group">
+                    <label class="control-label" for="email">E-mail:</label>
+                    <input id="email" name="email" type="email" placeholder="root@localhost" class="form-control input-md" required="">
+                    <span class="help-block">Your e-mail address, used to login and for your gravatar</span>
+                </div>
+                <!-- Password input-->
+                <div class="form-group">
+                    <label class="control-label" for="pass1">Password:</label>
+                    <input id="pass1" name="pass1" type="password" placeholder="" class="form-control input-md" required="">
+	                <span class="help-block">Password for the admin portion.</span>
+                </div>
+                <!-- Password input-->
+                <div class="form-group">
+                   <label class="control-label" for="pass2">Repeat Password:</label>
+                    <input id="pass2" name="pass2" type="password" placeholder="" class="form-control input-md" required="">
+                    <span class="help-block">Type your password from above again.</span>
+                </div>
+                <!-- Button -->
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <button id="btn_create" name="btn_create" class="btn btn-primary" type="submit">Create Account</button>
+	                </div>
+                </div>
+         </fieldset>
+         </form>
+		<div id="formalert"></div>
+	</div>
+	<div class="col-md-4 column">
+	</div>
+</div>
+<script type="text/javascript">
+    $$(document).ready(function() {
+        $$("#fcreate").on('submit', function(e) {
+            pass1 = $$("#pass1").val();
+            pass2 = $$("#pass2").val();
+            if (pass1 != pass2) {
+            	//throw alert
+            	$$("#formalert").empty();
+                $$("#formalert").html("<div class='alert alert-danger alert-dismissable'> <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>×</button><h4>Passwords don't match! Check and try again</h4></div>");
+            	e.preventDefault();
+            }
+        });
+    });
+</script>

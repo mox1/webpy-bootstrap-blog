@@ -1,4 +1,4 @@
-$def with(blogpost,comment_count,comments,next_post,prev_post)
+$def with(blogpost,comment_count,comments,next_post,prev_post,logged_in)
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -105,7 +105,7 @@ $def with(blogpost,comment_count,comments,next_post,prev_post)
                         $if next_post != None:
                             <a href="post?pid=$(next_post.id)" class="older">$(next_post.title)<i class="icon-long-arrow-right"></i></a>
                     </div>
-                    $:render('add_comment',blogpost)
+                    $:render('add_comment',blogpost,logged_in)
                 </div>
                <aside class="col-md-4 blog-aside">
                     

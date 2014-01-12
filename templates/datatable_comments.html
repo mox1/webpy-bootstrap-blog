@@ -13,6 +13,12 @@ $def with(count,comments)
 							Name
 						</th>
 						<th>
+							IP
+						</th>
+						<th>
+							Status
+						</th>
+						<th>
 							E-mail
 						</th>
 						<th>
@@ -36,6 +42,11 @@ $def with(count,comments)
 							<input type="hidden" name="method" value="editcomment">
 							<input type="hidden" name="ucommentid" value="$(comment.id)">
 							<td>$(comment.author)</td>
+							<td><a href="http://www.geoiptool.com/en/?IP=$(comment.ip)">$(comment.ip)</a></td>
+							$if comment.status == 5:
+								<td>Hidden</td>
+							$else:
+								<td>Shown</td>
 							<td>$(comment.email)</td>
 							<td>$(comment.title)</td>
 							<td>$(comment.text[0:30])...</td>

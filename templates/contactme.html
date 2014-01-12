@@ -4,5 +4,8 @@ $def with()
 <span>$:(blog_data.contactline)</span>
 
 <span class="email">
-	$:(blog_data.owner.contact_html)
+	$if blog_data.owner != None:
+		$:(blog_data.owner.contact_html)
+	$else: 
+		<p>This blog hasn't been setup yet! Please access the admin page to setup</p>
 </span>
