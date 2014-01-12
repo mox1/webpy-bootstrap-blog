@@ -1,9 +1,8 @@
 import logging
+logger = logging.getLogger("")
 import os
 import sys
 import web
-
-
 
 ####USER EDITABLE####
 #enabled by default, see below to disable
@@ -19,12 +18,13 @@ MAX_COMMENT = 4096
 STAT_UPDATES = 60 * 60
 ####END USER EDITABLE####
 
+logging.info("emailing errors to %s using server: %s:%s" % (ERROR_EMAIL_ADDR,SMTP_SERVER,SMTP_PORT))
 
 
 ####DEVLOPMENT / ADVANCED CONFIG#####
 
-env = os.environ.get("WEB_ENV", "development")
-print "Environment: %s" % env
+env = os.environ.get("WEB_ENV", "production")
+logging.info("Environment: %s" % env)
 
 
 #db wildcard selector (for sqlite / mysql /etc) % or *
@@ -38,18 +38,17 @@ db_name = "peewee.db"
 web.config.debug = True
 cache = False
 
-
-
-
 email_errors = web.storage(to_address="",
                            from_address=ERROR_EMAIL_ADDR)
 
 web.config.smtp_server = SMTP_SERVER
 web.config.smtp_port = SMTP_PORT
 
+
 if env == "production":
     web.config.debug = False
     cache = True
+    logging.getLogger("").setLevel(logging.INFO)
     email_errors.to_address = ERROR_EMAIL_ADDR
 elif env == "staging":
     dac_host = "localhost:8000"
@@ -57,14 +56,14 @@ elif env == "staging":
     cache = False
     email_errors.to_address = ERROR_EMAIL_ADDR
 elif env == "development":
-    logging.basicConfig(filename="logs/%s.log" % env, level=logging.DEBUG)
-    logger = logging.getLogger("webpy-blog")
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    logging.getLogger("peewee").addHandler(ch)
+    logging.getLogger("").setLevel(logging.DEBUG)
+    #logging.basicConfig(filename="logs/%s.log" % env, level=logging.DEBUG)
+    #add peewee debugging to output
+    #ch = logging.StreamHandler(sys.stdout)
+    #ch.setLevel(logging.DEBUG)
+    #formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    #ch.setFormatter(formatter)
+    #logger.addHandler(ch)
+    #logging.getLogger("peewee").addHandler(ch)
 elif env == "test":
     pass

@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger("")
 import hashlib
 from datetime import datetime
 import traceback

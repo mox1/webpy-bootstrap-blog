@@ -1,3 +1,5 @@
-* Add a fabric file
-* Add supervisord configuration
-* Add nginx configuration
+* Add various web (apache,lighttpd,nginx) config files
+* Improve front end css (styles-basic.css)
+* Improve Admin interface
+* Optimize database / db queries
+

@@ -1,3 +1,17 @@
+#!/usr/bin/env python
+
+#err under Apache this is going to cause some issues 
+#because Apache does add "." to path
+import os,sys
+import logging
+import dolog
+dolog.setup_logging(logdir="logs/",scrnlog=False,loglevel=logging.INFO)
+logger = logging.getLogger("")
+logger.info("Starting blogstrap.py")
+
+#redirect stderr to the log
+sys.stderr = dolog.LoggerWriter(logger, logging.DEBUG)
+
 from collections import defaultdict
 from datetime import datetime
 import time
@@ -9,8 +23,9 @@ import config
 import model as m
 import hashlib
 
-VERSION = "0.9.1"
+VERSION = "0.9.5-BETA"
 
+logger.info("You are running version %s" % VERSION)
 
 #if you change urls, make sure url[0]  is your homepage!!
 urls = (
@@ -45,9 +60,9 @@ else:
 
 
 def update_db():
-    print "Start updating blog data"
+    logger.debug("Start updating blog data")
     t_globals["blog_data"] = m.BlogData.get(update = True)
-    print "Finish updating blog data"
+    logger.debug("Finish updating blog data")
     
     
 #this function allows us to do periodic things
@@ -58,7 +73,7 @@ next_cron_run = 0
 def my_processor(handler): 
     global next_cron_run,td_next
     if (time.time() > next_cron_run):
-        print "\n\n\nDOING CRON RUN\n\n\n"
+        logger.debug("DOING CRON RUN")
         thr = threading.Thread(target=update_db)
         thr.start()
         next_cron_run = time.time() + config.STAT_UPDATES 
@@ -131,7 +146,7 @@ t_globals["csrf_token"] = csrf_token
 #And in the my_processor function above 
 t_globals["blog_data"] = m.BlogData.get(update = True)
 print "Admin page currently set to: /admin/%s" % t_globals["blog_data"].adminurl
-
+logger.info("Admin page currently set to: /admin/%s" % t_globals["blog_data"].adminurl)
 
 
 #This is the main Admin handler class. All admin functions are executed through POST's
