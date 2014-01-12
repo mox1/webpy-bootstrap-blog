@@ -308,6 +308,7 @@ class Admin:
                 return msg
             elif method == "edituser":
                 (resl,msg) = m.User.update_from_input(data)
+                blog_data(update=True)
                 if resl != None:
                     flash("success","Succes, user %s updated!" % resl.name)
                 else:
