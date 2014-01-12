@@ -715,8 +715,7 @@ class BlogData(BaseModel):
             bd = BlogData.select().limit(1).get()
         except:
             #BlogData isnt setup, return some simple default values
-
-            return AttrDict({"title" : "Blog",
+            bd =   AttrDict({"title" : "Blog",
                              "total_posts" : 0, 
                              "total_comments" : 0, 
                              "total_authors" : 0, 

@@ -1,20 +1,20 @@
 $def with()
-
+$ bdata = blog_data()
 <h3> <i class="icon-cog"></i>Statistics</h3>
 
 <span>Current Blog statistics. Updated Daily.</span>
 
 <div class="stats">
     <div class="line">
-        <span class="counter">$(blog_data.total_posts)</span>
+        <span class="counter">$(bdata.total_posts)</span>
         <span class="caption">Articles</span>
     </div>
     <div class="line">
-        <span class="counter">$(blog_data.total_comments)</span>
+        <span class="counter">$(bdata.total_comments)</span>
         <span class="caption">Comments</span>
     </div>
     <div class="line">
-        <span class="counter">$(blog_data.total_authors)</span>
+        <span class="counter">$(bdata.total_authors)</span>
         <span class="caption">Authors</span>
     </div>                    
 </div>

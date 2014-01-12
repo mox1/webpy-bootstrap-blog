@@ -60,8 +60,9 @@ else:
 
 
 def update_db():
+    global t_globals
     logger.debug("Start updating blog data")
-    t_globals["blog_data"] = m.BlogData.get(update = True)
+    m.BlogData.update_stats()
     logger.debug("Finish updating blog data")
     
     
@@ -113,7 +114,15 @@ def csrf_protected(f):
         return f(*args,**kwargs)
     return decorated
 
-
+b_data = m.BlogData.get(update=True)
+def blog_data(update = False):
+    global b_data
+    if update == False:
+        return b_data
+    else:
+        b_data = m.BlogData.get(update=True)
+        return b_data
+    
 #lets check if out database tables exist, if not create them
 for x in [m.User,m.Post,m.Image,m.Comment,m.BlogData]:
  #this will fail silently if they already exist
@@ -144,9 +153,9 @@ t_globals["csrf_token"] = csrf_token
 #get statistics
 #This is now updated in the Admin class, method globalsettings
 #And in the my_processor function above 
-t_globals["blog_data"] = m.BlogData.get(update = True)
-print "Admin page currently set to: /admin/%s" % t_globals["blog_data"].adminurl
-logger.info("Admin page currently set to: /admin/%s" % t_globals["blog_data"].adminurl)
+t_globals["blog_data"] = blog_data
+print "Admin page currently set to: /admin/%s" % blog_data().adminurl
+logger.info("Admin page currently set to: /admin/%s" % blog_data().adminurl)
 
 
 #This is the main Admin handler class. All admin functions are executed through POST's
@@ -163,7 +172,7 @@ class Admin:
                 session.kill()
                 flash("success","Session Data removed!")
                 return web.seeother(urls[0])
-        elif url != t_globals["blog_data"].adminurl:
+        elif url != blog_data().adminurl:
             #nope go away, send em to the home page
             #print "Bad Adminurl (needed %s, got %s)" % (t_globals["blog_data"].adminurl,url)
             return web.seeother(urls[0])
@@ -183,12 +192,12 @@ class Admin:
     def POST(self,url):
         global t_globals
         #compare url vs our BlogData valid url
-        if url != t_globals["blog_data"].adminurl:
+        if url != blog_data().adminurl:
             #nope go away, send em to the home page
             #print "Bad Adminurl (needed %s, got %s)" % (t_globals["blog_data"].adminurl,url)
             return web.seeother(urls[0])
         
-        admin_url = "/admin/%s" % t_globals["blog_data"].adminurl
+        admin_url = "/admin/%s" % blog_data().adminurl
         #ok they found the magic url, good
         data = web.input()
         method = data.get("method","malformed")
@@ -202,7 +211,8 @@ class Admin:
                 else:
                     flash("error",msg)
                     return web.seeother(admin_url)
-            elif method == "createuser":
+            elif method == "createuser" and m.User.is_setup() == False:
+                #only allow this method for user 1, or anyone can crete an account!
                 (resl,msg) = m.User.new_from_input(data)
                 if resl != None:
                     flash("success",msg)
@@ -242,13 +252,13 @@ class Admin:
             elif method == "globalsettings":
                 (resl,msg) = m.BlogData.update_info_from_input(data)
                 #always update blog_data, even in error cases
-                t_globals["blog_data"] = m.BlogData.get(update = True)
+                blog_data(update=True)
                 if resl != None:
                     flash("success",msg)
                 else:
                     flash("error",msg)
                 #adminurl can change from the BlogData.update call above
-                admin_url = "/admin/%s" % t_globals["blog_data"].adminurl
+                admin_url = "/admin/%s" % blog_data().adminurl
                 return web.seeother(admin_url)
             elif method == "getallposts":
                 resl = m.Post.all(evenprivate=True)
@@ -317,7 +327,7 @@ class Index:
         prev,next = calcprevnext(data)
         posts = m.Post.get_recent(page=next,max=10)
         content = render.blog_teasers(posts,"?n=%s" % (prev-1),"?n=%s" % (next+1))
-        return render.index(t_globals["blog_data"].title,content,None,None)
+        return render.index(blog_data().title,content,None,None)
 
 class ByCategory:
     def GET(self):

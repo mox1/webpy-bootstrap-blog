@@ -64,7 +64,7 @@ $def with(title,content,cat,subcat)
 
                     <div class="aside-widget">
 					<!-- Start Render author favs -->
-                    $:render('side-tags',blog_data.popular_tags,1)
+                    $:render('side-tags',blog_data().popular_tags,1)
                 	<!-- End Render author favs -->
                     </div>
                 </aside>

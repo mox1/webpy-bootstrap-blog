@@ -1,11 +1,12 @@
 $def with()
+$ bdata = blog_data()
 <h3> <i class="icon-cog"></i>Contact Me</h3>
 
-<span>$:(blog_data.contactline)</span>
+<span>$:(bdata.contactline)</span>
 
 <span class="email">
-	$if blog_data.owner != None:
-		$:(blog_data.owner.contact_html)
+	$if bdata.owner != None:
+		$:(bdata.owner.contact_html)
 	$else: 
 		<p>This blog hasn't been setup yet! Please access the admin page to setup</p>
 </span>

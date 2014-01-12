@@ -1,4 +1,5 @@
 $def with(images)
+$ bdata = blog_data()
 <div class="container">
 	<div class="row clearfix">
 		<div class="col-md-12 column">
@@ -178,7 +179,7 @@ $def with(images)
 											<label class="col-md-2 control-label" for="title">Blog Title:</label>
 											<div class="col-md-10">
 												<input id="title" name="title" type="text" 
-													class="form-control input-md" value="$(blog_data.title)">
+													class="form-control input-md" value="$(bdata.title)">
 												<span class="help-block">Appears in title and various other places</span>
 											</div>
 										</div>
@@ -188,7 +189,7 @@ $def with(images)
 											<label class="col-md-2 control-label" for="adminurl">Admin URL:</label>
 											<div class="col-md-10">
 												/admin/<input id="adminurl" name="adminurl" type="text" 
-													class="form-control input-md" value="$(blog_data.adminurl)">
+													class="form-control input-md" value="$(bdata.adminurl)">
 												<span class="help-block">No slashes (/ or \)! Keep this URL private!</span>
 											</div>
 										</div>
@@ -198,7 +199,7 @@ $def with(images)
 											<label class="col-md-2 control-label" for="contact">Contact Line:</label>
 											<div class="col-md-10">
 												<textarea class="form-control" 
-													id="contact" name="contact" style="height: 120px; width:100%;">$(blog_data.contactline)</textarea>
+													id="contact" name="contact" style="height: 120px; width:100%;">$(bdata.contactline)</textarea>
 											</div>
 										</div>
 
