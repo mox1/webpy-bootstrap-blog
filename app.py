@@ -445,7 +445,7 @@ class ContactMe:
         except Exception,e:
             flash("error","Sorry, there was a problem, message not sent")
 
-        return web.seeother(url[0])
+        return web.seeother(urls[0])
     
 class Credits:
     def GET(self):
@@ -535,7 +535,7 @@ def internalerror():
 # Setup the application's error handler
 app.internalerror = web.debugerror if web.config.debug else internalerror
 
-if config.email_errors.to_address:
+if config.EMAIL_ERRORS and config.email_errors.to_address:
     app.internalerror = web.emailerrors(config.email_errors.to_address,
                                         app.internalerror,
                                         config.email_errors.from_address)

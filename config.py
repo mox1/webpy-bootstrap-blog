@@ -5,7 +5,8 @@ import sys
 import web
 
 ####USER EDITABLE####
-#enabled by default, see below to disable
+#disabled by default, set to true to enable
+EMAIL_ERRORS = False
 ERROR_EMAIL_ADDR = "root@localhost"
 SMTP_SERVER = "127.0.0.1"
 SMTP_PORT = 25
