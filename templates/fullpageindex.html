@@ -1,4 +1,4 @@
-$def with(title,html)
+$def with(title,html,extra)
 
 $:render('top', title)
 
@@ -44,6 +44,7 @@ $:render('top', title)
     </footer>
     
 	$:render('bottom')
+	$:extra
 
 </body>
 </html>
