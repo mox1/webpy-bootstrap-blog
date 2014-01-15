@@ -4,6 +4,9 @@
 //Set the hidden reply-to field when a user clicks on the reply-to field
 //also set the title
 $(document).ready(function(){
+	//load all the tooltips (if any)
+	$('[rel=tooltip]').tooltip();
+	
 	$('.replyto').on('click',function(e) {
 		r_to = $(this).attr('commentid');
 		r_title = $('#ctitle'+r_to).html();

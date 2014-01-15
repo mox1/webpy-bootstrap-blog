@@ -1,5 +1,7 @@
 *.py[cod]
 
+.DS_Store
+
 # C extensions
 *.so
 
@@ -36,4 +38,5 @@ nosetests.xml
 
 sessions/
 logs/*.log
+static/upload/
 peewee.db

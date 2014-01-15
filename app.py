@@ -5,7 +5,7 @@
 import os,sys
 import logging
 import dolog
-dolog.setup_logging(logdir="logs/",scrnlog=False,loglevel=logging.INFO)
+dolog.setup_logging(logdir="logs/",scrnlog=False,loglevel=logging.DEBUG)
 logger = logging.getLogger("")
 logger.info("Starting blogstrap.py")
 
@@ -199,7 +199,7 @@ class Admin:
         
         admin_url = "/admin/%s" % blog_data().adminurl
         #ok they found the magic url, good
-        data = web.input()
+        data = web.input(nifile={})
         method = data.get("method","malformed")
         if session.logged_in == False:
             #the only thing you can do here is try to login or create a user
