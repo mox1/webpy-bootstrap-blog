@@ -4,17 +4,23 @@ $def with(image)
 	<h4 class="modal-title" id="myModalLabel">Editing Image #$(image.id) - "$(image.title)"</h4>
 </div>
 <div class="modal-body">
-	<form class="form-horizontal" method="post" action="">
+	<div class="row">
+		<div class="col-md-5"> </div>
+		<div class="col-md-2">
+			<img src="/$image.url" class="img-responsive" alt="$image.alt">
+		</div>
+		<div class="col-md-5"> </div>
+	</div>
+	<form class="form-horizontal" enctype="multipart/form-data" method="post" action="">
 		<input type="hidden" name="method" value="editimage">
 		<input type="hidden" name="uimageid" value="$(image.id)">
 		<div class="form-group">
 			<div class="row">
-			<div class="col-md-10">
-				<label class="control-label" for="uiurl">URL:</label>
-				<textarea id="uiurl" name="uiurl" class="form-control input-md ta-as-input" rows="1">$:(image.url)</textarea>
+			<div class="col-md-6" rel="tooltip" 
+				data-original-title="If you choose a file here, your old file will be DELETED from the server.">
+				<label class="control-label" for="nifile">New Image (Optional):</label>
+				<input id="nifile" name="nifile" type="file" class="form-control input-md">
 			</div>
-			</div>
-			<div class="row">
 			<div class="col-md-6">
 				<label class="control-label" for="uialt">Alt Text:</label>
 				<input id="uialt" name="uialt" type="text" class="form-control input-md" value="$:(image.alt)">
@@ -54,6 +60,7 @@ $def with(image)
 </div>
 <script type="application/javascript">
 $$(document).ready(function(){
+	$$('[rel=tooltip]').tooltip();
 	$$('.ta-as-input').bind('keypress', function(e) {
 		if ((e.keyCode || e.which) == 13) {
 			e.preventDefault();

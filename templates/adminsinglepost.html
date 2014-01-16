@@ -76,7 +76,7 @@ $def with(post,images)
 					$ options = ["Allowed","Moderated (Admin Approval)","Disabled"]
 					<select id="upmod" name="upmod" class="form-control input-md">
 						$for o in options:
-							$if loop.index == post.moderate: 
+							$if loop.index0 == post.moderate: 
 								<option value="$(loop.index0)" selected>$o</option>
 							$else:
 								<option value="$(loop.index0)">$o</option>

@@ -1,41 +1,7 @@
-$def with(title,html)
-<!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-<head>
-    <meta charset="utf-8">
-    <title>$title</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width">
+$def with(title,html,extra)
 
-    <!-- Bootstrap styles -->
-    <link rel="stylesheet" href="/static/css/vendor/bootstrap/bootstrap.css">
-    <link rel="stylesheet" href="/static/css/vendor/bootstrap/bootstrap-theme.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/app.css">
+$:render('top', title)
 
-    <!-- Font-Awesome -->
-    <link rel="stylesheet" href="/static/css/vendor/font-awesome/font-awesome.css">
-
-    <!-- Google Webfonts -->
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600|PT+Serif:400,400italic' rel='stylesheet' type='text/css'>
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="/static/css/styles-basic.css" id="theme-styles">
-
-    <!--[if lt IE 9]>
-        <link rel="stylesheet" href="css/ie8.css">        
-        <script src="/static/js/vendor/google/html5-3.6-respond-1.1.0.min.js"></script>
-    <![endif]-->
-
-    <script src="/static/js/vendor/jquery/jquery-1.9.1.min.js"></script>
-
-    <script>window.jQuery || document.write('<script src="/static/js/vendor/jquery/jquery-1.9.1.min.js"><\/script>')</script>
-
-    <script src="/static/js/app.js"></script>
-    
-</head>
 <body>
        $:render('header',title,None,None)
 
@@ -77,8 +43,8 @@ $def with(title,html)
         </div>
     </footer>
     
-    <script src="/static/js/vendor/bootstrap/bootstrap.min.js"></script>
-    <script src="/static/js/vendor/modernizr/modernizr.js"></script>
+	$:render('bottom')
+	$:extra
 
 </body>
 </html>

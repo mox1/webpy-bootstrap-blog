@@ -119,16 +119,14 @@ $ bdata = blog_data()
 								<h3 class="panel-title"> New Image</h3>
 							</div>
 							<div class="panel-body" style="padding: 20px;">
-								<form class="form-horizontal" method="post" action="">
+								<form class="form-horizontal" enctype="multipart/form-data" method="post" action="">
 									<input type="hidden" name="method" value="newimage">
 									<div class="form-group">
 										<div class="row">
-										<div class="col-md-10">
-											<label class="control-label" for="niurl">URL:</label>
-											<input id="niurl" name="niurl" type="text" placeholder="static/images/name.png" class="form-control input-md">
+										<div class="col-md-6">
+											<label class="control-label" for="nifile">Choose Image:</label>
+											<input id="nifile" name="nifile" type="file" class="form-control input-md">
 										</div>
-										</div>
-										<div class="row">
 										<div class="col-md-6">
 											<label class="control-label" for="nialt">Alt Text:</label>
 											<input id="nialt" name="nialt" type="text" placeholder="A Picture" class="form-control input-md">
@@ -141,7 +139,7 @@ $ bdata = blog_data()
 										<div class="row">
 										<div class="col-md-4">
 											<label class="control-label" for="niauthor">Author</label>
-											<input id="niauthor" name="niauthor" type="text" placeholder="Joh doe" class="form-control input-md">
+											<input id="niauthor" name="niauthor" type="text" placeholder="John doe" class="form-control input-md">
 										</div>
 										<div class="col-md-4">
 											<label class="control-label" for="nilink">Source Url:</label>
@@ -260,4 +258,3 @@ $ bdata = blog_data()
 	</div>
 </div>
 
-<script src="/static/js/app-admin.js"></script>

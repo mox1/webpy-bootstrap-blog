@@ -181,13 +181,13 @@ class Admin:
         if session.logged_in == False:
             if m.User.is_setup() == False:
                 #we have 0 users, ask to add a new one
-                return render.fullpageindex("Please Create a user",render.createuser())
+                return render.fullpageindex("Please Create a user",render.createuser(),"")
             else:
                 #show login page
-                return render.fullpageindex("Please Login to Continue",render.login())
+                return render.fullpageindex("Please Login to Continue",render.login(),"")
         else:
             images = m.Image.get_all()
-            return render.fullpageindex("Logged in as %s" % session.dispname,render.admin(images))
+            return render.fullpageindex("Logged in as %s" % session.dispname,render.admin(images),render.bottom_admin())
                 
     def POST(self,url):
         global t_globals
@@ -199,7 +199,7 @@ class Admin:
         
         admin_url = "/admin/%s" % blog_data().adminurl
         #ok they found the magic url, good
-        data = web.input()
+        data = web.input(nifile={})
         method = data.get("method","malformed")
         if session.logged_in == False:
             #the only thing you can do here is try to login or create a user
@@ -449,7 +449,7 @@ class ContactMe:
     
 class Credits:
     def GET(self):
-        return render.fullpageindex("Credits and Attribution",render.makecredits(m.Image.get_all()))    
+        return render.fullpageindex("Credits and Attribution",render.makecredits(m.Image.get_all()),"")    
 
 
 

@@ -4,9 +4,9 @@ $ preview_text = blogpost.html[0:128] + "..."
 	<article class=" blog-teaser">
 	    <header>
 	    	<div class="bt_teaser">
-	    		<img src="$blogpost.small_image.url" alt="$(blogpost.small_image.alt)">
+	    		<img class="img-responsive"  src="$blogpost.small_image.url" alt="$(blogpost.small_image.alt)">
 	    	</div>
-	        <h3><a href="/post?pid=$:(blogpost.id)">$(blogpost.title)</a></h3>
+	        <h3><a href="/post?pid=$(blogpost.id)">$:(blogpost.title)</a></h3>
 	        <span class="meta">$dt_as_str(blogpost.created_at,False) </span>
 	        $#<em>$(blogpost.author)</em>
 	        <hr>

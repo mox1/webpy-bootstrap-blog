@@ -19,6 +19,8 @@ MAX_COMMENT = 4096
 STAT_UPDATES = 60 * 60
 ####END USER EDITABLE####
 
+valid_upload_ext = [".png",".jpg",".jpeg",".gif",".ico"]
+
 logging.info("emailing errors to %s using server: %s:%s" % (ERROR_EMAIL_ADDR,SMTP_SERVER,SMTP_PORT))
 
 

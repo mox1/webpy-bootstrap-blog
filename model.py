@@ -1,3 +1,4 @@
+import os
 import logging
 logger = logging.getLogger("")
 import hashlib
@@ -63,7 +64,25 @@ class Image(BaseModel):
         try:
             imageid = data["uimageid"]
             image = Image.get(Image.id==int(imageid))
-            url = data["uiurl"]
+            
+            #check if a new image was uploaded
+            #if it is, delete old image, save new image, set new url variable
+            print data
+            if "nifile" in data and len(data["nifile"].value) > 0:
+                #yes new image, delete old
+                old_file = image.url
+                logger.debug("User uploaded new file, removing old: %s" % old_file)
+                if os.path.isfile(old_file):
+                    os.remove(old_file)
+                else:
+                    logger.debug("Couldn't remove: %s", old_file)
+                #save new file
+                resl,msg = save_image(data,update=True)
+                if resl == None:
+                    return (resl,msg)
+                else:
+                    image.url = "static/upload/%s" % resl
+             
             alt = data["uialt"]
             title = data["uititle"]
             author = data["uiauthor"]
@@ -76,7 +95,6 @@ class Image(BaseModel):
             traceback.print_exc()
             return (None,"Sorry there was an error: %s" % e.message)
         
-        image.url = url
         image.alt = alt
         image.title = title
         image.author = author
@@ -87,8 +105,14 @@ class Image(BaseModel):
     
     @staticmethod
     def new_from_input(data):
+
+        resl,msg = save_image(data)
+        if resl == None:
+            return (resl,msg)
+        
+        #if we fall down here, image saved successfully, resl = image_name for url
         try:
-            url = data["niurl"]
+            url = "static/upload/%s" % resl
             alt = data["nialt"]
             title = data["nititle"]
             author = data["niauthor"]
@@ -574,8 +598,8 @@ class Comment(BaseModel):
     @staticmethod
     def get_comments(postid,show_mod):
         if show_mod == False:
-            count = Comment.select().where(Comment.post == postid & Comment.status == 0).order_by(Comment.rank.asc()).count()
-            comments = Comment.select().where(Comment.post == postid & Comment.status == 0).order_by(Comment.rank.asc())
+            count = Comment.select().where(Comment.post == postid).where(Comment.status == 0).order_by(Comment.rank.asc()).count()
+            comments = Comment.select().where(Comment.post == postid).where(Comment.status == 0).order_by(Comment.rank.asc())
         else:
             count = Comment.select().where(Comment.post == postid).order_by(Comment.rank.asc()).count()
             comments = Comment.select().where(Comment.post == postid).order_by(Comment.rank.asc())  
@@ -689,7 +713,7 @@ class BlogData(BaseModel):
             return
         
         tp = Post.select(Post.id).count()
-        tc = Comment.select(Comment.id).count()
+        tc = Comment.select(Comment.id).where(Comment.status == 0).count()
         ta = Post.select(Post.author).distinct().count() 
         #all_tags returns a list of tuples [(tag,cnt),(tag,cnt)]
         popular_tagstr = ""
@@ -841,3 +865,31 @@ def crypt_password_before_save(model_class, instance, created):
         instance.salt = create_salt(instance.email)
     instance.crypted_password = crypt_password(instance.password,
                                                instance.salt)
+
+
+def save_image(data,update=False):
+    #get and save image data
+    if "nifile" not in data:
+        return (None, "Image file not found!")
+    #image stuff        
+    try:
+        image_name = data["nifile"].filename
+        #remove bad crap
+        image_name = re.sub('[^\w\-_\. ]', '_', image_name)
+        #verify file is good
+        f_ext = os.path.splitext(image_name)[1].lower()
+        if f_ext not in config.valid_upload_ext:
+            return(None,"Invalid image type: %s not allowed!" % f_ext)
+        
+        #verify file doesn't exist
+        if update == False and os.path.exists("static/upload/%s" % image_name):
+            return (None, "Image %s already exists. Use Edit image." % image_name)
+        
+        f_out = open("static/upload/%s" % image_name,'wb')
+        f_out.write(data["nifile"].file.read())
+        f_out.close()
+    except Exception,e:
+        traceback.print_exc()
+        return (None,"Problem processing image upload: %s" % e.message)
+    
+    return (image_name,"Good")
