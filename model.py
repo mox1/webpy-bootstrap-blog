@@ -598,8 +598,8 @@ class Comment(BaseModel):
     @staticmethod
     def get_comments(postid,show_mod):
         if show_mod == False:
-            count = Comment.select().where(Comment.post == postid & Comment.status == 0).order_by(Comment.rank.asc()).count()
-            comments = Comment.select().where(Comment.post == postid & Comment.status == 0).order_by(Comment.rank.asc())
+            count = Comment.select().where(Comment.post == postid).where(Comment.status == 0).order_by(Comment.rank.asc()).count()
+            comments = Comment.select().where(Comment.post == postid).where(Comment.status == 0).order_by(Comment.rank.asc())
         else:
             count = Comment.select().where(Comment.post == postid).order_by(Comment.rank.asc()).count()
             comments = Comment.select().where(Comment.post == postid).order_by(Comment.rank.asc())  
@@ -713,7 +713,7 @@ class BlogData(BaseModel):
             return
         
         tp = Post.select(Post.id).count()
-        tc = Comment.select(Comment.id).count()
+        tc = Comment.select(Comment.id).where(Comment.status == 0).count()
         ta = Post.select(Post.author).distinct().count() 
         #all_tags returns a list of tuples [(tag,cnt),(tag,cnt)]
         popular_tagstr = ""
