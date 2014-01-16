@@ -172,7 +172,7 @@ img.avatar {
   border-radius: 10px;
 }
 img.credit {
-  width: 150px;
+  width: auto;
   height: auto;
 }
 .image {

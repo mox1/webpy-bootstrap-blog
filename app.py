@@ -5,7 +5,7 @@
 import os,sys
 import logging
 import dolog
-dolog.setup_logging(logdir="logs/",scrnlog=False,loglevel=logging.DEBUG)
+dolog.setup_logging(logdir="logs/",scrnlog=False,loglevel=logging.INFO)
 logger = logging.getLogger("")
 logger.info("Starting blogstrap.py")
 
