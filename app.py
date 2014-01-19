@@ -23,7 +23,7 @@ import config
 import model as m
 import hashlib
 
-VERSION = "0.9.5-BETA"
+VERSION = "0.9.6-BETA"
 
 logger.info("You are running version %s" % VERSION)
 
@@ -61,18 +61,19 @@ else:
 
 def update_db():
     global t_globals
-    logger.debug("Start updating blog data")
+    logger.info("Start updating blog data")
     m.BlogData.update_stats()
-    logger.debug("Finish updating blog data")
+    logger.info("Finish updating blog data")
     
     
 #this function allows us to do periodic things
 #not perfect, but eh. 
 #for now this simply updates the statistics
 #but could easily be used to do more "cron" like things
+#this gets called for EVERY page, so don't do any heavy lifting
 next_cron_run = 0
 def my_processor(handler): 
-    global next_cron_run,td_next
+    global next_cron_run
     if (time.time() > next_cron_run):
         logger.debug("DOING CRON RUN")
         thr = threading.Thread(target=update_db)
@@ -148,7 +149,7 @@ t_globals["dt_as_str"] = m.datetime_str
 t_globals["dt_as_ago"] = m.datetime_ago
 t_globals["hashlib"] = hashlib
 t_globals["csrf_token"] = csrf_token
-
+t_globals["max_comment"] = config.MAX_COMMENT
 
 #get statistics
 #This is now updated in the Admin class, method globalsettings
@@ -379,14 +380,14 @@ class Search:
         query = websafe(data["q"])
         #short querys are a heachache, lets avoid them
         if len(query) < 3:
-            flash("error","Search string \"%s\" is too short." % q)
+            flash("error","Search string \"%s\" is too short." % query)
             return web.seeother(urls[0])
         prev,next = calcprevnext(data)
         #if we drop in here, qo query
         posts = m.Post.search(query,page=next,max=10)
         content = render.blog_teasers(posts,"search?q=%s&n=%s" % (query,(prev-1)),
                                             "search?q=%s&n=%s" % (query,(next+1)))
-        return render.index("Search results for %s" % query, content, "Search Results",query)
+        return render.index("Search results for \"%s\"" % query, content, "Search Results","\"%s\""% query)
 
 class IndexFull:
     def GET(self):
@@ -472,15 +473,15 @@ class AddComment:
             print "New comment SPAM test failed by %s" % ip 
             return web.seeother(url[0])
         
-        postid = websafe(int(data.get("pid",-1)))
+        postid = websafe(int(data.get("pid","-1")))
         text = websafe(data.get("message",None))
-        if text == None:
+        if text == None or len(text) < 1:
             flash("error","Please add some text to that comment!")
             #TODO: can we use web.py to get the url referrer and send them back there?
-            return web.seeother("post?pid=%d" % postid)
+            return web.seeother("post?pid=%s" % postid)
         if len(text) > config.MAX_COMMENT:
-            flash("error","Comment too large, max %d characters" % config.MAX_COMMENT)
-            return web.seeother("post?pid=%d" % postid)
+            flash("error","Comment length of %d too large, max %d characters" % (len(text),config.MAX_COMMENT))
+            return web.seeother("post?pid=%s" % postid)
         
         
         #spam check passed, continue
@@ -525,13 +526,21 @@ def calcprevnext(data):
 def internalerror():
     logger.error("Internal error:",exc_info=True)
     msg = """
-    An internal server error occurred. Please try your request again by
+    We're sorry, an internal error occurred has. Please try your request again by
     hitting back on your web browser. You can also <a href="/"> go back
      to the main page.</a>
     """
     return web.internalerror(msg)
 
-
+def notfound():
+    logger.error("404 Not found error has occurred")
+    #return the homepage with not found
+    
+    return web.notfound(render.fullpageindex("404 Error Not Found","<p>404 Error: The page you have requested was not found!</p>",""))
+ 
+#add our 404 handler
+app.notfound = notfound 
+   
 # Setup the application's error handler
 app.internalerror = web.debugerror if web.config.debug else internalerror
 

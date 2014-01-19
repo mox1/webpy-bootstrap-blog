@@ -152,6 +152,8 @@ class User(BaseModel):
     crypted_password = pw.CharField(max_length=40, null=False)
     salt = pw.CharField(max_length=40, null=False)
     remember_token = pw.CharField(max_length=64, null=True)
+    #for future use
+    sm_links = pw.TextField(null=True)
     
     @staticmethod
     def is_setup():
@@ -298,6 +300,7 @@ class Post(BaseModel):
     #1 = moderated (admin must approve comments)
     #2 = disabled (no new comments allowed)
     moderate = pw.IntegerField(null=False,default=0)
+    teaser_txt = pw.TextField(null=False)
         
     #data is web.input, mapping is
     # title = data.nptitle
@@ -322,6 +325,7 @@ class Post(BaseModel):
             tags = data["uptags"]
             cat = data["upcat"]
             scat = data["upsubcat"]
+            teaser_txt = data["uptease"]
             html = data["uphtml"]
             mod = int(data["upmod"])
             if data.get("upfav","false") == "true":
@@ -353,6 +357,7 @@ class Post(BaseModel):
         post.public = public
         post.updated = datetime.now()
         post.moderate = mod
+        post.teaser_txt = teaser_txt
         post.save()
         return (post,"Successfully updated post!")
     
@@ -442,6 +447,7 @@ class Post(BaseModel):
             cat = data["npcat"]
             scat = data["npsubcat"]
             html = data["nphtml"]
+            teaser_txt = data["nptease"]
             mod = int(data["npmod"])
             if data.get("npfav","false") == "true":
                 fav = True
@@ -459,17 +465,19 @@ class Post(BaseModel):
             return (None,"Sorry there was an error: %s" % e.message)
         
         post = Post.new(title=title,tags=tags,author_id=userid,image=image,
-                        small_image=small_image,html=html,cat=cat,subcat=scat,fav=fav,public=public,moderate=mod)
+                        small_image=small_image,html=html,cat=cat,subcat=scat,
+                        fav=fav,public=public,moderate=mod,teaser_txt=teaser_txt)
+        
         return (post,"Successfully created new post!")
     
     
     @staticmethod
-    def new(title,tags,author_id,html,image,small_image,cat=None,subcat=None,fav = False,public=True,moderate=0):
+    def new(title,tags,author_id,html,image,small_image,cat=None,subcat=None,fav=False,public=True,moderate=0,teaser_txt=""):
         #get user by id
         user = User.by_id(author_id)
         p = Post.create(title=title,tags=tags,author=user,html=html,
                         image=image,small_image=small_image,created_at=datetime.now(),
-                        favorite=fav,category=cat,subcategory=subcat,moderate=moderate)
+                        favorite=fav,category=cat,subcategory=subcat,moderate=moderate,teaser_txt=teaser_txt)
         return p
     
     #every time this is called, a pageview count is updated"
@@ -512,7 +520,7 @@ class Comment(BaseModel):
     ip = pw.CharField(max_length=20,null=True)
     post = pw.ForeignKeyField(Post,null=False)
     text = pw.TextField(max_length=16656,null=False)
-    email = pw.CharField(max_length=1024,null=False,default="none@none.net")
+    email = pw.CharField(max_length=512,null=False,default="none@none.net")
     parent = pw.ForeignKeyField('self',related_name='children',null=True)
     rank = pw.IntegerField(null=False,default=0)
     indent = pw.IntegerField(null=False,default=0)
@@ -608,11 +616,19 @@ class Comment(BaseModel):
 
     @staticmethod
     def new(postid,parentid,title,author,text,email="none@none.net",admin=False,ip=None):
-        #1st get post, check if comments are allowed
+        #check for size violations
+        if (len(text) > config.MAX_COMMENT) or \
+           (len(text) < 1) or \
+           (len(email) > 512) or \
+           (len(author) > 512) or \
+           (len(title) > 512):
+            return None
+        
+        #2nd get post, check if comments are allowed
         post = Post.by_id(postid)
         if (post == None) or (post.moderate == 2):
             return None
-        #put this post into a "review by admin state"
+        #If moderation is turned on for this post,put this comment into a "review by admin state"
         if post.moderate ==1:
             status = 5
         else:
@@ -623,6 +639,8 @@ class Comment(BaseModel):
             status = 0
         #we need to convert \n into <br>
         text = newline_to_break(text)
+        #now, actually create and insert comment
+        ##see :http://evolt.org/node/4047/ for algorithm
         rank = 0
         indent = 0
         lastcomment = None
@@ -647,9 +665,9 @@ class Comment(BaseModel):
             new_comment = Comment.create(email=email,parent=parent,title=title,
                                          author=author,post=postid,text=text,rank=start_rank+1,indent=parent.indent+1,
                                          created_at=datetime.now(),from_admin=admin,status=status,ip=ip)
-            
-
             return new_comment
+
+
 
 #this class / table performs 2 function
 # 1. it is used as an optimization

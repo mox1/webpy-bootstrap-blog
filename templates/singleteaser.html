@@ -1,5 +1,4 @@
 $def with(blogpost)
-$ preview_text = blogpost.html[0:128] + "..."
 <div class="col-md-6 col-sm-6">
 	<article class=" blog-teaser">
 	    <header>
@@ -12,7 +11,7 @@ $ preview_text = blogpost.html[0:128] + "..."
 	        <hr>
 	    </header>
 	    <div class="body">
-	    	$:preview_text
+	    	$:(blogpost.teaser_txt)
 	    </div>
 	    <div class="clearfix">
 	        <a href="/post?pid=$:(blogpost.id)" class="btn btn-tales-one">Read more</a>

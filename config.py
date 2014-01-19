@@ -14,9 +14,10 @@ SMTP_PORT = 25
 TIME_FORMAT = "%a, %d %b %Y" # %H:%M:%S
 #double %% required
 LONG_TIME_FORMAT = "%%A, %%b %s %%Y"
+#The Database limit for this field is 16656, values larger than that will error out.
 MAX_COMMENT = 4096
 #how often to update stats (in seconds)
-STAT_UPDATES = 60 * 60
+STAT_UPDATES = 60 * 60 #every hour by default
 ####END USER EDITABLE####
 
 valid_upload_ext = [".png",".jpg",".jpeg",".gif",".ico"]
