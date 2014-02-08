@@ -172,6 +172,17 @@ class SiteMap:
         posts = m.Post.all()
         #generate opening xml
         urlset = ET.Element("urlset",xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+        #add root
+        url = ET.SubElement(urlset,"url")
+        loc = ET.SubElement(url,"loc")
+        loc.text = "%s/" % host
+        lastmod = ET.SubElement(url,"lastmod")
+        lastmod.text = datetime.datetime.now().strftime("%Y-%m-%d")
+        changefreq = ET.SubElement(url,"changefreq")
+        changefreq.text = "daily"
+        priority = ET.SubElement(url,"priority")
+        priority.text = "0.8"
+        
         for post in posts:
             url = ET.SubElement(urlset,"url")
             loc = ET.SubElement(url,"loc")
