@@ -22,14 +22,16 @@ import datetime
 import config
 import model as m
 import hashlib
+import xml.etree.ElementTree as ET
 
-VERSION = "0.9.6-BETA"
+VERSION = "0.9.7-BETA"
 
 logger.info("You are running version %s" % VERSION)
 
 #if you change urls, make sure url[0]  is your homepage!!
 urls = (
     r"/", "Index",
+    r"/sitemap.xml","SiteMap",
     r"/newest", "IndexFull",
     r"/post", "BlogPost",
     r"/about", "About",
@@ -157,6 +159,31 @@ t_globals["max_comment"] = config.MAX_COMMENT
 t_globals["blog_data"] = blog_data
 print "Admin page currently set to: /admin/%s" % blog_data().adminurl
 logger.info("Admin page currently set to: /admin/%s" % blog_data().adminurl)
+
+#Dynamically Generated sitemap.xml 
+#By default simply includes links to all blog posts that are public
+class SiteMap:
+    def GET(self):
+        host = web.ctx.home
+        print web.ctx
+        #1st get all public posts
+        posts = m.Post.all()
+        #generate opening xml
+        urlset = ET.Element("urlset",xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+        for post in posts:
+            url = ET.SubElement(urlset,"url")
+            loc = ET.SubElement(url,"loc")
+            loc.text = "%s/post?pid=%d" % (host,post.id)
+            lastmod = ET.SubElement(url,"lastmod")
+            lastmod.text = post.updated.strftime("%Y-%m-%d")
+            changefreq = ET.SubElement(url,"changefreq")
+            changefreq.text = "yearly"
+        
+        #ok return xml
+        web.header("Content-Type", "text/xml; charset=utf-8")
+        return ET.tostring(urlset, encoding="utf-8", method="xml")
+        
+        
 
 
 #This is the main Admin handler class. All admin functions are executed through POST's
