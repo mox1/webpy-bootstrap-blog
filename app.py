@@ -59,10 +59,21 @@ else:
     session = web.config._session
 
 
+b_data = m.BlogData.get(update=True)
+def blog_data(update = False):
+    global b_data
+    if update == False:
+        return b_data
+    else:
+        b_data = m.BlogData.get(update=True)
+        return b_data
+
+
 def update_db():
     global t_globals
     logger.info("Start updating blog data")
     m.BlogData.update_stats()
+    blog_data(update=True)
     logger.info("Finish updating blog data")
     
     
@@ -115,15 +126,6 @@ def csrf_protected(f):
         return f(*args,**kwargs)
     return decorated
 
-b_data = m.BlogData.get(update=True)
-def blog_data(update = False):
-    global b_data
-    if update == False:
-        return b_data
-    else:
-        b_data = m.BlogData.get(update=True)
-        return b_data
-    
 #lets check if out database tables exist, if not create them
 for x in [m.User,m.Post,m.Image,m.Comment,m.BlogData]:
  #this will fail silently if they already exist
