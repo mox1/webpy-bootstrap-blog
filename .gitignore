@@ -37,6 +37,6 @@ nosetests.xml
 .pydevproject
 
 sessions/
-logs/*.log
+logs/*.log*
 static/upload/
 peewee.db

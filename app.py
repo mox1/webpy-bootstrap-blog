@@ -3,14 +3,15 @@
 #err under Apache this is going to cause some issues 
 #because Apache does add "." to path
 import os,sys
+import config
 import logging
-import dolog
-dolog.setup_logging(logdir="logs/",scrnlog=False,loglevel=logging.INFO)
-logger = logging.getLogger("")
+logger = logging.getLogger("blogstrap")
 logger.info("Starting blogstrap.py")
+logger.debug("app.py DEBUG messages enabled!")
 
-#redirect stderr to the log
-sys.stderr = dolog.LoggerWriter(logger, logging.DEBUG)
+from dolog import LoggerWriter
+#redirect stderr to stdout and the logger created above
+sys.stderr = LoggerWriter(logger)
 
 from collections import defaultdict
 from datetime import datetime
@@ -19,7 +20,6 @@ import threading
 import web
 from web import websafe
 import datetime
-import config
 import model as m
 import hashlib
 import xml.etree.ElementTree as ET
@@ -120,6 +120,7 @@ def csrf_protected(f):
     def decorated(*args,**kwargs):
         inp = web.input()
         if not (inp.has_key('csrf_token') and inp.csrf_token==session.pop('csrf_token',None)):
+            logger.debug("CSRF Detected!!!: ip=%s" % web.ctx.ip )
             raise web.HTTPError(
                 "400 Bad request",
                 {'content-type':'text/html'},
@@ -475,7 +476,9 @@ class BlogPost:
         return render.blogdetail(post,count,comments,next,prev,session.logged_in)
 class About:
     def GET(self):
-        return render.about(m.User.by_id(1))
+        #TODO: Eventually if we support multple users, fix this
+        user = m.User.by_id(1)
+        return render.about(user)
     
 class ContactMe:
     def POST(self):
@@ -535,7 +538,7 @@ class AddComment:
             user = m.User.by_id(session.uid)
             author = user.name
             email = user.email
-        c1 = m.Comment.new(postid,parentid,title,author,text,email,session.logged_in,ip)
+        c1 = m.Comment.new(postid,parentid,title,author,text,email,session.logged_in,ip,web.sendmail)
         if c1 != None:
             flash("success","Thanks for joining the discussion!")
         else:

@@ -1,5 +1,6 @@
+import dolog
 import logging
-logger = logging.getLogger("")
+logger = dolog.setup_logging("blogstrap",logdir="logs/",scrnlog=False,loglevel=logging.DEBUG)
 import os
 import sys
 import web
