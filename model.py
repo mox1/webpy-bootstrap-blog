@@ -475,9 +475,11 @@ class Post(BaseModel):
     def new(title,tags,author_id,html,image,small_image,cat=None,subcat=None,fav=False,public=True,moderate=0,teaser_txt=""):
         #get user by id
         user = User.by_id(author_id)
+        d = datetime.now()
         p = Post.create(title=title,tags=tags,author=user,html=html,
-                        image=image,small_image=small_image,created_at=datetime.now(),
-                        favorite=fav,category=cat,subcategory=subcat,moderate=moderate,teaser_txt=teaser_txt)
+                        image=image,small_image=small_image,created_at=d,updated=d,
+                        favorite=fav,category=cat,subcategory=subcat,moderate=moderate,
+                        teaser_txt=teaser_txt)
         return p
     
     #every time this is called, a pageview count is updated"
