@@ -28,7 +28,7 @@ VERSION = "0.9.7-BETA"
 
 logger.info("You are running version %s" % VERSION)
 
-#if you change urls, make sure url[0]  is your homepage!!
+#if you change urls, make sure urls[0]  is your homepage!!
 urls = (
     r"/", "Index",
     r"/sitemap.xml","SiteMap",
@@ -514,7 +514,7 @@ class AddComment:
             #failure, return him to homepage with a flash msg
             flash("error","Sorry, you failed the spam test, post not accepted. Turn on javascript.")
             print "New comment SPAM test failed by %s" % ip 
-            return web.seeother(url[0])
+            return web.seeother(urls[0])
         
         postid = websafe(int(data.get("pid","-1")))
         text = websafe(data.get("message",None))
