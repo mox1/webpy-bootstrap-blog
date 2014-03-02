@@ -26,13 +26,13 @@ $def with(image)
 				<input id="uialt" name="uialt" type="text" class="form-control input-md" value="$:(image.alt)">
 			</div>
 			<div class="col-md-6">
-				<label class="control-label" for="uititle">Title</label>
+				<label class="control-label" for="uititle">Title:</label>
 				<input id="uititle" name="uititle" type="text" class="form-control input-md" value="$:(image.title)">
 			</div>
 			</div>
 			<div class="row">
 			<div class="col-md-10">
-				<label class="control-label" for="uiauthor">Author</label>
+				<label class="control-label" for="uiauthor">Author:</label>
 				<textarea id="uiauthor" name="uiauthor" class="form-control input-md ta-as-input" rows="1">$:(image.author)</textarea>
 			</div>
 			</div>
@@ -44,12 +44,18 @@ $def with(image)
 			</div>
 			<div class="row">
 			<div class="col-md-10">
-				<label class="control-label" for="uilic">License</label>
+				<label class="control-label" for="uilic">License:</label>
 				<textarea id="uilic" name="uilic" class="form-control input-md ta-as-input" rows="1">$:(image.license)</textarea>
 			</div>
 			</div>
 			<div class="row">
-			<div class="col-md-2 pull-right">
+			<div class="col-md-6 pull-right">
+				<label class="checkbox-inline" for="uishow">
+					$if image.show == True: 
+						<input type="checkbox" name="uishow" id="uishow" value="true" checked>
+					$else:
+						<input type="checkbox" name="uishow" id="uishow" value="true">
+					Show on Credits Page </label>
 				<button id="uisubmit" name="submit" class="btn btn-success btn-lg" style="margin-top: 10px;">
 					Update Image
 				</button>

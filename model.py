@@ -64,6 +64,7 @@ class Image(BaseModel):
     author = pw.CharField(max_length=1024,null=True)
     link = pw.CharField(max_length=4096,null=False)
     license = pw.CharField(max_length=1024,null=False)
+    show = pw.BooleanField(default=True)
     @staticmethod
     def update_from_input(data):
         try:
@@ -93,6 +94,10 @@ class Image(BaseModel):
             author = data["uiauthor"]
             link = data["uilink"]
             license = data["uilic"]
+            if data.get("uishow","false") == "true":
+                show = True
+            else:
+                show = False
         except KeyError,e:
             traceback.print_exc()
             return (None,"Required Field missing: %s" % e.message)
@@ -100,6 +105,7 @@ class Image(BaseModel):
             traceback.print_exc()
             return (None,"Sorry there was an error: %s" % e.message)
         
+        image.show = show
         image.alt = alt
         image.title = title
         image.author = author
@@ -123,6 +129,10 @@ class Image(BaseModel):
             author = data["niauthor"]
             link = data["nilink"]
             license = data["nilic"]
+            if data.get("nishow","false") == "true":
+                show = True
+            else:
+                show = False
         except KeyError,e:
             traceback.print_exc()
             return (None,"Required Field missing: %s" % e.message)
@@ -130,13 +140,15 @@ class Image(BaseModel):
             traceback.print_exc()
             return (None,"Sorry there was an error: %s" % e.message)
         
-        
-        image = Image.create(url=url,alt=alt,title=title,author=author,link=link,license=license)
+        image = Image.create(url=url,alt=alt,title=title,author=author,link=link,license=license,show=show)
         return (image,"Successfully created new image: \"%s\"" % title)
     
     @staticmethod
-    def get_all():
-        return Image.select()
+    def get_all(private=False):
+        if private == False:
+            return Image.select().where(Image.show==True)
+        else:
+            return Image.select()
     
     @staticmethod
     def by_id(id):

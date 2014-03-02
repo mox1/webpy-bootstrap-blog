@@ -26,7 +26,7 @@ import model as m
 import hashlib
 import xml.etree.ElementTree as ET
 
-VERSION = "0.9.7-BETA"
+VERSION = "0.9.8-BETA"
 
 logger.info("You are running version %s" % VERSION)
 
@@ -231,7 +231,7 @@ class Admin:
                 #show login page
                 return render.fullpageindex("Please Login to Continue",render.login(),"")
         else:
-            images = m.Image.get_all()
+            images = m.Image.get_all(private=True)
             return render.fullpageindex("Logged in as %s" % session.dispname,render.admin(images),render.bottom_admin())
                 
     def POST(self,url):
@@ -309,7 +309,7 @@ class Admin:
                 resl = m.Post.all(evenprivate=True)
                 return render.datatable_posts(resl)
             elif method == "getallimages":
-                images = m.Image.get_all()
+                images = m.Image.get_all(private=True)
                 return render.datatable_images(images)
             elif method == "getcomments":
                 id = data.get("id","-1")
@@ -318,7 +318,7 @@ class Admin:
             elif method == "getsinglepost":
                 id = data.get("id","-1")
                 resl = m.Post.get(m.Post.id==id)
-                images = m.Image.get_all()
+                images = m.Image.get_all(private=True)
                 return render.adminsinglepost(resl,images)
             elif method == "getsingleimage":
                 id = data.get("id","-1")

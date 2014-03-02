@@ -140,13 +140,13 @@ $ bdata = blog_data()
 											<input id="nialt" name="nialt" type="text" placeholder="A Picture" class="form-control input-md">
 										</div>
 										<div class="col-md-6">
-											<label class="control-label" for="nititle">Title</label>
+											<label class="control-label" for="nititle">Title:</label>
 											<input id="nititle" name="nititle" type="text" placeholder="Picture of Guy" class="form-control input-md">
 										</div>
 										</div>
 										<div class="row">
 										<div class="col-md-4">
-											<label class="control-label" for="niauthor">Author</label>
+											<label class="control-label" for="niauthor">Author:</label>
 											<input id="niauthor" name="niauthor" type="text" placeholder="John doe" class="form-control input-md">
 										</div>
 										<div class="col-md-4">
@@ -154,13 +154,16 @@ $ bdata = blog_data()
 											<input id="nilink" name="nilink" type="text" placeholder="http://www.flickr.com/image.png" class="form-control input-md">
 										</div>
 										<div class="col-md-4">
-											<label class="control-label" for="nilic">License</label>
+											<label class="control-label" for="nilic">License:</label>
 											<input id="nilic" name="nilic" type="text" placeholder="Apache 2.0" class="form-control input-md">
 										</div>
 										</div>
 										<div class="row">
 										<div class="col-md-6 pull-right">
-											<label class="col-md-6 control-label" for="nisubmit" ></label>
+											<label class="checkbox-inline" for="upfav">
+												<input type="checkbox" name="nishow" id="nishow" value="true">
+												Show on Credits Page</label>
+											<label class="control-label" for="nisubmit" ></label>
 											<button id="nisubmit" name="submit" class="btn btn-success btn-lg" style="margin-top: 10px;">
 												Save Image
 											</button>
