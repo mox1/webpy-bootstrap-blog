@@ -3,6 +3,8 @@
 #err under Apache this is going to cause some issues 
 #because Apache does add "." to path
 import os,sys
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0,CURRENT_DIR)
 import config
 import logging
 logger = logging.getLogger("blogstrap")
@@ -53,7 +55,7 @@ sinit = {
 
 # Allow session to be reloadable in development mode.
 if web.config.get("_session") is None:
-    session = web.session.Session(app, web.session.DiskStore("sessions"),
+    session = web.session.Session(app, web.session.DiskStore("%s/sessions" % CURRENT_DIR),
                                   initializer=sinit)
 
     web.config._session = session
@@ -135,7 +137,7 @@ for x in [m.User,m.Post,m.Image,m.Comment,m.BlogData]:
  x.create_table(True)
 
 
-render = web.template.render("templates/",
+render = web.template.render("%s/templates/" % CURRENT_DIR,
                              #base="base",
                              cache=config.cache)
 t_globals = web.template.Template.globals

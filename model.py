@@ -1,4 +1,6 @@
 import os
+import sys
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 import config
 import logging
 logger = logging.getLogger("blogstrap")
@@ -19,7 +21,7 @@ SelectQuery = pw.SelectQuery
 
 
 #we need these two lines or SQLite will complain about interthread access
-db = SqliteDatabase('peewee.db',threadlocals=True)
+db = SqliteDatabase('%s/peewee.db' % CURRENT_DIR ,threadlocals=True)
 db.connect()
 
 def better_get(self, **kwargs):
