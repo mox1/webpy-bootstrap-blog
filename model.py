@@ -361,7 +361,7 @@ class Post(BaseModel):
     # favorite = data.npfav
     # public = data.nppriv
     @staticmethod
-    def update_from_input(data,userid):
+    def update_from_input(data,userid,save=True):
         try:
             postid = data["upostid"]
             post = Post.get(Post.id==int(postid))
@@ -404,7 +404,8 @@ class Post(BaseModel):
         post.updated = datetime.now()
         post.moderate = mod
         post.teaser_txt = teaser_txt
-        post.save()
+        if save == True:
+            post.save()
         return (post,"Successfully updated post!")
     
     

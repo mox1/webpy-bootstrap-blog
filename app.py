@@ -43,6 +43,7 @@ urls = (
     r"/contactme", "ContactMe",
     r"/tags", "Tags",
     r"/search", "Search",
+    r"/admin/preview", "Preview",
     r"/admin/(.*)","Admin")
 
 app = web.application(urls, globals())
@@ -452,6 +453,35 @@ class IndexFull:
             
         return render.blogdetail(post,count,comments,next,prev,session.logged_in)
 
+
+class Preview:
+    def POST(self):
+        if session.logged_in == False:
+            logger.info("Attempt to get preview page while not logged in!?")
+            return web.notfound()
+        else:
+            data = web.input(nifile={})
+            (resl,msg) = m.Post.update_from_input(data,session.uid)
+            if resl == None:
+                flash("There was a problem previewing: %s" % msg)
+                return web.seeother(urls[0])
+            
+            post = resl
+            flash("success","Below is a preview of your posting. To save this switch to the other tab and click \"Update Post\"")
+            count,comments = m.Comment.get_comments(post.id,False)
+            #for next and prev links
+            try:
+                next = m.Post.get_next(post.created_at,1).get()
+            except:
+                next = None
+            try:
+                prev = m.Post.get_prev(post.created_at,1).get()
+            except:
+                prev = None
+                
+            return render.blogdetail(post,count,comments,next,prev,session.logged_in)
+            
+            
 class BlogPost:
     def GET(self):
         pid = -1
@@ -462,7 +492,7 @@ class BlogPost:
                 raise Exception
         except:
             flash("error", "Sorry, that post doesn't exist!")
-            return web.seeother("/")
+            return web.seeother(urls[0])
 
         #for next and prev links
         try:
