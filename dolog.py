@@ -2,15 +2,16 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 
-def setup_logging(logdir=None, scrnlog=True, txtlog=True, loglevel=logging.DEBUG):
+def setup_logging(name,logdir=None, scrnlog=True, txtlog=True, loglevel=logging.DEBUG):
     logdir = os.path.abspath(logdir)
 
     if not os.path.exists(logdir):
         os.mkdir(logdir)
 
-    log = logging.getLogger("")
+    log = logging.getLogger(name)
     log.setLevel(loglevel)
-
+    log.propagate = False
+    
     log_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     if txtlog:
@@ -25,21 +26,17 @@ def setup_logging(logdir=None, scrnlog=True, txtlog=True, loglevel=logging.DEBUG
         console_handler.setFormatter(log_formatter)
         log.addHandler(console_handler)
 
-
+    return log
+        
+        
 #this allows us to redirect stderr and stdout to a logfile
 #mainly because looking at stderr with lighttpd + mod_fastcgi is important
 class LoggerWriter:
-    def __init__(self,logger, level):
+    def __init__(self,logger):
         self.logger = logger
-        self.level = level
-        self.msg = ""
 
-#do some funky things to help print tracebacks better
     def write(self, message):
         #pump message to stdout
-        print message,
-        self.msg += message.replace("\n"," ")
-        if len(message) < 2:
-            return
-        self.logger.log(self.level, self.msg)
-        self.msg = ""
+        print message
+        #and to log
+        self.logger.error(message)

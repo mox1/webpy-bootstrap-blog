@@ -3,14 +3,17 @@
 #err under Apache this is going to cause some issues 
 #because Apache does add "." to path
 import os,sys
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0,CURRENT_DIR)
+import config
 import logging
-import dolog
-dolog.setup_logging(logdir="logs/",scrnlog=False,loglevel=logging.INFO)
-logger = logging.getLogger("")
+logger = logging.getLogger("blogstrap")
 logger.info("Starting blogstrap.py")
+logger.debug("app.py DEBUG messages enabled!")
 
-#redirect stderr to the log
-sys.stderr = dolog.LoggerWriter(logger, logging.DEBUG)
+from dolog import LoggerWriter
+#redirect stderr to stdout and the logger created above
+sys.stderr = LoggerWriter(logger)
 
 from collections import defaultdict
 from datetime import datetime
@@ -19,17 +22,18 @@ import threading
 import web
 from web import websafe
 import datetime
-import config
 import model as m
 import hashlib
+import xml.etree.ElementTree as ET
 
-VERSION = "0.9.6-BETA"
+VERSION = "0.9.8-BETA"
 
 logger.info("You are running version %s" % VERSION)
 
-#if you change urls, make sure url[0]  is your homepage!!
+#if you change urls, make sure urls[0]  is your homepage!!
 urls = (
     r"/", "Index",
+    r"/sitemap.xml","SiteMap",
     r"/newest", "IndexFull",
     r"/post", "BlogPost",
     r"/about", "About",
@@ -39,6 +43,7 @@ urls = (
     r"/contactme", "ContactMe",
     r"/tags", "Tags",
     r"/search", "Search",
+    r"/admin/preview", "Preview",
     r"/admin/(.*)","Admin")
 
 app = web.application(urls, globals())
@@ -51,7 +56,7 @@ sinit = {
 
 # Allow session to be reloadable in development mode.
 if web.config.get("_session") is None:
-    session = web.session.Session(app, web.session.DiskStore("sessions"),
+    session = web.session.Session(app, web.session.DiskStore("%s/sessions" % CURRENT_DIR),
                                   initializer=sinit)
 
     web.config._session = session
@@ -59,10 +64,21 @@ else:
     session = web.config._session
 
 
+b_data = m.BlogData.get(update=True)
+def blog_data(update = False):
+    global b_data
+    if update == False:
+        return b_data
+    else:
+        b_data = m.BlogData.get(update=True)
+        return b_data
+
+
 def update_db():
     global t_globals
     logger.info("Start updating blog data")
     m.BlogData.update_stats()
+    blog_data(update=True)
     logger.info("Finish updating blog data")
     
     
@@ -107,6 +123,7 @@ def csrf_protected(f):
     def decorated(*args,**kwargs):
         inp = web.input()
         if not (inp.has_key('csrf_token') and inp.csrf_token==session.pop('csrf_token',None)):
+            logger.debug("CSRF Detected!!!: ip=%s" % web.ctx.ip )
             raise web.HTTPError(
                 "400 Bad request",
                 {'content-type':'text/html'},
@@ -115,22 +132,13 @@ def csrf_protected(f):
         return f(*args,**kwargs)
     return decorated
 
-b_data = m.BlogData.get(update=True)
-def blog_data(update = False):
-    global b_data
-    if update == False:
-        return b_data
-    else:
-        b_data = m.BlogData.get(update=True)
-        return b_data
-    
 #lets check if out database tables exist, if not create them
 for x in [m.User,m.Post,m.Image,m.Comment,m.BlogData]:
  #this will fail silently if they already exist
  x.create_table(True)
 
 
-render = web.template.render("templates/",
+render = web.template.render("%s/templates/" % CURRENT_DIR,
                              #base="base",
                              cache=config.cache)
 t_globals = web.template.Template.globals
@@ -157,6 +165,42 @@ t_globals["max_comment"] = config.MAX_COMMENT
 t_globals["blog_data"] = blog_data
 print "Admin page currently set to: /admin/%s" % blog_data().adminurl
 logger.info("Admin page currently set to: /admin/%s" % blog_data().adminurl)
+
+#Dynamically Generated sitemap.xml 
+#By default simply includes links to all blog posts that are public
+class SiteMap:
+    def GET(self):
+        host = web.ctx.home
+        print web.ctx
+        #1st get all public posts
+        posts = m.Post.all()
+        #generate opening xml
+        urlset = ET.Element("urlset",xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+        #add root
+        url = ET.SubElement(urlset,"url")
+        loc = ET.SubElement(url,"loc")
+        loc.text = "%s/" % host
+        lastmod = ET.SubElement(url,"lastmod")
+        lastmod.text = datetime.datetime.now().strftime("%Y-%m-%d")
+        changefreq = ET.SubElement(url,"changefreq")
+        changefreq.text = "daily"
+        priority = ET.SubElement(url,"priority")
+        priority.text = "0.8"
+        
+        for post in posts:
+            url = ET.SubElement(urlset,"url")
+            loc = ET.SubElement(url,"loc")
+            loc.text = "%s/post?pid=%d" % (host,post.id)
+            lastmod = ET.SubElement(url,"lastmod")
+            lastmod.text = post.updated.strftime("%Y-%m-%d")
+            changefreq = ET.SubElement(url,"changefreq")
+            changefreq.text = "yearly"
+        
+        #ok return xml
+        web.header("Content-Type", "text/xml; charset=utf-8")
+        return ET.tostring(urlset, encoding="utf-8", method="xml")
+        
+        
 
 
 #This is the main Admin handler class. All admin functions are executed through POST's
@@ -187,7 +231,7 @@ class Admin:
                 #show login page
                 return render.fullpageindex("Please Login to Continue",render.login(),"")
         else:
-            images = m.Image.get_all()
+            images = m.Image.get_all(private=True)
             return render.fullpageindex("Logged in as %s" % session.dispname,render.admin(images),render.bottom_admin())
                 
     def POST(self,url):
@@ -265,7 +309,7 @@ class Admin:
                 resl = m.Post.all(evenprivate=True)
                 return render.datatable_posts(resl)
             elif method == "getallimages":
-                images = m.Image.get_all()
+                images = m.Image.get_all(private=True)
                 return render.datatable_images(images)
             elif method == "getcomments":
                 id = data.get("id","-1")
@@ -274,7 +318,7 @@ class Admin:
             elif method == "getsinglepost":
                 id = data.get("id","-1")
                 resl = m.Post.get(m.Post.id==id)
-                images = m.Image.get_all()
+                images = m.Image.get_all(private=True)
                 return render.adminsinglepost(resl,images)
             elif method == "getsingleimage":
                 id = data.get("id","-1")
@@ -409,6 +453,35 @@ class IndexFull:
             
         return render.blogdetail(post,count,comments,next,prev,session.logged_in)
 
+
+class Preview:
+    def POST(self):
+        if session.logged_in == False:
+            logger.info("Attempt to get preview page while not logged in!?")
+            return web.notfound()
+        else:
+            data = web.input(nifile={})
+            (resl,msg) = m.Post.update_from_input(data,session.uid)
+            if resl == None:
+                flash("There was a problem previewing: %s" % msg)
+                return web.seeother(urls[0])
+            
+            post = resl
+            flash("success","Below is a preview of your posting. To save this switch to the other tab and click \"Update Post\"")
+            count,comments = m.Comment.get_comments(post.id,False)
+            #for next and prev links
+            try:
+                next = m.Post.get_next(post.created_at,1).get()
+            except:
+                next = None
+            try:
+                prev = m.Post.get_prev(post.created_at,1).get()
+            except:
+                prev = None
+                
+            return render.blogdetail(post,count,comments,next,prev,session.logged_in)
+            
+            
 class BlogPost:
     def GET(self):
         pid = -1
@@ -419,7 +492,7 @@ class BlogPost:
                 raise Exception
         except:
             flash("error", "Sorry, that post doesn't exist!")
-            return web.seeother("/")
+            return web.seeother(urls[0])
 
         #for next and prev links
         try:
@@ -435,7 +508,9 @@ class BlogPost:
         return render.blogdetail(post,count,comments,next,prev,session.logged_in)
 class About:
     def GET(self):
-        return render.about(m.User.by_id(1))
+        #TODO: Eventually if we support multple users, fix this
+        user = m.User.by_id(1)
+        return render.about(user)
     
 class ContactMe:
     def POST(self):
@@ -471,7 +546,7 @@ class AddComment:
             #failure, return him to homepage with a flash msg
             flash("error","Sorry, you failed the spam test, post not accepted. Turn on javascript.")
             print "New comment SPAM test failed by %s" % ip 
-            return web.seeother(url[0])
+            return web.seeother(urls[0])
         
         postid = websafe(int(data.get("pid","-1")))
         text = websafe(data.get("message",None))
@@ -495,7 +570,7 @@ class AddComment:
             user = m.User.by_id(session.uid)
             author = user.name
             email = user.email
-        c1 = m.Comment.new(postid,parentid,title,author,text,email,session.logged_in,ip)
+        c1 = m.Comment.new(postid,parentid,title,author,text,email,session.logged_in,ip,web.sendmail)
         if c1 != None:
             flash("success","Thanks for joining the discussion!")
         else:

@@ -2,6 +2,5 @@ argparse==1.2.1
 distribute==0.6.24
 peewee==2.1.4
 pep8==1.4.6
-psycopg2==2.5.1
 web.py==0.37
 wsgiref==0.1.2

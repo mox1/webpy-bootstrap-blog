@@ -4,7 +4,7 @@ $def with(post,images)
 	<h4 class="modal-title" id="myModalLabel">Editing Post #$(post.id) - "$(post.title)"</h4>
 </div>
 <div class="modal-body">
-	<form class="form-horizontal" method="post" action="">
+	<form class="form-horizontal" method="post" action="" id="postForm">
 		<input type="hidden" name="method" value="editpost">
 		<input type="hidden" name="upostid" value="$(post.id)">
 		<div class="form-group">
@@ -55,13 +55,13 @@ $def with(post,images)
 			<div class="row">
 			<div class="col-md-12">
 				<label class="control-label" for="uptease">Leading Text / Teaser</label>
-				<textarea class="form-control" id="uptease" name="uptease" style="height: 100px: width: 100%;">$(post.teaser_txt)</textarea>
+				<textarea class="form-control" id="uptease" name="uptease" style="height: 100px; width: 100%;">$(post.teaser_txt)</textarea>
 			</div>	
 			</div>
 			<div class="row">
 			<div class="col-md-12">
 				<label class="control-label" for="uphtml">Blog post/html:</label>
-				<textarea class="form-control" id="uphtml" name="uphtml" style="height: 300px; width:100%;">$(post.html)</textarea>
+				<textarea class="form-control" id="uphtml" name="uphtml" style="height: 300px; width: 100%;">$(post.html)</textarea>
 			</div>
 			</div>
 			<div class="row">
@@ -88,8 +88,13 @@ $def with(post,images)
 								<option value="$(loop.index0)">$o</option>
 					</select>
 			</div>
-			<div class="col-md-2 pull-right">
-				<button id="upsubmit" name="submit" class="btn btn-success btn-lg" style="margin-top: 10px;">
+			<div class="col-md-4 pull-right">
+				<button id="uppreview" class="btn btn-warning btn-lg" style="margin-top: 10px;" 
+				data-original-title="This will open a preview window in a new Tab. You changes ARE NOT SAVED!! Until you click the
+				Update Post button" rel="tooltip">
+					Preview
+				</button>
+				<button id="upsubmit" name="submit" class="btn btn-success btn-lg" style=" margin-left: 20px; margin-top: 10px;">
 					Update Post
 				</button>
 			</div>
@@ -97,3 +102,15 @@ $def with(post,images)
 		</div>
 	</form>
 </div>
+<script type="application/javascript">
+	$$(document).ready(function(){
+		$$('[rel=tooltip]').tooltip();
+		$$('#uppreview').click(function(){
+			console.log("Clicked!");
+			var form=$$('#postForm');
+			form.attr('target',"_blank");
+			form.attr('action',"preview");
+		});
+	});
+</script>
+

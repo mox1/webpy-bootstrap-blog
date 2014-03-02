@@ -1,6 +1,11 @@
 import os
+import sys
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+import config
 import logging
-logger = logging.getLogger("")
+logger = logging.getLogger("blogstrap")
+logger.info("model.py INFO messages enabled!")
+logger.debug("model.py DEBUG messages enabled!")
 import hashlib
 from datetime import datetime
 import traceback
@@ -16,7 +21,7 @@ SelectQuery = pw.SelectQuery
 
 
 #we need these two lines or SQLite will complain about interthread access
-db = SqliteDatabase('peewee.db',threadlocals=True)
+db = SqliteDatabase('%s/peewee.db' % CURRENT_DIR ,threadlocals=True)
 db.connect()
 
 def better_get(self, **kwargs):
@@ -59,6 +64,7 @@ class Image(BaseModel):
     author = pw.CharField(max_length=1024,null=True)
     link = pw.CharField(max_length=4096,null=False)
     license = pw.CharField(max_length=1024,null=False)
+    show = pw.BooleanField(default=True)
     @staticmethod
     def update_from_input(data):
         try:
@@ -88,6 +94,10 @@ class Image(BaseModel):
             author = data["uiauthor"]
             link = data["uilink"]
             license = data["uilic"]
+            if data.get("uishow","false") == "true":
+                show = True
+            else:
+                show = False
         except KeyError,e:
             traceback.print_exc()
             return (None,"Required Field missing: %s" % e.message)
@@ -95,6 +105,7 @@ class Image(BaseModel):
             traceback.print_exc()
             return (None,"Sorry there was an error: %s" % e.message)
         
+        image.show = show
         image.alt = alt
         image.title = title
         image.author = author
@@ -118,6 +129,10 @@ class Image(BaseModel):
             author = data["niauthor"]
             link = data["nilink"]
             license = data["nilic"]
+            if data.get("nishow","false") == "true":
+                show = True
+            else:
+                show = False
         except KeyError,e:
             traceback.print_exc()
             return (None,"Required Field missing: %s" % e.message)
@@ -125,13 +140,15 @@ class Image(BaseModel):
             traceback.print_exc()
             return (None,"Sorry there was an error: %s" % e.message)
         
-        
-        image = Image.create(url=url,alt=alt,title=title,author=author,link=link,license=license)
+        image = Image.create(url=url,alt=alt,title=title,author=author,link=link,license=license,show=show)
         return (image,"Successfully created new image: \"%s\"" % title)
     
     @staticmethod
-    def get_all():
-        return Image.select()
+    def get_all(private=False):
+        if private == False:
+            return Image.select().where(Image.show==True)
+        else:
+            return Image.select()
     
     @staticmethod
     def by_id(id):
@@ -154,6 +171,32 @@ class User(BaseModel):
     remember_token = pw.CharField(max_length=64, null=True)
     #for future use
     sm_links = pw.TextField(null=True)
+    
+    #converts the sm_links string into a dictionary
+    def smlinks_dict(self):
+        if not self.sm_links:
+            return {}
+        out = {}
+        for sml in self.sm_links.split("|"):
+            if not sml or sml == "|":
+                continue
+            sm,name = sml.split(":")
+            print sm,name
+            out[sm] = name
+        return out
+            
+    @staticmethod
+    def format_smlinks(twitter=None,facebook=None,gplus=None,stackoverflow=None):
+        sml = ""
+        if twitter:
+            sml += "|twitter:%s" % twitter
+        if facebook:
+            sml += "|facebook:%s" % facebook
+        if gplus:
+            sml += "|gplus:%s" % gplus
+        if stackoverflow:
+            sml += "|stackoverflow:%s" % stackoverflow
+        return sml
     
     @staticmethod
     def is_setup():
@@ -184,6 +227,8 @@ class User(BaseModel):
             user.email = email
             user.about = about
             user.contact_html = contact_html
+            user.sm_links = User.format_smlinks(twitter=data["twitter"],facebook=data["facebook"],
+                                           gplus=data["gplus"],stackoverflow=data["stackoverflow"])
             user.save()
              
         except KeyError,e:
@@ -302,6 +347,19 @@ class Post(BaseModel):
     moderate = pw.IntegerField(null=False,default=0)
     teaser_txt = pw.TextField(null=False)
         
+        
+    def notify_new_comment(self,ip,title,author,email,text,sendmail):
+        logger.debug("Notifying of new comment: %s - %s - %s" % (ip,author,title))
+        if not sendmail:
+            return
+        msg = "Comment \"%s\" \n" % title
+        msg += "IP: <a href=\"http://www.geoiptool.com/en/?IP=%s\">%s</a>\n" % (ip,ip)
+        msg += "Author: %s <%s>\n" % (author,email)
+        msg += "Comment: \n %s" % text
+        sendmail("blogstrap_new_comment@localhost", self.author.by_id(1).email, 
+                 "New Blog comment for %s" % self.title, msg)
+        
+        
     #data is web.input, mapping is
     # title = data.nptitle
     # title_img = data.nptitleimg
@@ -315,7 +373,7 @@ class Post(BaseModel):
     # favorite = data.npfav
     # public = data.nppriv
     @staticmethod
-    def update_from_input(data,userid):
+    def update_from_input(data,userid,save=True):
         try:
             postid = data["upostid"]
             post = Post.get(Post.id==int(postid))
@@ -358,7 +416,8 @@ class Post(BaseModel):
         post.updated = datetime.now()
         post.moderate = mod
         post.teaser_txt = teaser_txt
-        post.save()
+        if save == True:
+            post.save()
         return (post,"Successfully updated post!")
     
     
@@ -475,9 +534,11 @@ class Post(BaseModel):
     def new(title,tags,author_id,html,image,small_image,cat=None,subcat=None,fav=False,public=True,moderate=0,teaser_txt=""):
         #get user by id
         user = User.by_id(author_id)
+        d = datetime.now()
         p = Post.create(title=title,tags=tags,author=user,html=html,
-                        image=image,small_image=small_image,created_at=datetime.now(),
-                        favorite=fav,category=cat,subcategory=subcat,moderate=moderate,teaser_txt=teaser_txt)
+                        image=image,small_image=small_image,created_at=d,updated=d,
+                        favorite=fav,category=cat,subcategory=subcat,moderate=moderate,
+                        teaser_txt=teaser_txt)
         return p
     
     #every time this is called, a pageview count is updated"
@@ -615,7 +676,8 @@ class Comment(BaseModel):
         return (count,comments)
 
     @staticmethod
-    def new(postid,parentid,title,author,text,email="none@none.net",admin=False,ip=None):
+    #Untrusted inputs! they have been "websafe()d" in app.py..but still be careful
+    def new(postid,parentid,title,author,text,email="none@none.net",admin=False,ip=None,sendmail=None):
         #check for size violations
         if (len(text) > config.MAX_COMMENT) or \
            (len(text) < 1) or \
@@ -639,6 +701,8 @@ class Comment(BaseModel):
             status = 0
         #we need to convert \n into <br>
         text = newline_to_break(text)
+        #send an email to the post owner
+        post.notify_new_comment(ip,title,author,email,text,sendmail)
         #now, actually create and insert comment
         ##see :http://evolt.org/node/4047/ for algorithm
         rank = 0
