@@ -1,9 +1,14 @@
-import dolog
-import logging
-logger = dolog.setup_logging("blogstrap",logdir="logs/",scrnlog=False,loglevel=logging.DEBUG)
 import os
 import sys
+
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+#sys.path.insert(0,os.path.dirname(os.path.realpath(__file__)))
+import dolog
+import logging
+logger = dolog.setup_logging("blogstrap",logdir="%s/logs/" % CURRENT_DIR,scrnlog=False,loglevel=logging.DEBUG)
 import web
+
+
 
 ####USER EDITABLE####
 #disabled by default, set to true to enable
@@ -53,7 +58,7 @@ web.config.smtp_port = SMTP_PORT
 if env == "production":
     web.config.debug = False
     cache = True
-    logging.getLogger("").setLevel(logging.INFO)
+    #logging.getLogger("").setLevel(logging.INFO)
     email_errors.to_address = ERROR_EMAIL_ADDR
 elif env == "staging":
     dac_host = "localhost:8000"
