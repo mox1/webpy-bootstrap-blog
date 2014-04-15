@@ -964,10 +964,10 @@ def save_image(data,update=False):
             return(None,"Invalid image type: %s not allowed!" % f_ext)
         
         #verify file doesn't exist
-        if update == False and os.path.exists("static/upload/%s" % image_name):
+        if update == False and os.path.exists("%s/static/upload/%s" % (CURRENT_DIR,image_name)):
             return (None, "Image %s already exists. Use Edit image." % image_name)
         
-        f_out = open("static/upload/%s" % image_name,'wb')
+        f_out = open("%s/static/upload/%s" % (CURRENT_DIR,image_name),'wb')
         f_out.write(data["nifile"].file.read())
         f_out.close()
     except Exception,e:

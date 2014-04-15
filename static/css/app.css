@@ -26,10 +26,14 @@ aside.comments  .reply6 {
 aside.comments  .replyx {
 	margin-left: 300px;
 }
+aside.comments .admincomment header img {
+    float: left;
+    border-radius: 100px;
+}
 .comment {
 	width: auto;
 	padding: 20px;
-	margin: 20px 10px 20px 0px;
+	margin: 10px 5px 10px 0px;
 	background-color: #F5F5F5;
   	border-radius: 35px;
   	border: 1px solid #49545D;
@@ -37,12 +41,13 @@ aside.comments  .replyx {
 }
 
 .admincomment {
+	width: auto;
 	padding: 20px;
-	margin: 20px 10px 20px 0px;
-	background-color:#A4B6C8;
+	margin: 10px 5px 10px 0px;
+	background-color:#A4B6C8 !important;
   	border-radius: 35px;
   	border: 1px solid #49545D;
-  	font-size: 80%;	
+  	font-size: 90% !important;	
 }
 .makecenter {
 	margin-left: auto;
