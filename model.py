@@ -73,7 +73,7 @@ class Image(BaseModel):
             
             #check if a new image was uploaded
             #if it is, delete old image, save new image, set new url variable
-            print data
+            #print data
             if "nifile" in data and len(data["nifile"].value) > 0:
                 #yes new image, delete old
                 old_file = image.url
@@ -181,7 +181,7 @@ class User(BaseModel):
             if not sml or sml == "|":
                 continue
             sm,name = sml.split(":")
-            print sm,name
+            #print sm,name
             out[sm] = name
         return out
             
@@ -580,7 +580,7 @@ class Comment(BaseModel):
     auth_url = pw.CharField(max_length=2048,null=True)
     ip = pw.CharField(max_length=20,null=True)
     post = pw.ForeignKeyField(Post,null=False)
-    text = pw.TextField(max_length=16656,null=False)
+    text = pw.TextField(null=False)
     email = pw.CharField(max_length=512,null=False,default="none@none.net")
     parent = pw.ForeignKeyField('self',related_name='children',null=True)
     rank = pw.IntegerField(null=False,default=0)

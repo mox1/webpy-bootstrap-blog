@@ -93,7 +93,7 @@ next_cron_run = 0
 def my_processor(handler): 
     global next_cron_run
     if (time.time() > next_cron_run):
-        logger.debug("DOING CRON RUN")
+        #logger.debug("DOING CRON RUN")
         thr = threading.Thread(target=update_db)
         thr.start()
         next_cron_run = time.time() + config.STAT_UPDATES 
@@ -187,7 +187,7 @@ class Robots:
 class SiteMap:
     def GET(self):
         host = web.ctx.home
-        print web.ctx
+        #print web.ctx
         #1st get all public posts
         posts = m.Post.all()
         #generate opening xml
@@ -235,7 +235,7 @@ class Admin:
                 return web.seeother(urls[0])
         elif url != blog_data().adminurl:
             #nope go away, send em to the home page
-            #print "Bad Adminurl (needed %s, got %s)" % (t_globals["blog_data"].adminurl,url)
+            #logger.warn("Bad Adminurl (needed %s, got %s)" % (t_globals["blog_data"].adminurl,url))
             return web.seeother(urls[0])
         
         #ok they found the magic url, good
@@ -255,7 +255,7 @@ class Admin:
         #compare url vs our BlogData valid url
         if url != blog_data().adminurl:
             #nope go away, send em to the home page
-            #print "Bad Adminurl (needed %s, got %s)" % (t_globals["blog_data"].adminurl,url)
+            logger.warn("Bad Adminurl (needed %s, got %s)" % (t_globals["blog_data"].adminurl,url))
             return web.seeother(urls[0])
         
         admin_url = "/admin/%s" % blog_data().adminurl
@@ -561,7 +561,7 @@ class AddComment:
         if (websafe(data.get("email","")) != "n0m0r3sp4m@n0p3.0rg"):
             #failure, return him to homepage with a flash msg
             flash("error","Sorry, you failed the spam test, post not accepted. Turn on javascript.")
-            print "New comment SPAM test failed by %s" % ip 
+            logger.warn("New comment SPAM test failed by %s" % ip) 
             return web.seeother(urls[0])
         
         postid = websafe(int(data.get("pid","-1")))
@@ -624,7 +624,7 @@ def internalerror():
     return web.internalerror(msg)
 
 def notfound():
-    logger.error("404 Not found error has occurred")
+    #logger.error("404 Not found error has occurred")
     #return the homepage with not found
     
     return web.notfound(render.fullpageindex("404 Error Not Found","<p>404 Error: The page you have requested was not found!</p>",""))
