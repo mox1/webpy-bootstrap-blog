@@ -32,10 +32,12 @@ nosetests.xml
 *.mo
 
 # Mr Developer
+config.py
+config2.py
 .mr.developer.cfg
 .project
 .pydevproject
-
+static/img/
 sessions/
 logs/*.log*
 static/upload/

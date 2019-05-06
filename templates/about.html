@@ -53,10 +53,12 @@ $:render('top', "About " + name)
                     
                     <form action="contactme" method="post" accept-charset="utf-8" class="contact-form">
                         <input type="text" name="name" id="contact-name" placeholder="Name" class="form-control input-lg">
-                        <input type="email" name="email" id="contact-email" placeholder="Email" class="form-control input-lg">
-                        <textarea rows="10" name="message" id="contact-body" placeholder="Your thoughts..." class="form-control input-lg"></textarea>
+                        <input type="email" name="cemail" id="contact-email" placeholder="Email" class="form-control input-lg">
+                       <input type="hidden" name="email" id="input-email" value="">
+                        <input type="hidden" name="csrf_token" value="$csrf_token()">
+			<textarea rows="10" name="message" id="contact-body" placeholder="Your thoughts..." class="form-control input-lg"></textarea>
                         <div class="buttons clearfix">
-                            <button type="submit" class="btn btn-xlarge btn-tales-one">Submit</button>
+                            <button type="submit" id="sbmt-btn" class="btn btn-xlarge btn-tales-one">Submit</button>
                         </div>                    
                     </form>
                 </div>

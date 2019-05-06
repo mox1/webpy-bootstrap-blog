@@ -48,9 +48,9 @@ $ bdata = blog_data()
 												<option value="-1">None</option>
 												$for image in images:
 													$if loop.index == 0:
-														<option value="$(image.id)" selected>$:(image.title)</option>
+														<option value="$image["id"])" selected>$:(image["title"])</option>
 													$else:
-														<option value="$(image.id)">$:(image.title)</option>
+														<option value="$(image["id"])">$:(image["title"])</option>
 											</select>
 										</div>
 										<div class="col-md-6">
@@ -59,9 +59,9 @@ $ bdata = blog_data()
 												<option value="-1">None</option>
 												$for image in images:
 													$if loop.index == 0:
-														<option value="$(image.id)" selected>$:(image.title)</option>
+														<option value="$image["id"])" selected>$:(image["title"])</option>
 													$else:
-														<option value="$(image.id)">$:(image.title)</option>
+														<option value="$(image["id"])">$:(image["title"])</option>
 											</select>
 										</div>
 										</div>

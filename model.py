@@ -12,6 +12,7 @@ import traceback
 import peewee as pw
 from playhouse.signals import Model, pre_save
 from peewee import SqliteDatabase
+
 import config
 import operator
 import re
@@ -20,9 +21,27 @@ DoesNotExist = pw.DoesNotExist
 SelectQuery = pw.SelectQuery
 
 
-#we need these two lines or SQLite will complain about interthread access
-db = SqliteDatabase('%s/peewee.db' % CURRENT_DIR ,threadlocals=True)
-db.connect()
+if config.DB_USE_APSW == True:
+    try:
+        from playhouse.apsw_ext import APSWDatabase
+        from playhouse.apsw_ext import BooleanField 
+        from playhouse.apsw_ext import DateField 
+        from playhouse.apsw_ext import TimeField 
+        from playhouse.apsw_ext import DateTimeField 
+        from playhouse.apsw_ext import DecimalField 
+    except Exception:
+        print "FATAL ERROR: Cannot import SQLite Apsw driver is apsw installed?"
+        logger.error("FATAL ERROR: Cannot import SQLite Apsw driver is apsw installed?",exc_info=True)
+    db = APSWDatabase('%s/%s' % (CURRENT_DIR,config.DB_NAME),timeout=10000)
+
+else:
+    from peewee import BooleanField
+    from peewee import DateField   
+    from peewee import TimeField    
+    from peewee import DateTimeField
+    from peewee import DecimalField
+    db = SqliteDatabase('%s/%s' % (CURRENT_DIR,config.DB_NAME) ,threadlocals=True)
+
 
 def better_get(self, **kwargs):
     if kwargs:
@@ -46,7 +65,7 @@ class AttrDict(dict):
         self.__dict__ = self
 
 class BaseModel(Model):
-    created_at = pw.DateTimeField(default="now()",null=False)
+    created_at = DateTimeField(default="now()",null=False)
     id = pw.PrimaryKeyField()
     
     class Meta:
@@ -64,7 +83,7 @@ class Image(BaseModel):
     author = pw.CharField(max_length=1024,null=True)
     link = pw.CharField(max_length=4096,null=False)
     license = pw.CharField(max_length=1024,null=False)
-    show = pw.BooleanField(default=True)
+    show = BooleanField(default=True)
     @staticmethod
     def update_from_input(data):
         try:
@@ -146,9 +165,10 @@ class Image(BaseModel):
     @staticmethod
     def get_all(private=False):
         if private == False:
-            return Image.select().where(Image.show==True)
+            resl = Image.select().where(Image.show==True).dicts().execute()
         else:
-            return Image.select()
+            resl = Image.select().dicts().execute()
+        return resl
     
     @staticmethod
     def by_id(id):
@@ -327,18 +347,18 @@ class User(BaseModel):
 
 class Post(BaseModel):
     image = pw.ForeignKeyField(Image,null=True)
-    small_image = pw.ForeignKeyField(Image,related_name="small_image")
+    small_image = pw.ForeignKeyField(Image,related_name="small_image",null=True)
     title = pw.CharField(max_length=200, null=False)
     #comma separated list of "tags"
     tags = pw.TextField(null=True)
     author = pw.ForeignKeyField(User)
-    updated = pw.DateTimeField(null=True)
+    updated = DateTimeField(null=True)
     category = pw.CharField(max_length=256,null=True)
     subcategory = pw.CharField(max_length=256,null=True)
     html = pw.TextField(null=False)
     prev_html = pw.TextField(null=True)
-    favorite = pw.BooleanField(default=False)
-    public = pw.BooleanField(default=True)
+    favorite = BooleanField(default=False)
+    public = BooleanField(default=True)
     views = pw.IntegerField(null=False,default=0)
     #Post moderation options for comments
     #0 = no moderation (all comments allowed)
@@ -585,7 +605,7 @@ class Comment(BaseModel):
     parent = pw.ForeignKeyField('self',related_name='children',null=True)
     rank = pw.IntegerField(null=False,default=0)
     indent = pw.IntegerField(null=False,default=0)
-    from_admin = pw.BooleanField(null=False,default=False)
+    from_admin = BooleanField(null=False,default=False)
     #0 = displayed 
     #1-4 Future use?
     #5 = in moderation Q

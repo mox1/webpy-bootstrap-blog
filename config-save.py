@@ -1,14 +1,8 @@
+import logging
+logger = logging.getLogger("")
 import os
 import sys
-
-CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-#sys.path.insert(0,os.path.dirname(os.path.realpath(__file__)))
-import dolog
-import logging
-logger = dolog.setup_logging("blogstrap",logdir="%s/logs/" % CURRENT_DIR,scrnlog=False,loglevel=logging.DEBUG)
 import web
-
-
 
 ####USER EDITABLE####
 #disabled by default, set to true to enable
@@ -20,15 +14,16 @@ SMTP_PORT = 25
 TIME_FORMAT = "%a, %d %b %Y" # %H:%M:%S
 #double %% required
 LONG_TIME_FORMAT = "%%A, %%b %s %%Y"
-#The Database limit for this field is 16656, values larger than that will error out.
 MAX_COMMENT = 4096
 #how often to update stats (in seconds)
-STAT_UPDATES = 60 * 60 #every hour by default
+STAT_UPDATES = 60 * 60
 ####END USER EDITABLE####
 
 valid_upload_ext = [".png",".jpg",".jpeg",".gif",".ico"]
 
 logging.info("emailing errors to %s using server: %s:%s" % (ERROR_EMAIL_ADDR,SMTP_SERVER,SMTP_PORT))
+
+
 
 
 ####DEVLOPMENT / ADVANCED CONFIG#####
@@ -58,7 +53,7 @@ web.config.smtp_port = SMTP_PORT
 if env == "production":
     web.config.debug = False
     cache = True
-    #logging.getLogger("").setLevel(logging.INFO)
+    logging.getLogger("").setLevel(logging.INFO)
     email_errors.to_address = ERROR_EMAIL_ADDR
 elif env == "staging":
     dac_host = "localhost:8000"

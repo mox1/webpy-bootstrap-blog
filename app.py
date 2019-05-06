@@ -50,6 +50,20 @@ urls = (
 
 app = web.application(urls, globals())
 
+def my_loadhook():
+    #logger.debug("Connecting to db")
+    try:
+        m.db.connect()
+    except Exception:
+        pass
+
+def my_unloadhook():
+    #logger.debug("Closing db")
+    m.db.close()
+
+app.add_processor(web.loadhook(my_loadhook))
+app.add_processor(web.unloadhook(my_unloadhook))
+
 sinit = {
         "flash"     : defaultdict(list),
         "logged_in" : False,
@@ -125,7 +139,7 @@ def csrf_protected(f):
     def decorated(*args,**kwargs):
         inp = web.input()
         if not (inp.has_key('csrf_token') and inp.csrf_token==session.pop('csrf_token',None)):
-            logger.debug("CSRF Detected!!!: ip=%s" % web.ctx.ip )
+            logger.error("CSRF Detected!!!: ip=%s" % web.ctx.ip )
             raise web.HTTPError(
                 "400 Bad request",
                 {'content-type':'text/html'},
@@ -529,11 +543,17 @@ class About:
         return render.about(user)
     
 class ContactMe:
+    @csrf_protected # Verify this is not CSRF, or fail
     def POST(self):
         data = web.input()
         try:
-            web.sendmail(websafe(data.email), m.User.by_id(1).email, "Blog About Page Contact from: %s" % websafe(data.name), websafe(data.message))
-            flash("error","Thanks for Contacting me!")
+            if (websafe(data.get("email","")) != "n0m0r3sp4m@n0p3.0rg"):
+                #failure, return him to homepage with a flash msg
+                flash("error","Sorry, you failed the spam test, post not accepted. Turn on javascript.")
+                return web.seeother(urls[0])
+            else:
+                web.sendmail(websafe(data.cemail), m.User.by_id(1).email, "Blog About Page Contact from: %s" % websafe(data.name), websafe(data.message))
+                flash("success","Thanks for Contacting me!")
         except Exception,e:
             flash("error","Sorry, there was a problem, message not sent")
 

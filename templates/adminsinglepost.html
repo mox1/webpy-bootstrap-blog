@@ -20,10 +20,10 @@ $def with(post,images)
 				<select id="upimgsel" name="upimgsel" class="form-control input-md">
 					<option value="-1">None</option>
 					$for image in images:
-						$if image.id == post.image.id:
-							<option value="$(image.id)" selected>$:(image.title)</option>
+						$if (post.image is not None) and (image["id"] == post.image.id):
+							<option value="$(image["id"])" selected>$:(image["title"])</option>
 						$else:
-							<option value="$(image.id)">$:(image.title)</option>
+							<option value="$(image["id"])">$:(image["title"])</option>
 				</select>
 			</div>
 			<div class="col-md-6">
@@ -31,10 +31,10 @@ $def with(post,images)
 				<select id="upimgsmsel" name="upimgsmsel" class="form-control input-md">
 					<option value="-1">None</option>
 					$for image in images:
-						$if image.id == post.small_image.id:
-							<option value="$(image.id)" selected>$:(image.title)</option>
+						$if (post.image is not None) and (image["id"] == post.small_image.id):
+							<option value="$(image["id"])" selected>$:(image["title"])</option>
 						$else:
-							<option value="$(image.id)">$:(image.title)</option>
+							<option value="$(image["id"])">$:(image["title"])</option>
 				</select>
 			</div>
 			</div>
